@@ -1,6 +1,7 @@
 import { CHAINS } from '@lido-sdk/constants';
 import getConfig from 'next/config';
 import { useEffect, useMemo, useState } from 'react';
+import { useAccount } from 'shared/hooks';
 
 export const useECSanityCheck = () => {
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
@@ -9,7 +10,7 @@ export const useECSanityCheck = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { publicRuntimeConfig } = getConfig();
 
-  const chainId = publicRuntimeConfig.defaultChain;
+  const { chainId } = useAccount();
 
   const contractTx = useMemo(
     () => ({
