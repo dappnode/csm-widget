@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import useDappnodeUrls from './use-dappnode-urls';
 import { useActiveNodeOperator } from 'providers/node-operator-provider';
+import { fetchWithRetry } from 'dappnode/utils/fetchWithRetry';
 
 const useGetExitRequests = () => {
   const { backendUrl } = useDappnodeUrls();
@@ -20,15 +21,12 @@ const useGetExitRequests = () => {
   const getExitRequests = async () => {
     try {
       console.debug(`GETting validators exit requests from indexer API`);
-      const response = await fetch(
-        `${backendUrl}/api/v0/events_indexer/exit_requests?operatorId=${nodeOperator?.id}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
+      const url = `${backendUrl}/api/v0/events_indexer/exit_requests?operatorId=${nodeOperator?.id}`;
+      const options = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      };
+      const response = await fetchWithRetry(url, options, 5000);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

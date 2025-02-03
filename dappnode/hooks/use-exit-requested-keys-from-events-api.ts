@@ -4,6 +4,7 @@ import { useNodeOperatorId } from 'providers/node-operator-provider';
 import { useCallback } from 'react';
 import { useAccount } from 'shared/hooks';
 import useDappnodeUrls from './use-dappnode-urls';
+import { fetchWithRetry } from 'dappnode/utils/fetchWithRetry';
 
 interface ExitRequest {
   event: {
@@ -49,7 +50,7 @@ export const useExitRequestedKeysFromEvents = () => {
         headers: { 'Content-Type': 'application/json' },
       };
 
-      const response = await fetch(url, options);
+      const response = await fetchWithRetry(url, options, 5000);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
