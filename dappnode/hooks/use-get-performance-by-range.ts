@@ -4,8 +4,7 @@ import { Range, ValidatorStats } from '../performance/types';
 import { useAccount } from 'shared/hooks';
 
 export const useGetPerformanceByRange = (range: Range) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const { operatorData } = useGetOperatorPerformance();
+  const { operatorData, isLoading } = useGetOperatorPerformance();
   const [operatorDataByRange, setOperatorDataByRange] = useState<
     Record<string, any>
   >({});
@@ -27,7 +26,6 @@ export const useGetPerformanceByRange = (range: Range) => {
   useEffect(() => {
     if (!operatorData) return;
 
-    setIsLoading(true);
     const sortedKeys = Object.keys(operatorData).sort((a, b) => {
       const [startA] = a.split('-').map(Number);
       const [startB] = b.split('-').map(Number);
@@ -167,10 +165,6 @@ export const useGetPerformanceByRange = (range: Range) => {
     const result = getValidatorStats(statsPerValidator);
     setValidatorsStats(result);
   }, [operatorDataByRange]);
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, [validatorsStats]);
 
   return {
     isLoading,
