@@ -1,4 +1,5 @@
 import { CHAINS } from '@lido-sdk/constants';
+import getConfig from 'next/config';
 import { useAccount } from 'shared/hooks';
 
 interface DappnodeUrls {
@@ -20,6 +21,7 @@ interface DappnodeUrls {
 
 const useDappnodeUrls = () => {
   const { chainId } = useAccount();
+  const { publicRuntimeConfig } = getConfig();
 
   const urlsByChain: Partial<Record<CHAINS, DappnodeUrls>> = {
     [CHAINS.Mainnet]: {
@@ -30,7 +32,9 @@ const useDappnodeUrls = () => {
       sentinelUrl: 'https://t.me/CSMSentinel_bot',
       stakersUiUrl: 'http://my.dappnode/stakers/ethereum',
       backendUrl: 'http://lido-events.lido-csm-mainnet.dappnode:8080',
-      ECApiUrl: 'http://execution.mainnet.dncore.dappnode:8545',
+      ECApiUrl:
+        publicRuntimeConfig.rpcUrls_1 ||
+        'http://execution.mainnet.dncore.dappnode:8545',
       CCVersionApiUrl: '/api/consensus-version-mainnet',
       CCStatusApiUrl: '/api/consensus-status-mainnet',
       keysStatusUrl: '/api/keys-status-mainnet',
@@ -48,7 +52,9 @@ const useDappnodeUrls = () => {
       sentinelUrl: 'https://t.me/CSMSentinelHolesky_bot',
       stakersUiUrl: 'http://my.dappnode/stakers/holesky',
       backendUrl: 'http://lido-events.lido-csm-holesky.dappnode:8080',
-      ECApiUrl: 'http://execution.holesky.dncore.dappnode:8545',
+      ECApiUrl:
+        publicRuntimeConfig.rpcUrls_17000 ||
+        'http://execution.holesky.dncore.dappnode:8545',
       CCVersionApiUrl: '/api/consensus-version-holesky',
       CCStatusApiUrl: '/api/consensus-status-holesky',
       keysStatusUrl: '/api/keys-status-holesky',
