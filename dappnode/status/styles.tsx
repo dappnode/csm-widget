@@ -60,6 +60,11 @@ export const WarningCard = styled(StackStyle).attrs<{ $hasWarning?: boolean }>(
     $hasWarning
       ? 'color-mix(in srgb, var(--lido-color-error) 15%, transparent)'
       : 'var(--lido-color-backgroundSecondary)'};
+
+  button {
+    border: none;
+    background: none;
+  }
 `;
 
 export const NumWarningsLabel = styled.span`
