@@ -6,6 +6,7 @@ import { fetchWithRetry } from 'dappnode/utils/fetchWithRetry';
 const useGetExitRequests = () => {
   const { backendUrl } = useDappnodeUrls();
   const [exitRequests, setExitRequests] = useState<ExitRequests>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const nodeOperator = useActiveNodeOperator();
 
@@ -20,6 +21,7 @@ const useGetExitRequests = () => {
 
   const getExitRequests = async () => {
     try {
+      setIsLoading(true);
       console.debug(`GETting validators exit requests from indexer API`);
       const url = `${backendUrl}/api/v0/events_indexer/exit_requests?operatorId=${nodeOperator?.id}`;
       const options = {
@@ -44,14 +46,16 @@ const useGetExitRequests = () => {
       );
 
       setExitRequests(filteredData);
+      setIsLoading(false);
     } catch (e) {
       console.error(
         `Error GETting validators exit requests from indexer API: ${e}`,
       );
+      setIsLoading(false);
     }
   };
 
-  return { exitRequests, getExitRequests };
+  return { exitRequests, getExitRequests, isLoading };
 };
 
 export default useGetExitRequests;
