@@ -93,8 +93,7 @@ export const Warnings: FC = () => {
   return (
     <Stack direction="column" gap="sm">
       <WarningWrapper
-        isLoading={isECLoading || isCCLoading || keysLoading || relaysLoading}
-        showIf
+        showIf={!isECLoading && !isCCLoading && !keysLoading && !relaysLoading}
       >
         <WarningCard $hasWarning={numWarnings > 0}>
           <div>
@@ -132,7 +131,7 @@ export const Warnings: FC = () => {
         </WarningCard>{' '}
       </WarningWrapper>
 
-      <WarningWrapper isLoading={keysLoading} showIf>
+      <WarningWrapper showIf>
         <Stack direction="column" gap="sm">
           <WarningWrapper showIf={missingKeys.length > 0 && !errorBrain}>
             <WarningCard $direction="column">
