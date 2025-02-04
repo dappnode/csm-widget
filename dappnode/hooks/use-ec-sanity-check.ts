@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from 'react';
 import useDappnodeUrls from './use-dappnode-urls';
 
 export const useECSanityCheck = () => {
-  const [isInstalled, setIsInstalled] = useState<boolean>(false);
-  const [isSynced, setIsSynced] = useState<boolean>(false);
-  const [hasLogs, setHasLogs] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isInstalled, setIsInstalled] = useState<boolean>(true); // Use default true to avoid frontend flickering with IsInstalled component
+  const [isSynced, setIsSynced] = useState<boolean>(true); // Use default true to avoid frontend flickering with IsSynced component
+  const [hasLogs, setHasLogs] = useState<boolean>(true); // Use default true to avoid frontend flickering with HasLogs component
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { ECApiUrl } = useDappnodeUrls();
   const { publicRuntimeConfig } = getConfig();
 
