@@ -1,6 +1,5 @@
 import { CHAINS } from '@lido-sdk/constants';
 import getConfig from 'next/config';
-import { useAccount } from 'shared/hooks';
 
 interface DappnodeUrls {
   brainUrl: string;
@@ -20,7 +19,7 @@ interface DappnodeUrls {
 }
 
 const useDappnodeUrls = () => {
-  const { chainId } = useAccount();
+  // Rely on runtime config to get the chainId and avoid nullish values when wallet is not connected from chainId
   const { publicRuntimeConfig } = getConfig();
 
   const urlsByChain: Partial<Record<CHAINS, DappnodeUrls>> = {
@@ -66,23 +65,39 @@ const useDappnodeUrls = () => {
     },
   };
 
-  const brainUrl = urlsByChain[chainId as CHAINS]?.brainUrl || '';
-  const brainKeysUrl = urlsByChain[chainId as CHAINS]?.brainKeysUrl || '';
+  const brainUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.brainUrl || '';
+  const brainKeysUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.brainKeysUrl || '';
   const brainLaunchpadUrl =
-    urlsByChain[chainId as CHAINS]?.brainLaunchpadUrl || '';
-  const signerUrl = urlsByChain[chainId as CHAINS]?.signerUrl || '';
-  const sentinelUrl = urlsByChain[chainId as CHAINS]?.sentinelUrl || '';
-  const stakersUiUrl = urlsByChain[chainId as CHAINS]?.stakersUiUrl || '';
-  const backendUrl = urlsByChain[chainId as CHAINS]?.backendUrl || '';
-  const ECApiUrl = urlsByChain[chainId as CHAINS]?.ECApiUrl || '';
-  const CCVersionApiUrl = urlsByChain[chainId as CHAINS]?.CCVersionApiUrl || '';
-  const CCStatusApiUrl = urlsByChain[chainId as CHAINS]?.CCStatusApiUrl || '';
-  const keysStatusUrl = urlsByChain[chainId as CHAINS]?.keysStatusUrl || '';
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]
+      ?.brainLaunchpadUrl || '';
+  const signerUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.signerUrl || '';
+  const sentinelUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.sentinelUrl || '';
+  const stakersUiUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.stakersUiUrl || '';
+  const backendUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.backendUrl || '';
+  const ECApiUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.ECApiUrl || '';
+  const CCVersionApiUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.CCVersionApiUrl ||
+    '';
+  const CCStatusApiUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.CCStatusApiUrl ||
+    '';
+  const keysStatusUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.keysStatusUrl ||
+    '';
   const installerTabUrl = (isMainnet: boolean) =>
     urlsByChain[isMainnet ? 1 : 17000]?.installerTabUrl;
-  const MEVApiUrl = urlsByChain[chainId as CHAINS]?.MEVApiUrl || '';
+  const MEVApiUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.MEVApiUrl || '';
   const MEVPackageConfig =
-    urlsByChain[chainId as CHAINS]?.MEVPackageConfig || '';
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.MEVPackageConfig ||
+    '';
 
   return {
     brainUrl,

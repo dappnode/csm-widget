@@ -1,16 +1,15 @@
 import { CHAINS } from '@lido-sdk/constants';
 import getConfig from 'next/config';
 import { useEffect, useMemo, useState } from 'react';
-import { useAccount } from 'shared/hooks';
+import useDappnodeUrls from './use-dappnode-urls';
 
 export const useECSanityCheck = () => {
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
   const [isSynced, setIsSynced] = useState<boolean>(false);
   const [hasLogs, setHasLogs] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { ECApiUrl } = useDappnodeUrls();
   const { publicRuntimeConfig } = getConfig();
-
-  const { chainId } = useAccount();
 
   const contractTx = useMemo(
     () => ({
@@ -20,16 +19,11 @@ export const useECSanityCheck = () => {
     [],
   );
 
-  const rpcUrl =
-    chainId == 1
-      ? publicRuntimeConfig.rpcUrls_1
-      : publicRuntimeConfig.rpcUrls_17000;
-
   useEffect(() => {
     const getSyncStatus = async () => {
       try {
         setIsLoading(true);
-        const syncResponse = await fetch(`${rpcUrl}`, {
+        const syncResponse = await fetch(`${ECApiUrl}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -42,7 +36,7 @@ export const useECSanityCheck = () => {
           }),
         });
         if (!syncResponse.ok) {
-          chainId;
+          publicRuntimeConfig.defaultChain;
           throw new Error(`HTTP error! Status: ${syncResponse.status}`);
         }
 
@@ -59,14 +53,14 @@ export const useECSanityCheck = () => {
     };
 
     void getSyncStatus();
-  }, [chainId, rpcUrl]);
+  });
 
   useEffect(() => {
     const getTxStatus = async () => {
       try {
         setIsLoading(true);
 
-        const txResponse = await fetch(`${rpcUrl}`, {
+        const txResponse = await fetch(`${ECApiUrl}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -74,7 +68,11 @@ export const useECSanityCheck = () => {
           body: JSON.stringify({
             jsonrpc: '2.0',
             method: 'eth_getTransactionReceipt',
-            params: [contractTx[chainId as keyof typeof contractTx]],
+            params: [
+              contractTx[
+                publicRuntimeConfig.defaultChain as keyof typeof contractTx
+              ],
+            ],
             id: 0,
           }),
         });
@@ -94,7 +92,7 @@ export const useECSanityCheck = () => {
     };
 
     void getTxStatus();
-  }, [chainId, contractTx, isSynced, rpcUrl]);
+  }, [ECApiUrl, contractTx, isSynced, publicRuntimeConfig.defaultChain]);
 
   return { isSynced, isInstalled, hasLogs, isLoading };
 };

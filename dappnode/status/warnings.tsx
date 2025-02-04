@@ -38,7 +38,7 @@ export const Warnings: FC = () => {
   const [numWarnings, setNumWarnings] = useState(0);
   useEffect(() => {
     void getExitRequests();
-  }, [getExitRequests]);
+  });
 
   useEffect(() => {
     if (exitRequests) {

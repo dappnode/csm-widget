@@ -37,7 +37,7 @@ const useApiBrain = (interval = 60000) => {
     }, interval);
 
     return () => clearInterval(intervalId);
-  }, [fetchPubkeys, interval]);
+  });
 
   return { pubkeys, isLoading, error };
 };
