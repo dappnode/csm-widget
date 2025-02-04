@@ -20,7 +20,11 @@ import { useGetInfraStatus } from 'dappnode/hooks/use-get-infra-status';
 export const Warnings: FC = () => {
   const { brainUrl, stakersUiUrl, MEVPackageConfig } = useDappnodeUrls();
   const { missingKeys, keysLoading, error: errorBrain } = useMissingKeys();
-  const { exitRequests, getExitRequests } = useGetExitRequests();
+  const {
+    exitRequests,
+    getExitRequests,
+    isLoading: exitsLoading,
+  } = useGetExitRequests();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const { ECStatus, CCStatus, isCCLoading, isECLoading } = useGetInfraStatus();
   const {
@@ -93,14 +97,19 @@ export const Warnings: FC = () => {
   return (
     <Stack direction="column" gap="sm">
       <WarningWrapper
-        isLoading={isECLoading || isCCLoading || keysLoading || relaysLoading}
-        showIf
+        showIf={
+          !isECLoading &&
+          !isCCLoading &&
+          !keysLoading &&
+          !relaysLoading &&
+          !exitsLoading
+        }
       >
         <WarningCard $hasWarning={numWarnings > 0}>
           <div>
             {numWarnings > 0 ? (
               <h3>
-                You have <NumWarningsLabel>{numWarnings}</NumWarningsLabel>{' '}
+                You have <NumWarningsLabel>{numWarnings}</NumWarningsLabel>
                 warning/s
               </h3>
             ) : (
@@ -129,68 +138,65 @@ export const Warnings: FC = () => {
           <h3>Your Consensus Client is not installed!</h3>
           <p>Please, select and sync a client from the Stakers tab.</p>
           <Link href={stakersUiUrl}> Set Consensus Client</Link>
-        </WarningCard>{' '}
+        </WarningCard>
       </WarningWrapper>
 
-      <WarningWrapper isLoading={keysLoading} showIf>
-        <Stack direction="column" gap="sm">
-          <WarningWrapper showIf={missingKeys.length > 0 && !errorBrain}>
-            <WarningCard $direction="column">
-              <h3>
-                {' '}
-                <NumWarningsLabel>{missingKeys.length}</NumWarningsLabel> keys
-                are not imported in Web3Signer
-              </h3>
-              {missingKeys.map((key) => (
-                <AddressRow key={key}>
-                  <Address address={key} symbols={16} />
-                  <BeaconchainPubkeyLink pubkey={key} />
-                </AddressRow>
-              ))}
-              <button onClick={() => setIsImportModalOpen(true)}>
-                <Link href={undefined}> Import keys</Link>
-              </button>
-
-              <ImportKeysWarningModal
-                isOpen={isImportModalOpen}
-                setIsOpen={setIsImportModalOpen}
-              />
-            </WarningCard>
-          </WarningWrapper>
-        </Stack>
-
-        <WarningWrapper showIf={!!errorBrain}>
+      <Stack direction="column" gap="sm">
+        <WarningWrapper showIf={missingKeys.length > 0 && !errorBrain}>
           <WarningCard $direction="column">
-            <h3>Your Brain API is not Up!</h3>
-            <p>Please, if Web3Signer is already installed, re-install it</p>
-            <Link href={stakersUiUrl}> Set Web3Signer</Link>
-          </WarningCard>
-        </WarningWrapper>
+            <h3>
+              <NumWarningsLabel>{missingKeys.length}</NumWarningsLabel> keys are
+              not imported in Web3Signer
+            </h3>
+            {missingKeys.map((key) => (
+              <AddressRow key={key}>
+                <Address address={key} symbols={16} />
+                <BeaconchainPubkeyLink pubkey={key} />
+              </AddressRow>
+            ))}
+            <button onClick={() => setIsImportModalOpen(true)}>
+              <Link href={undefined}> Import keys</Link>
+            </button>
 
-        <WarningWrapper showIf={validatorsExitRequests.length > 0}>
-          <WarningCard>
-            <ValidatorMapStack $direction="column">
-              <Tooltip
-                placement="top"
-                title="At least one of your validators has been requested by Lido to exit"
-              >
-                <h3>
-                  <NumWarningsLabel>
-                    {validatorsExitRequests.length}
-                  </NumWarningsLabel>{' '}
-                  Validator/s requested to exit
-                </h3>
-              </Tooltip>
-              {validatorsExitRequests.map((val) => (
-                <AddressRow key={val.pubkey}>
-                  <p>{val.index}</p>
-                  <BeaconchainPubkeyLink pubkey={val.pubkey} />
-                </AddressRow>
-              ))}
-              <Link href={brainUrl}>Exit validators</Link>
-            </ValidatorMapStack>
+            <ImportKeysWarningModal
+              isOpen={isImportModalOpen}
+              setIsOpen={setIsImportModalOpen}
+            />
           </WarningCard>
         </WarningWrapper>
+      </Stack>
+
+      <WarningWrapper showIf={!!errorBrain}>
+        <WarningCard $direction="column">
+          <h3>Your Brain API is not Up!</h3>
+          <p>Please, if Web3Signer is already installed, re-install it</p>
+          <Link href={stakersUiUrl}> Set Web3Signer</Link>
+        </WarningCard>
+      </WarningWrapper>
+
+      <WarningWrapper showIf={validatorsExitRequests.length > 0}>
+        <WarningCard>
+          <ValidatorMapStack $direction="column">
+            <Tooltip
+              placement="top"
+              title="At least one of your validators has been requested by Lido to exit"
+            >
+              <h3>
+                <NumWarningsLabel>
+                  {validatorsExitRequests.length}
+                </NumWarningsLabel>
+                Validator/s requested to exit
+              </h3>
+            </Tooltip>
+            {validatorsExitRequests.map((val) => (
+              <AddressRow key={val.pubkey}>
+                <p>{val.index}</p>
+                <BeaconchainPubkeyLink pubkey={val.pubkey} />
+              </AddressRow>
+            ))}
+            <Link href={brainUrl}>Exit validators</Link>
+          </ValidatorMapStack>
+        </WarningCard>
       </WarningWrapper>
 
       <WarningWrapper isLoading={relaysLoading} showIf>
