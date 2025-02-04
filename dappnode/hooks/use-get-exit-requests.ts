@@ -6,7 +6,7 @@ import { fetchWithRetry } from 'dappnode/utils/fetchWithRetry';
 const useGetExitRequests = () => {
   const { backendUrl } = useDappnodeUrls();
   const [exitRequests, setExitRequests] = useState<ExitRequests>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const nodeOperator = useActiveNodeOperator();
 
