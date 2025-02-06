@@ -21,7 +21,7 @@ export const SummaryTablePage: FC = () => {
   return (
     <Layout
       title="Dappnode Validators"
-      subtitle="Monitor the performance of your Lido validators running in your Dappnode"
+      subtitle="Monitor the performance of your Node Operator validators"
     >
       <PerformanceCardsSection />
       <RangeSelector
