@@ -41,7 +41,8 @@ const routes: Route[] = [
     path: PATH.KEYS,
     icon: <KeyIcon />,
     subPaths: [PATH.KEYS_SUBMIT, PATH.KEYS_REMOVE, PATH.KEYS_VIEW, PATH.CREATE],
-    showRules: ['IS_NODE_OPERATOR', 'CAN_CREATE'],
+    //DAPPNODE: remove 'CAN_CREATE' from showRules,
+    showRules: ['IS_NODE_OPERATOR'],
     suffix: <CounterInvalidKeys />,
   },
   {
