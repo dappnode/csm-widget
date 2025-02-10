@@ -11,7 +11,7 @@ import { RangeSelector } from './components/range-selector';
 import { PerformanceCardsSection } from './performance-cards-section';
 import { getConfig } from 'config';
 
-export const SummaryTablePage: FC = () => {
+export const PerformancePage: FC = () => {
   const { chainId } = useAccount();
   const { defaultChain } = getConfig();
   const [range, setRange] = useState<Range>('ever');
