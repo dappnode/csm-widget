@@ -109,8 +109,8 @@ const Step2: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
   const { error: brainError, isLoading: brainLoading } = useApiBrain();
   const { isMEVRunning, isLoading: relaysLoading } = useGetRelaysData();
 
-  const isECSynced: boolean = ECStatus === 'Synced';
-  const isCCSynced: boolean = CCStatus === 'Synced';
+  const isECSynced: boolean = ECStatus === 'SYNCED';
+  const isCCSynced: boolean = CCStatus === 'SYNCED';
 
   const isSignerInstalled: boolean = brainError ? false : true;
 

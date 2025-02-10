@@ -42,7 +42,7 @@ export const Warnings: FC = () => {
   const [numWarnings, setNumWarnings] = useState(0);
   useEffect(() => {
     void getExitRequests();
-  });
+  }, [getExitRequests]);
 
   useEffect(() => {
     if (exitRequests) {
@@ -62,8 +62,8 @@ export const Warnings: FC = () => {
     setNumWarnings(
       validatorsExitRequests.length +
         (errorBrain ? 1 : missingKeys.length) +
-        (ECStatus === 'Not installed' ? 1 : 0) +
-        (CCStatus === 'Not installed' ? 1 : 0) +
+        (ECStatus === 'NOT_INSTALLED' ? 1 : 0) +
+        (CCStatus === 'NOT_INSTALLED' ? 1 : 0) +
         (isMEVRunning ? 0 : 1) +
         (isMEVRunning && mandatoryRelays && !hasMandatoryRelay ? 1 : 0) +
         (isMEVRunning && usedBlacklistedRelays.length > 0 ? 1 : 0),
@@ -121,7 +121,7 @@ export const Warnings: FC = () => {
 
       <WarningWrapper
         isLoading={isECLoading}
-        showIf={ECStatus === 'Not installed'}
+        showIf={ECStatus === 'NOT_INSTALLED'}
       >
         <WarningCard $direction="column">
           <h3>Your Execution Client is not installed!</h3>
@@ -132,7 +132,7 @@ export const Warnings: FC = () => {
 
       <WarningWrapper
         isLoading={isCCLoading}
-        showIf={ECStatus === 'Not installed'}
+        showIf={ECStatus === 'NOT_INSTALLED'}
       >
         <WarningCard $direction="column">
           <h3>Your Consensus Client is not installed!</h3>

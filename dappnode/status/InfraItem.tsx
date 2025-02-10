@@ -2,14 +2,14 @@ import { FC } from 'react';
 import { TitleStyled, ItemStyled, SubtitleStyled } from './styles';
 import { Loader, Tooltip } from '@lidofinance/lido-ui';
 import { StatusChip } from 'shared/components';
-import { InfraStatus } from './types';
 import { LoaderWrapperStyle } from 'shared/navigate/splash/loader-banner/styles';
+import { INFRA_STATUS } from './types';
 
 export type InfraItemProps = {
   title: string;
   subtitle: string;
   tooltip?: string;
-  status: InfraStatus;
+  status: INFRA_STATUS;
   isLoading: boolean;
 };
 

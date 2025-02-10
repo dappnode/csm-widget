@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import useDappnodeUrls from './use-dappnode-urls';
-import { InfraStatus } from 'dappnode/status/types';
+import { INFRA_STATUS } from 'dappnode/status/types';
 
 export const useGetInfraStatus = () => {
   const { ECApiUrl, CCStatusApiUrl, CCVersionApiUrl } = useDappnodeUrls();
-  const [ECStatus, setECStatus] = useState<InfraStatus>();
-  const [CCStatus, setCCStatus] = useState<InfraStatus>();
+  const [ECStatus, setECStatus] = useState<INFRA_STATUS>();
+  const [CCStatus, setCCStatus] = useState<INFRA_STATUS>();
 
   const [ECName, setECName] = useState<string>();
   const [CCName, setCCName] = useState<string>();
@@ -41,11 +41,11 @@ export const useGetInfraStatus = () => {
         }
 
         const data = await syncResponse.json();
-        setCCStatus(data.data.is_syncing ? 'Syncing' : 'Synced');
+        setCCStatus(data.data.is_syncing ? 'SYNCING' : 'SYNCED');
         setIsCCLoading(false);
       } catch (e) {
         console.error(`Error getting CC data: ${e}`);
-        setCCStatus('Not installed');
+        setCCStatus('NOT_INSTALLED');
         setIsCCLoading(false);
       }
     };
@@ -90,11 +90,11 @@ export const useGetInfraStatus = () => {
         }
 
         const syncData = await syncResponse.json();
-        setECStatus(syncData.result ? 'Syncing' : 'Synced');
+        setECStatus(syncData.result ? 'SYNCING' : 'SYNCED');
         setIsECLoading(false);
       } catch (e) {
         console.error(`Error getting EC data: ${e}`);
-        setECStatus('Not installed');
+        setECStatus('NOT_INSTALLED');
         setIsECLoading(false);
       }
     };
