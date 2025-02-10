@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import useDappnodeUrls from './use-dappnode-urls';
 import { useActiveNodeOperator } from 'providers/node-operator-provider';
 import { fetchWithRetry } from 'dappnode/utils/fetchWithRetry';
@@ -19,7 +19,7 @@ const useGetExitRequests = () => {
   }
   type ExitRequests = Record<string, ExitRequest>;
 
-  const getExitRequests = async () => {
+  const getExitRequests = useCallback(async () => {
     try {
       setIsLoading(true);
       console.debug(`GETting validators exit requests from indexer API`);
@@ -53,7 +53,7 @@ const useGetExitRequests = () => {
       );
       setIsLoading(false);
     }
-  };
+  }, [backendUrl, nodeOperator]);
 
   return { exitRequests, getExitRequests, isLoading };
 };

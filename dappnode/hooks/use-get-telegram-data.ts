@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import useDappnodeUrls from './use-dappnode-urls';
 
 const useGetTelegramData = () => {
@@ -7,7 +7,7 @@ const useGetTelegramData = () => {
   const [botToken, setBotToken] = useState();
   const [isLoading, setIsLoading] = useState(false);
 
-  const getTelegramData = async () => {
+  const getTelegramData = useCallback(async () => {
     setIsLoading(true);
     try {
       console.debug(`GETting telegram data from events indexer API`);
@@ -35,7 +35,7 @@ const useGetTelegramData = () => {
       );
       setIsLoading(false);
     }
-  };
+  }, [backendUrl]);
 
   return { telegramId, botToken, getTelegramData, isLoading };
 };

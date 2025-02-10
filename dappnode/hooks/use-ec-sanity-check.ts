@@ -53,7 +53,7 @@ export const useECSanityCheck = () => {
     };
 
     void getSyncStatus();
-  });
+  }, [ECApiUrl, publicRuntimeConfig.defaultChain]);
 
   useEffect(() => {
     const getTxStatus = async () => {
