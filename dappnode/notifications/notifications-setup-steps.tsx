@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import styled from 'styled-components';
+import { Link } from '@lidofinance/lido-ui';
 
 export const StepsList = styled.ol`
   display: flex;
@@ -29,8 +30,21 @@ export const NotificationsSteps: FC = () => {
     <>
       <StepsWrapper>
         <StepsList>
-          <li>Get Telegram user Id</li>
-          <li>Create and get a Telegram Bot token</li>
+          <li>
+            Get Telegram user Id (
+            <Link href="https://web.telegram.org/a/#52504489">
+              @userinfobot
+            </Link>{' '}
+            or{' '}
+            <Link href="https://web.telegram.org/a/#1533228735">
+              @raw_data_bot
+            </Link>
+            )
+          </li>
+          <li>
+            Create and get a Telegram Bot token (
+            <Link href="https://web.telegram.org/a/#93372553">@BotFather</Link>)
+          </li>
           <li>Start the chat with your bot</li>
         </StepsList>
       </StepsWrapper>

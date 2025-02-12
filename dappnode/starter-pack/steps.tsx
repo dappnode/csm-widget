@@ -20,7 +20,6 @@ import { InputTelegram } from 'dappnode/notifications/input-tg';
 import { dappnodeLidoDocsUrls } from 'dappnode/utils/dappnode-docs-urls';
 import isTelegramUserID from 'dappnode/utils/is-tg-user-id';
 import isTelegramBotToken from 'dappnode/utils/is-tg-bot-token';
-import { useChainId } from 'wagmi';
 import usePostTelegramData from 'dappnode/hooks/use-post-telegram-data';
 import useApiBrain from 'dappnode/hooks/use-brain-keystore-api';
 import { useGetInfraStatus } from 'dappnode/hooks/use-get-infra-status';
@@ -31,6 +30,10 @@ import { LoaderWrapperStyle } from 'shared/navigate/splash/loader-banner/styles'
 import { NotificationsSteps } from 'dappnode/notifications/notifications-setup-steps';
 import { CHAINS } from '@lido-sdk/constants';
 import useGetRelaysData from 'dappnode/hooks/use-get-relays-data';
+import getConfig from 'next/config';
+import { StatusTitle } from 'shared/components/status-chip/status-chip';
+
+const { publicRuntimeConfig } = getConfig();
 
 export const Steps: FC = () => {
   const StepsTitles: Record<number, string> = {
@@ -81,8 +84,8 @@ const Step1: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => (
         <li>
           {' '}
           <p>
-            2 Holesky ETH (stETH / wstETH equivalent) is required for the first
-            validator{' '}
+            2 {publicRuntimeConfig.defaultChain === 17000 && 'Holesky'} ETH
+            (stETH / wstETH equivalent) is required for the first validator{' '}
           </p>
         </li>
       </ul>
@@ -121,13 +124,13 @@ const Step2: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
 
   const { stakersUiUrl: stakersUrl } = useDappnodeUrls();
 
-  const chainId = useChainId();
   return (
     <>
       <Step stepNum={step.toString()} title={title}>
         <p>
           In order to be a Node Operator you must have a synced{' '}
-          {CHAINS[chainId]} Node and run MEV Boost.
+          {CHAINS[publicRuntimeConfig.defaultChain as CHAINS]} Node and run MEV
+          Boost.
         </p>
         <Step2InfraRow>
           <p>Execution Client</p>
@@ -139,7 +142,7 @@ const Step2: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
               </LoaderWrapperStyle>
             ) : (
               <InfraInstalledLabel $isInstalled={isECSynced}>
-                {ECStatus}
+                {StatusTitle[ECStatus || 'NOT_INSTALLED']}
               </InfraInstalledLabel>
             )}
           </p>
@@ -155,7 +158,7 @@ const Step2: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
               </LoaderWrapperStyle>
             ) : (
               <InfraInstalledLabel $isInstalled={isCCSynced}>
-                {CCStatus}
+                {StatusTitle[CCStatus || 'NOT_INSTALLED']}
               </InfraInstalledLabel>
             )}
           </p>
@@ -194,7 +197,9 @@ const Step2: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
           (!isCCSynced && (
             <div>
               <ErrorWrapper>
-                You must have a synced {CHAINS[chainId]} Node and run MEV Boost.
+                You must have a synced{' '}
+                {publicRuntimeConfig.defaultChain as CHAINS} Node and run MEV
+                Boost.
               </ErrorWrapper>
             </div>
           ))}
@@ -373,10 +378,9 @@ const Step3: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
   );
 };
 const Step4: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
-  const chainId = useChainId() as keyof typeof CONSTANTS_BY_NETWORK;
-
   const withdrawalByAddres =
-    CONSTANTS_BY_NETWORK[chainId]?.withdrawalCredentials;
+    CONSTANTS_BY_NETWORK[publicRuntimeConfig.defaultChain as CHAINS]
+      ?.withdrawalCredentials;
 
   const handleClick = useCallback(() => {
     trackMatomoEvent(MATOMO_CLICK_EVENTS_TYPES.starterPackCreateNodeOperator);
@@ -416,7 +420,7 @@ const Step4: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
         </Button>
 
         <NextLink href={PATH.CREATE} passHref legacyBehavior>
-          <Button onClick={handleClick}>Create Node Operator</Button>
+          <Button onClick={handleClick}>Next</Button>
         </NextLink>
       </ButtonsRow>
     </>
