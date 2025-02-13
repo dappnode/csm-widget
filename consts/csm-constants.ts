@@ -23,6 +23,7 @@ type CsmConstants = {
   retentionPeriodMins: number;
   lidoFeeRecipient: Address; // DAPPNODE
   reportTimestamp: number; // DAPPNODE, the timestamp from an epoch where a report was distributed
+  slotsPerFrame: number;
 };
 
 export const CONSTANTS_BY_NETWORK: Partial<Record<CHAINS, CsmConstants>> = {
@@ -43,6 +44,7 @@ export const CONSTANTS_BY_NETWORK: Partial<Record<CHAINS, CsmConstants>> = {
     retentionPeriodMins: 80_640, // 8 weeks
     lidoFeeRecipient: '0x388C818CA8B9251b393131C08a736A67ccB19297', // DAPPNODE
     reportTimestamp: 1732282199, // DAPPNODE, epoch 326714
+    slotsPerFrame: 32 * 225 * 28, // 28 days
   },
   [CHAINS.Holesky]: {
     contracts: {
@@ -61,6 +63,7 @@ export const CONSTANTS_BY_NETWORK: Partial<Record<CHAINS, CsmConstants>> = {
     retentionPeriodMins: 80_640, // 8 weeks
     lidoFeeRecipient: '0xE73a3602b99f1f913e72F8bdcBC235e206794Ac8', // DAPPNODE
     reportTimestamp: 1734371136, // DAPPNODE, epoch 100179
+    slotsPerFrame: 32 * 225 * 7, // 7 days
   },
 };
 
