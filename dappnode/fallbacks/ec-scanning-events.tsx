@@ -3,6 +3,8 @@ import { Layout } from 'shared/layout';
 import { WelcomeSection } from './welcome-section-component';
 import { WarningWrapper } from 'dappnode/components/text-wrappers';
 import { LoaderBanner } from 'shared/navigate/splash/loader-banner';
+import { Link } from '@lidofinance/lido-ui';
+import { dappnodeLidoDocsUrls } from 'dappnode/utils/dappnode-docs-urls';
 
 export const ECScanningPage: FC = () => {
   return (
@@ -15,6 +17,12 @@ export const ECScanningPage: FC = () => {
         <p>
           The first login may take a few minutes, depending on your execution
           client.
+        </p>
+        <p>
+          Learn how to reduce the waiting time in{' '}
+          <Link href={dappnodeLidoDocsUrls.changeRPC}>
+            in our Documentation
+          </Link>
         </p>
         <LoaderBanner />
       </WelcomeSection>
