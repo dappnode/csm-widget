@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant';
 import { useSDK } from '@lido-sdk/react';
 
 import { CHAINS } from 'consts/chains';
-import { API_ROUTES } from 'consts/api';
+//import { API_ROUTES } from 'consts/api';
 
 // Don't use absolute import here!
 // code'''
@@ -15,8 +15,23 @@ import { config } from '../get-config';
 import { useUserConfig } from '../user-config';
 
 export const getBackendApiPath = (chainId: string | number): string => {
-  const BASE_URL = typeof window === 'undefined' ? '' : window.location.origin;
-  return `${BASE_URL}/${API_ROUTES.CL}/${chainId}`;
+  // const BASE_URL = typeof window === 'undefined' ? '' : window.location.origin;
+  // return `${BASE_URL}/${API_ROUTES.CL}/${chainId}`;
+
+  // DAPPNODE
+  if (typeof chainId === 'string') {
+    if (parseInt(chainId) === CHAINS.Mainnet) {
+      return 'http://beacon-chain.mainnet.dncore.dappnode:3500';
+    } else {
+      return 'http://beacon-chain.holesky.dncore.dappnode:3500';
+    }
+  } else {
+    if (chainId === CHAINS.Mainnet) {
+      return 'http://beacon-chain.mainnet.dncore.dappnode:3500';
+    } else {
+      return 'http://beacon-chain.holesky.dncore.dappnode:3500';
+    }
+  }
 };
 
 export const useGetClApiUrlByChainId = () => {
