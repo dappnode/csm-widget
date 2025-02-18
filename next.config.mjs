@@ -233,7 +233,8 @@ export default withBundleAnalyzer({
 
     oneInchApiKey: process.env.ONE_INCH_API_KEY,
 
-    cspTrustedHosts: process.env.CSP_TRUSTED_HOSTS,
+    // DAPPNODE
+    cspTrustedHosts: 'https://*.lido.fi,http://*.dappnode',
     cspReportUri: process.env.CSP_REPORT_URI,
     cspReportOnly: process.env.CSP_REPORT_ONLY,
 
