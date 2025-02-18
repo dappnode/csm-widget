@@ -1,8 +1,10 @@
 import { CHAINS } from 'consts/chains';
 import { config } from 'config';
 
-export const CSM_MAINNET_LINK = 'https://csm.lido.fi/';
-export const CSM_TESTNET_LINK = 'https://csm.testnet.fi/';
+export const CSM_MAINNET_LINK =
+  'http://my.dappnode/installer/dnp/lido-csm-mainnet.dnp.dappnode.eth'; // DAPPNODE
+export const CSM_TESTNET_LINK =
+  'http://my.dappnode/installer/dnp/lido-csm-holesky.dnp.dappnode.eth'; // DAPPNODE
 
 export const HOW_TO_EXIT_VALIDATOR_LINK =
   'https://dvt-homestaker.stakesaurus.com/bonded-validators-setup/lido-csm/exiting-csm-validators';
@@ -57,7 +59,7 @@ export const EXTERNAL_LINKS_BY_NETWORK: Record<CHAINS, ExternalLinksConstants> =
       ratedExplorer: 'https://explorer.rated.network',
       ethseerDashboard: 'https://ethseer.io',
       subscribeEvents: 'https://docs.lido.fi/staking-modules/csm/guides/events',
-      keysApi: 'https://keys-api.lido.fi',
+      keysApi: 'http://lido-events.lido-csm-mainnet.dappnode:8081', // DAPPNODE
       surveyApi: 'https://csm-surveys-api-mainnet.up.railway.app',
     },
     [CHAINS.Holesky]: {
@@ -78,7 +80,7 @@ export const EXTERNAL_LINKS_BY_NETWORK: Record<CHAINS, ExternalLinksConstants> =
       beaconchainDashboard: 'https://v2-beta-holesky.beaconcha.in/dashboard',
       ratedExplorer: 'https://explorer.rated.network',
       subscribeEvents: 'https://docs.lido.fi/staking-modules/csm/guides/events',
-      keysApi: 'https://keys-api-holesky.testnet.fi',
+      keysApi: 'http://lido-events.lido-csm-holesky.dappnode:8081', // DAPPNODE
       surveyApi: '',
     },
     // FIXME: links
@@ -96,7 +98,7 @@ export const EXTERNAL_LINKS_BY_NETWORK: Record<CHAINS, ExternalLinksConstants> =
       beaconchainDashboard: '',
       ratedExplorer: 'https://explorer.rated.network',
       subscribeEvents: 'https://docs.lido.fi/staking-modules/csm/guides/events',
-      keysApi: 'http://hr6vb81d1ndsx-hoodi-keys-api.valset-01.testnet.fi',
+      keysApi: 'http://lido-events.lido-csm-hoodi.dappnode:8081', // DAPPNODE
       surveyApi: 'https://csm-surveys-api-testnet.up.railway.app',
     },
   };

@@ -6,12 +6,18 @@ import { ExternalSection } from './external';
 import { getConfig } from 'config';
 import { CHAINS } from 'consts/chains';
 import { SurveysCta } from './surveys-cta';
+import { StatusSection } from 'dappnode/status/status-section';
+import { NotificationsModal } from 'dappnode/notifications/notifications-modal';
 
 const { defaultChain } = getConfig();
 
 export const Dashboard: FC = () => {
   return (
     <>
+      {/* DAPPNODE */}
+      <StatusSection />
+      <NotificationsModal />
+
       <SurveysCta />
       <KeysSection />
       <BondSection />
