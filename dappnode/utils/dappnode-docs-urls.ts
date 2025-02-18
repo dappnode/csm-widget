@@ -9,4 +9,5 @@ export const dappnodeLidoDocsUrls = {
     baseUrl + 'already-node-operator#3-configuring-telegram-notifications',
   notificationsNewOperator: baseUrl + 'register/#5-setup-notifications',
   pendingHashes: baseUrl + 'performance',
+  changeRPC: baseUrl + 'overview#execution-client-rpc',
 };
