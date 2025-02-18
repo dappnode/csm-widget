@@ -185,11 +185,6 @@ export default withBundleAnalyzer({
         // Apply these headers to all routes in your application.
         source: '/(.*)',
         headers: [
-          // DAPPNODE
-          {
-            key: "Content-Security-Policy",
-            value: `connect-src 'self' https: wss: http: http://execution.holesky.dncore.dappnode:8545 http://execution.mainnet.dncore.dappnode:8545 http://lido-events.lido-csm-holesky.dappnode:8080 http://lido-events.lido-csm-mainnet.dappnode:8080 http://brain.web3signer-holesky.dappnode http://brain.web3signer.dappnode;`,
-          },
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
