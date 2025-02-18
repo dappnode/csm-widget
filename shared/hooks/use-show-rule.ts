@@ -1,4 +1,5 @@
 import { getExternalLinks } from 'consts/external-links';
+import { useECSanityCheck } from 'dappnode/hooks/use-ec-sanity-check';
 import { useNodeOperatorContext } from 'providers/node-operator-provider';
 import { useCallback } from 'react';
 import {
@@ -19,7 +20,12 @@ export type ShowRule =
   | 'HAS_LOCKED_BOND'
   | 'CAN_CREATE'
   | 'EL_STEALING_REPORTER'
-  | 'IS_SURVEYS_ACTIVE';
+  | 'IS_SURVEYS_ACTIVE'
+  // DAPPNODE
+  | 'IS_EXECUTION_LOADING'
+  | 'IS_EXECUTION_INSTALLED'
+  | 'IS_EXECUTION_SYNCED'
+  | 'EXECUTION_HAS_LOGS';
 
 const { surveyApi } = getExternalLinks();
 
@@ -30,6 +36,9 @@ export const useShowRule = () => {
   const { data: isReportingRole } = useIsReportStealingRole();
   const { data: lockedBond } = useNodeOperatorLockAmount(nodeOperator?.id);
   const canCreateNO = useCanCreateNodeOperator();
+
+  // DAPPNODE
+  const { isInstalled, isSynced, hasLogs } = useECSanityCheck();
 
   return useCallback(
     (condition: ShowRule): boolean => {
@@ -54,6 +63,13 @@ export const useShowRule = () => {
           return !!isReportingRole;
         case 'IS_SURVEYS_ACTIVE':
           return !!nodeOperator && !!surveyApi;
+        // DAPPNODE
+        case 'IS_EXECUTION_INSTALLED':
+          return isInstalled;
+        case 'IS_EXECUTION_SYNCED':
+          return isSynced;
+        case 'EXECUTION_HAS_LOGS':
+          return hasLogs;
         default:
           return false;
       }
@@ -65,6 +81,9 @@ export const useShowRule = () => {
       invites?.length,
       lockedBond,
       isReportingRole,
+      isInstalled,
+      isSynced,
+      hasLogs,
     ],
   );
 };
