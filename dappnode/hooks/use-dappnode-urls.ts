@@ -10,6 +10,7 @@ interface DappnodeUrls {
   stakersUiUrl: string;
   backendUrl: string;
   ECApiUrl: string;
+  CCApiUrl: string;
   CCVersionApiUrl: string;
   CCStatusApiUrl: string;
   keysStatusUrl: string;
@@ -34,6 +35,7 @@ const useDappnodeUrls = () => {
       ECApiUrl:
         publicRuntimeConfig.rpcUrls_1 ||
         'http://execution.mainnet.dncore.dappnode:8545',
+      CCApiUrl: 'http://beacon-chain.mainnet.dncore.dappnode:3500',
       CCVersionApiUrl: '/api/consensus-version-mainnet',
       CCStatusApiUrl: '/api/consensus-status-mainnet',
       keysStatusUrl: '/api/keys-status-mainnet',
@@ -54,6 +56,7 @@ const useDappnodeUrls = () => {
       ECApiUrl:
         publicRuntimeConfig.rpcUrls_17000 ||
         'http://execution.holesky.dncore.dappnode:8545',
+      CCApiUrl: 'http://beacon-chain.holesky.dncore.dappnode:3500',
       CCVersionApiUrl: '/api/consensus-version-holesky',
       CCStatusApiUrl: '/api/consensus-status-holesky',
       keysStatusUrl: '/api/keys-status-holesky',
@@ -82,6 +85,8 @@ const useDappnodeUrls = () => {
     urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.backendUrl || '';
   const ECApiUrl =
     urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.ECApiUrl || '';
+  const CCApiUrl =
+    urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.CCApiUrl || '';
   const CCVersionApiUrl =
     urlsByChain[publicRuntimeConfig.defaultChain as CHAINS]?.CCVersionApiUrl ||
     '';
@@ -108,6 +113,7 @@ const useDappnodeUrls = () => {
     stakersUiUrl,
     backendUrl,
     ECApiUrl,
+    CCApiUrl,
     CCVersionApiUrl,
     CCStatusApiUrl,
     keysStatusUrl,
