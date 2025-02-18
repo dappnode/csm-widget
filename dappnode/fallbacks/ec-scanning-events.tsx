@@ -19,10 +19,10 @@ export const ECScanningPage: FC = () => {
           client.
         </p>
         <p>
-          Learn how to reduce the waiting time in{' '}
-          <Link href={dappnodeLidoDocsUrls.changeRPC}>
-            in our Documentation
-          </Link>
+          If you want to reduce the waiting time, use a central RPC node (e.g.,
+          Infura). <br />
+          Learn more in our{' '}
+          <Link href={dappnodeLidoDocsUrls.changeRPC}>Documentation</Link>.
         </p>
         <LoaderBanner />
       </WelcomeSection>
