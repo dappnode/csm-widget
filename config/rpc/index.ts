@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant';
 import { useSDK } from '@lido-sdk/react';
 
 import { CHAINS } from 'consts/chains';
-import { API_ROUTES } from 'consts/api';
+//import { API_ROUTES } from 'consts/api';
 
 // Don't use absolute import here!
 // code'''
@@ -15,8 +15,31 @@ import { config } from '../get-config';
 import { useUserConfig } from '../user-config';
 
 export const getBackendRPCPath = (chainId: string | number): string => {
-  const BASE_URL = typeof window === 'undefined' ? '' : window.location.origin;
-  return `${BASE_URL}/${API_ROUTES.RPC}?chainId=${chainId}`;
+  // const BASE_URL = typeof window === 'undefined' ? '' : window.location.origin;
+  // return `${BASE_URL}/${API_ROUTES.RPC}?chainId=${chainId}`;
+
+  // DAPPNODE
+  if (typeof chainId === 'string') {
+    if (parseInt(chainId) === CHAINS.Mainnet) {
+      return (
+        config.rpcUrls_17000 || 'http://execution.mainnet.dncore.dappnode:8545'
+      );
+    } else {
+      return (
+        config.rpcUrls_1 || 'http://execution.holesky.dncore.dappnode:8545'
+      );
+    }
+  } else {
+    if (chainId === CHAINS.Mainnet) {
+      return (
+        config.rpcUrls_17000 || 'http://execution.mainnet.dncore.dappnode:8545'
+      );
+    } else {
+      return (
+        config.rpcUrls_1 || 'http://execution.holesky.dncore.dappnode:8545'
+      );
+    }
+  }
 };
 
 export const useGetRpcUrlByChainId = () => {
