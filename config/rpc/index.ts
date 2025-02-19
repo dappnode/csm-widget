@@ -22,21 +22,21 @@ export const getBackendRPCPath = (chainId: string | number): string => {
   if (typeof chainId === 'string') {
     if (parseInt(chainId) === CHAINS.Mainnet) {
       return (
-        config.rpcUrls_17000 || 'http://execution.mainnet.dncore.dappnode:8545'
+        config.rpcUrls_1 || 'http://execution.mainnet.dncore.dappnode:8545'
       );
     } else {
       return (
-        config.rpcUrls_1 || 'http://execution.holesky.dncore.dappnode:8545'
+        config.rpcUrls_17000 || 'http://execution.holesky.dncore.dappnode:8545'
       );
     }
   } else {
     if (chainId === CHAINS.Mainnet) {
       return (
-        config.rpcUrls_17000 || 'http://execution.mainnet.dncore.dappnode:8545'
+        config.rpcUrls_1 || 'http://execution.mainnet.dncore.dappnode:8545'
       );
     } else {
       return (
-        config.rpcUrls_1 || 'http://execution.holesky.dncore.dappnode:8545'
+        config.rpcUrls_17000 || 'http://execution.holesky.dncore.dappnode:8545'
       );
     }
   }
