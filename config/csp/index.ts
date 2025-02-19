@@ -37,7 +37,7 @@ export const contentSecurityPolicy: ContentSecurityPolicyOption = {
     connectSrc: [
       "'self'",
       'https:',
-      'http:',
+      'http:', // DAPPNODE
       'wss:',
       ...(config.developmentMode ? ['ws:'] : []), // for HMR
     ],
