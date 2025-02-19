@@ -76,13 +76,17 @@ export const useGetPerformanceByRange = (range: Range) => {
       Object.entries(thresholdsData)
         .map(([_, value]) => {
           const endFrame = value.frame[1].toString();
-          const lidoThreshold = value.threshold * 100; // Convert to percentage
+          const lidoThreshold = (value.threshold * 100).toFixed(4); // Convert to percentage with max 4 decimals
 
           const validatorRatios = Object.entries(value.data.validators).reduce(
             (acc, [validatorId, validatorData]) => {
               const validatorPerf = (validatorData as any).perf;
-              acc[validatorId] =
-                (validatorPerf.included / validatorPerf.assigned) * 100; // Convert to percentage
+              acc[validatorId] = parseFloat(
+                (
+                  (validatorPerf.included / validatorPerf.assigned) *
+                  100
+                ).toFixed(4),
+              ); // Convert to percentage with max 4 decimals
               return acc;
             },
             {} as Record<string, number>,
