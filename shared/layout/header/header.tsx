@@ -7,7 +7,7 @@ import HeaderChain from './components/header-chain';
 import HeaderEaMember from './components/header-ea-member';
 import HeaderNodeOperator from './components/header-node-operator';
 import { HeaderSettingsButton } from './components/header-settings-button';
-import HeaderTheme from './components/header-theme';
+// import HeaderTheme from './components/header-theme';
 import HeaderWallet from './components/header-wallet';
 import { Navigation } from './components/navigation/navigation';
 import { HeaderActionsStyle, HeaderContentStyle, HeaderStyle } from './styles';
@@ -23,7 +23,7 @@ export const Header: FC = () => (
         <HeaderNodeOperator />
         <HeaderWallet />
         {config.ipfsMode && <HeaderSettingsButton />}
-        <HeaderTheme />
+        {/* <HeaderTheme /> // DAPPNODE*/}
       </HeaderActionsStyle>
     </HeaderContentStyle>
     <AlertContainer />

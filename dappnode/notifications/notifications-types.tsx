@@ -7,7 +7,7 @@ const avaliableNotifications = {
     {
       title: 'Validator requires exit 🚨',
       value:
-        'Your validator is automatically requested to exit due to certain conditions.',
+        'One of your validators has been requested to exit. It will be done automatically',
     },
     {
       title: 'Validator failed to exit, manual exit required 🚪',

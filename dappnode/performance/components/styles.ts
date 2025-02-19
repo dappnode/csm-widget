@@ -129,7 +129,10 @@ export const Dropdown = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
 
-  div {
+  button {
+    all: unset;
+    display: block;
+    width: 100%;
     padding: 8px 16px;
     cursor: pointer;
     &:hover {
