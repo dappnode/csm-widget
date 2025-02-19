@@ -14,4 +14,5 @@ const Page = () => (
 
 export default Page;
 
-export const getStaticProps = getProps(getFaqPerformance);
+// It must be getServerSideProps instead of getStaticProps because we need to check the maintenance status on every request.
+export const getServerSideProps = getProps(getFaqPerformance);
