@@ -9,6 +9,8 @@ import { useMergeSwr } from './useMergeSwr';
 import { useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import { Zero } from '@ethersproject/constants';
+import { fetchWithRetry } from 'dappnode/utils/fetchWithRetry'; // DAPPNODE
+import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls'; // DAPPNODE
 
 const SECONDS_PER_SLOT = 12;
 
@@ -143,21 +145,60 @@ export const useLastOperatorRewards = () => {
   );
 };
 
+// DAPPNODE
+interface Event {
+  RefSlot: number;
+  Hash: number[];
+  Raw: {
+    address: string;
+    topics: string[];
+    data: string;
+    blockNumber: string;
+    transactionHash: string;
+    transactionIndex: string;
+    blockHash: string;
+    logIndex: string;
+    removed: boolean;
+  };
+}
+
 export const useLastRewrdsTx = (config = STRATEGY_CONSTANT) => {
-  const feeOracle = useCSFeeOracleRPC();
-  const { deploymentBlockNumber } = getCsmConstants();
+  // DAPPNODE
+  // const feeOracle = useCSFeeOracleRPC();
+  // const { deploymentBlockNumber } = getCsmConstants();
+  const { backendUrl } = useDappnodeUrls();
 
   return useLidoSWR(
     ['fee-oracle-report-tx'],
     async () => {
-      const events = await feeOracle.queryFilter(
-        feeOracle.filters.ProcessingStarted(),
-        deploymentBlockNumber,
-      );
+      // Original code
+      // const events = await feeOracle.queryFilter(
+      //   feeOracle.filters.ProcessingStarted(),
+      //   deploymentBlockNumber,
+      // );
+      // const txs = events
+      //   .sort((a, b) => a.blockNumber - b.blockNumber)
+      //   .map((event) => {
+      //     return event.transactionHash;
+      //   });
+
+      const url = `${backendUrl}/api/v0/events_indexer/processing_started`;
+      const options = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      };
+      const response = await fetchWithRetry(url, options, 5000);
+      if (!response.ok) {
+        throw new Error('Failed to fetch processing started events');
+      }
+      const events: Event[] = await response.json();
       const txs = events
-        .sort((a, b) => a.blockNumber - b.blockNumber)
+        .sort(
+          (a, b) =>
+            parseInt(a.Raw.blockNumber, 16) - parseInt(b.Raw.blockNumber, 16),
+        )
         .map((event) => {
-          return event.transactionHash;
+          return event.Raw.transactionHash;
         });
       return txs[txs.length - 1];
     },
