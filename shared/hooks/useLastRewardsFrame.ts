@@ -143,6 +143,7 @@ export const useLastOperatorRewards = () => {
   );
 };
 
+// DAPPNODE: Replaced by 'dappnode/hooks/useLastRewardsFrame-api'
 export const useLastRewrdsTx = (config = STRATEGY_CONSTANT) => {
   const feeOracle = useCSFeeOracleRPC();
   const { deploymentBlockNumber } = getCsmConstants();
