@@ -23,7 +23,6 @@ import {
   getPrevRewardsFrame,
   useLastOperatorRewards,
   useLastRewardsSlot,
-  useLastRewrdsTx,
   useNodeOperatorInfo,
 } from 'shared/hooks';
 import { formatDate, formatPercent } from 'utils';
@@ -36,6 +35,7 @@ import {
   RowHeader,
   RowTitle,
 } from './styles';
+import { useLastRewrdsTx } from 'dappnode/hooks/useLastRewardsFrame-api'; // DAPPNODE
 
 export const LastRewards: FC = () => {
   const { data: lastRewards, initialLoading: isLoading } =
