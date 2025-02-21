@@ -19,7 +19,6 @@ import {
 import { FaqElement } from 'shared/components/faq/styles';
 import {
   useLastOperatorRewards,
-  useLastRewrdsTx,
   useNodeOperatorInfo,
   useRewardsFrame,
   useSharesToSteth,
@@ -34,6 +33,7 @@ import {
   RowHeader,
   RowTitle,
 } from './styles';
+import { useLastRewrdsTx } from 'dappnode/hooks/useLastRewardsFrame-api'; // DAPPNODE
 
 export const LastRewards: FC = () => {
   const { data: lastRewards, initialLoading: isLoading } =
