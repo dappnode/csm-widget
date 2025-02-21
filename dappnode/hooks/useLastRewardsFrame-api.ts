@@ -1,9 +1,8 @@
 import { useLidoSWR } from '@lido-sdk/react';
 import { STRATEGY_CONSTANT } from 'consts/swr-strategies';
-import { fetchWithRetry } from 'dappnode/utils/fetchWithRetry'; // DAPPNODE
-import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls'; // DAPPNODE
+import { fetchWithRetry } from 'dappnode/utils/fetchWithRetry';
+import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls';
 
-// DAPPNODE
 interface Event {
   RefSlot: number;
   Hash: number[];
