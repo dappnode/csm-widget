@@ -198,8 +198,8 @@ const Step2: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
             <div>
               <ErrorWrapper>
                 You must have a synced{' '}
-                {publicRuntimeConfig.defaultChain as CHAINS} Node and run MEV
-                Boost.
+                {CHAINS[publicRuntimeConfig.defaultChain as CHAINS]} Node and
+                run MEV Boost.
               </ErrorWrapper>
             </div>
           ))}
@@ -395,7 +395,8 @@ const Step4: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
 
         <p>
           Set <b>{withdrawalByAddres}</b> as the withdrawal address while
-          generating the keystores. This is the Lido Withdrawal Vault on Holesky{' '}
+          generating the keystores. This is the Lido Withdrawal Vault on{' '}
+          {CHAINS[publicRuntimeConfig.defaultChain as CHAINS]}
         </p>
         <p>
           Prepare your deposit data (.json file) for submitting your keys in the
