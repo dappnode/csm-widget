@@ -1,4 +1,5 @@
 import { useECSanityCheck } from 'dappnode/hooks/use-ec-sanity-check';
+import { getExternalLinks } from 'consts/external-links';
 import { useNodeOperatorContext } from 'providers/node-operator-provider';
 import { useCallback } from 'react';
 import {
@@ -19,12 +20,14 @@ export type ShowRule =
   | 'HAS_LOCKED_BOND'
   | 'CAN_CREATE'
   | 'EL_STEALING_REPORTER'
-
+  | 'IS_SURVEYS_ACTIVE'
   // DAPPNODE
   | 'IS_EXECUTION_LOADING'
   | 'IS_EXECUTION_INSTALLED'
   | 'IS_EXECUTION_SYNCED'
   | 'EXECUTION_HAS_LOGS';
+
+const { surveyApi } = getExternalLinks();
 
 export const useShowRule = () => {
   const { active: isConnectedWallet } = useAccount();
@@ -66,6 +69,8 @@ export const useShowRule = () => {
           return isSynced;
         case 'EXECUTION_HAS_LOGS':
           return hasLogs;
+        case 'IS_SURVEYS_ACTIVE':
+          return !!nodeOperator && !!surveyApi;
         default:
           return false;
       }

@@ -35,6 +35,7 @@ type ExternalLinksConstants = {
   ethseerDashboard?: string;
   subscribeEvents: string;
   keysApi: string;
+  surveyApi: string;
 };
 
 export const EXTERNAL_LINKS_BY_NETWORK: Partial<
@@ -60,6 +61,7 @@ export const EXTERNAL_LINKS_BY_NETWORK: Partial<
     ethseerDashboard: 'https://ethseer.io',
     subscribeEvents: 'https://docs.lido.fi/staking-modules/csm/guides/events',
     keysApi: 'http://lido-events.lido-csm-mainnet.dappnode:8081', // DAPPNODE
+    surveyApi: 'https://csm-surveys-api-mainnet.up.railway.app',
   },
   [CHAINS.Holesky]: {
     earlyAdoptionTree:
@@ -80,6 +82,7 @@ export const EXTERNAL_LINKS_BY_NETWORK: Partial<
     ratedExplorer: 'https://explorer.rated.network',
     subscribeEvents: 'https://docs.lido.fi/staking-modules/csm/guides/events',
     keysApi: 'http://lido-events.lido-csm-holesky.dappnode:8081', // DAPPNODE
+    surveyApi: 'https://csm-surveys-api-testnet.up.railway.app',
   },
 };
 
