@@ -18,7 +18,7 @@ export const TryCSM: FC = () => {
       <StyledBlock>
         <StyledStack>
           <Text weight={700} size="lg">
-            Try CSM on Holesky
+            Try CSM on Hoodi
           </Text>
           {/* DAPPNODE */}
           <a
@@ -32,7 +32,7 @@ export const TryCSM: FC = () => {
           </a>
         </StyledStack>
         <Text color="secondary" size="xs">
-          CSM uses Holesky as a testnet playground for those who want to try the
+          CSM uses Hoodi as a testnet playground for those who want to try the
           module in action in a test environment.
         </Text>
       </StyledBlock>
