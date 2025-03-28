@@ -78,6 +78,7 @@ export const useKeysCLStatus = (
         // TODO: ensure all chunks are fetched successfully
         const resp = await standardFetcher<Response>(
           `${url}?id=${keys.join(encodeURIComponent(','))}`,
+          { headers: {} }, //DAPPNODE
         );
         return resp.data.map((key) => ({
           pubkey: key.validator.pubkey,

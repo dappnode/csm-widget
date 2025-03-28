@@ -109,7 +109,7 @@ export const Warnings: FC = () => {
           <div>
             {numWarnings > 0 ? (
               <h3>
-                You have <NumWarningsLabel>{numWarnings}</NumWarningsLabel>
+                You have <NumWarningsLabel>{numWarnings} </NumWarningsLabel>
                 warning/s
               </h3>
             ) : (
