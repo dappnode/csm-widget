@@ -78,7 +78,7 @@ export const useKeysCLStatus = (
         // TODO: ensure all chunks are fetched successfully
         const resp = await standardFetcher<Response>(
           `${url}?id=${keys.join(encodeURIComponent(','))}`,
-          { headers: {} }, //DAPPNODE
+          { headers: {} }, //DAPPNODE => Needed to avoid CORS on Nimbus API. error:"...has been blocked by CORS policy: Request header field content-type is not allowed by Access-Control-Allow-Headers in preflight response"
         );
         return resp.data.map((key) => ({
           pubkey: key.validator.pubkey,
