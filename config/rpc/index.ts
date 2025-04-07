@@ -24,6 +24,10 @@ export const getBackendRPCPath = (chainId: string | number): string => {
       return (
         config.rpcUrls_1 || 'http://execution.mainnet.dncore.dappnode:8545'
       );
+    } else if (parseInt(chainId) === CHAINS.Hoodi) {
+      return (
+        config.rpcUrls_560048 || 'http://execution.hoodi.dncore.dappnode:8545'
+      );
     } else {
       return (
         config.rpcUrls_17000 || 'http://execution.holesky.dncore.dappnode:8545'
@@ -33,6 +37,10 @@ export const getBackendRPCPath = (chainId: string | number): string => {
     if (chainId === CHAINS.Mainnet) {
       return (
         config.rpcUrls_1 || 'http://execution.mainnet.dncore.dappnode:8545'
+      );
+    } else if (chainId === CHAINS.Hoodi) {
+      return (
+        config.rpcUrls_560048 || 'http://execution.hoodi.dncore.dappnode:8545'
       );
     } else {
       return (
