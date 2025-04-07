@@ -1,16 +1,17 @@
 import { Button, Text } from '@lidofinance/lido-ui';
 import { getConfig } from 'config';
 import { CHAINS } from 'consts/chains';
-import { CSM_MAINNET_LINK, CSM_TESTNET_LINK } from 'consts/external-links';
 import { FC } from 'react';
-import { MatomoLink } from 'shared/components';
 import { StyledBlock, StyledStack } from './styles';
-import { MATOMO_CLICK_EVENTS_TYPES } from 'consts/matomo-click-events';
+// DAPPNODE
+import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls';
 
 const { defaultChain } = getConfig();
 
 export const TryCSM: FC = () => {
   const isMainnet = defaultChain === CHAINS.Mainnet;
+  // DAPPNODE
+  const { installerTabUrl } = useDappnodeUrls();
 
   if (isMainnet)
     return (
@@ -19,14 +20,16 @@ export const TryCSM: FC = () => {
           <Text weight={700} size="lg">
             Try CSM on Hoodi
           </Text>
-          <MatomoLink
-            href={CSM_TESTNET_LINK}
-            matomoEvent={MATOMO_CLICK_EVENTS_TYPES.tryCsmOtherNetworkLink}
+          {/* DAPPNODE */}
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href={installerTabUrl(isMainnet) || ''}
           >
             <Button size="xs" variant="outlined">
-              Join CSM testnet
+              Join CSM Testnet
             </Button>
-          </MatomoLink>
+          </a>
         </StyledStack>
         <Text color="secondary" size="xs">
           CSM uses Hoodi as a testnet playground for those who want to try the
@@ -41,14 +44,16 @@ export const TryCSM: FC = () => {
         <Text weight={700} size="lg">
           Try CSM on Mainnet
         </Text>
-        <MatomoLink
-          href={CSM_MAINNET_LINK}
-          matomoEvent={MATOMO_CLICK_EVENTS_TYPES.tryCsmOtherNetworkLink}
+        {/* DAPPNODE */}
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={installerTabUrl(isMainnet) || ''}
         >
           <Button size="xs" variant="outlined">
             Join CSM Mainnet
           </Button>
-        </MatomoLink>
+        </a>
       </StyledStack>
     </StyledBlock>
   );

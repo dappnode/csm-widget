@@ -22,13 +22,14 @@ import {
   packRoles,
   runWithTransactionLogger,
 } from 'utils';
-import { Address } from 'wagmi';
+import { Address, useAccount } from 'wagmi';
 import { useConfirmCustomAddressesModal } from '../hooks/use-confirm-modal';
 import { useTxModalStagesSubmitKeys } from '../hooks/use-tx-modal-stages-submit-keys';
 import { SubmitKeysFormInputType, SubmitKeysFormNetworkData } from './types';
 import { PATH } from 'consts/urls';
 import { useNavigate } from 'shared/navigate';
 import { useOperatorCustomAddresses } from 'features/starter-pack/banner-operator-custom-addresses';
+import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls';
 
 type SubmitKeysOptions = {
   onConfirm?: () => Promise<void> | void;
@@ -132,6 +133,26 @@ export const useSubmitKeysSubmit = ({
 
   const confirmCustomAddresses = useConfirmCustomAddressesModal();
 
+  // DAPPNODE
+  const { backendUrl } = useDappnodeUrls();
+  const { address } = useAccount();
+  /**
+   *  `scanEvents` is required to trigger a re-scan of events on the backend after a new node operator is added.
+   *  By default, the backend does not re-scan events if the address is already indexed and the block difference
+   *  since last scann is less than 320 blocks.
+   */
+  const scanEvents = useCallback(async () => {
+    const url = `${backendUrl}/api/v0/events_indexer/address_events?address=${address}&force=${true}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    await fetch(url, options);
+  }, [backendUrl, address]);
+  // DAPPNODE
+
   return useCallback(
     async (
       {
@@ -202,6 +223,14 @@ export const useSubmitKeysSubmit = ({
           waitTx,
         );
 
+        // DAPPNODE
+        await scanEvents().catch((e) => {
+          console.error(
+            `Failed to trigger forced events re-scan after creating new NO: ${e}`,
+          );
+        });
+        // DAPPNODE
+
         const nodeOperator = getAddedNodeOperator(receipt);
         const roles = packRoles({
           rewards: isUserOrZero(nodeOperator?.rewards),
@@ -252,6 +281,7 @@ export const useSubmitKeysSubmit = ({
       n,
       appendNO,
       onRetry,
+      scanEvents, // DAPPNODE
     ],
   );
 };
