@@ -7,13 +7,18 @@ import {
 import { TOKENS } from 'consts/tokens';
 import type { BigNumber } from 'ethers';
 import { Plural } from 'shared/components';
-import { AfterKeysUpload, TxAmount } from 'shared/transaction-modal';
+import {
+  AfterCreateCustomNodeOperator,
+  AfterKeysUpload,
+  TxAmount,
+} from 'shared/transaction-modal';
 import {
   TxStagePending,
   TxStageSign,
   TxStageSuccess,
 } from 'shared/transaction-modal/tx-stages-basic';
 import { NodeOperatorId } from 'types';
+import { ROLES } from 'consts/roles';
 import { Button } from '@lidofinance/lido-ui';
 import { PATH } from 'consts/urls';
 
@@ -23,7 +28,11 @@ type Props = {
   token: TOKENS;
 };
 
-type SuccessProps = { nodeOperatorId?: NodeOperatorId; keys: string[] };
+type SuccessProps = {
+  nodeOperatorId?: NodeOperatorId;
+  keys: string[];
+  roles: ROLES[];
+};
 
 const getTxModalStagesSubmitKeys = (
   transitStage: TransactionModalTransitStage,
@@ -69,7 +78,7 @@ const getTxModalStagesSubmitKeys = (
       />,
     ),
 
-  success: ({ nodeOperatorId, keys }: SuccessProps, txHash?: string) => {
+  success: ({ nodeOperatorId, keys, roles }: SuccessProps, txHash?: string) => {
     return transitStage(
       <TxStageSuccess
         txHash={txHash}
@@ -80,7 +89,11 @@ const getTxModalStagesSubmitKeys = (
               Your Node Operator ID is <b>{nodeOperatorId}</b>
               <br />
               <br />
-              <AfterKeysUpload keys={keys} />
+              {roles.length > 0 ? (
+                <AfterKeysUpload keys={keys} />
+              ) : (
+                <AfterCreateCustomNodeOperator keys={keys} />
+              )}
               <br />
               <Button
                 size="sm"

@@ -40,7 +40,7 @@ const useDappnodeUrls = () => {
       CCStatusApiUrl: '/api/consensus-status-mainnet',
       keysStatusUrl: '/api/keys-status-mainnet',
       installerTabUrl:
-        'http://my.dappnode/installer/dnp/lido-csm-holesky.dnp.dappnode.eth',
+        'http://my.dappnode/installer/dnp/lido-csm-hoodi.dnp.dappnode.eth',
       MEVApiUrl: '/api/mev-status-mainnet',
       MEVPackageConfig:
         'http://my.dappnode/packages/my/mev-boost.dnp.dappnode.eth/config',
@@ -65,6 +65,27 @@ const useDappnodeUrls = () => {
       MEVApiUrl: '/api/mev-status-holesky',
       MEVPackageConfig:
         'http://my.dappnode/packages/my/mev-boost-holesky.dnp.dappnode.eth/config',
+    },
+    [CHAINS.Hoodi]: {
+      brainUrl: 'http://brain.web3signer-hoodi.dappnode',
+      brainKeysUrl: '/api/brain-keys-hoodi',
+      brainLaunchpadUrl: '/api/brain-launchpad-hoodi',
+      signerUrl: 'http://web3signer.web3signer-hoodi.dappnode',
+      sentinelUrl: 'https://t.me/CSMSentinelHolesky_bot', // DEPRECATED?
+      stakersUiUrl: 'http://my.dappnode/stakers/hoodi',
+      backendUrl: 'http://lido-events.lido-csm-hoodi.dappnode:8080',
+      ECApiUrl:
+        publicRuntimeConfig.rpcUrls_560048 ||
+        'http://execution.hoodi.dncore.dappnode:8545',
+      CCApiUrl: 'http://beacon-chain.hoodi.dncore.dappnode:3500',
+      CCVersionApiUrl: '/api/consensus-version-hoodi',
+      CCStatusApiUrl: '/api/consensus-status-hoodi',
+      keysStatusUrl: '/api/keys-status-hoodi',
+      installerTabUrl:
+        'http://my.dappnode/installer/dnp/lido-csm-mainnet.dnp.dappnode.eth',
+      MEVApiUrl: '/api/mev-status-hoodi',
+      MEVPackageConfig:
+        'http://my.dappnode/packages/my/mev-boost-hoodi.dnp.dappnode.eth/config',
     },
   };
 

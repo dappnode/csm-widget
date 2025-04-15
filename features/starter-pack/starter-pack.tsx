@@ -3,6 +3,7 @@ import { FC } from 'react';
 import { Faq } from 'shared/components';
 import { useCsmEarlyAdoption } from 'shared/hooks';
 import { useCsmPaused, useCsmPublicRelease } from 'shared/hooks/useCsmStatus';
+import { BannerOperatorCustomAddresses } from './banner-operator-custom-addresses';
 import { ConsumedBanner } from './consumed-banner';
 import { NotEligibleBanner } from './not-eligible-banner/not-eligible-banner';
 import { PausedBanner } from './paused-banner';
@@ -29,6 +30,7 @@ export const StarterPack: FC = () => {
 
   return (
     <>
+      <BannerOperatorCustomAddresses />
       {content}
       <TryCSM />
       <Faq />

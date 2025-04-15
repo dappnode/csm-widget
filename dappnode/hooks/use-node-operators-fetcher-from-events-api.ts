@@ -66,9 +66,11 @@ const restoreEvents = (
           return mergeRoles(prev, {
             id,
             manager: isUserAddress(e.newAddress),
+            rewards: false,
           });
         case 'NodeOperatorRewardAddressChanged':
           return mergeRoles(prev, {
+            manager: false,
             id,
             rewards: isUserAddress(e.newAddress),
           });

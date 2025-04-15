@@ -22,20 +22,24 @@ export const AfterKeysUpload: FC<Props> = () => {
       <ol>
         <li>Wait for your keys to be deposited through the protocol. </li>
         <li>
-          Once your keys become active (check the status on the{' '}
+          Once your keys become active (you can check their statuses on the{' '}
           <LocalLink
             matomoEvent={MATOMO_CLICK_EVENTS_TYPES.createSuccessKeysTab}
             href={PATH.KEYS_VIEW}
           >
             Keys tab
           </LocalLink>
-          , on{' '}
-          <MatomoLink
-            matomoEvent={MATOMO_CLICK_EVENTS_TYPES.createSuccessBeaconchain}
-            href={beaconchain}
-          >
-            beaconcha.in
-          </MatomoLink>{' '}
+          {beaconchain && (
+            <>
+              , on{' '}
+              <MatomoLink
+                matomoEvent={MATOMO_CLICK_EVENTS_TYPES.createSuccessBeaconchain}
+                href={beaconchain}
+              >
+                beaconcha.in
+              </MatomoLink>
+            </>
+          )}{' '}
           or subscribe to the
           {/* DAPPNODE */}
           <Link href={PATH.NOTIFICATIONS}>CSM Telegram notifications</Link>)

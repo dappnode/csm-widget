@@ -6,7 +6,6 @@ import { useCallback } from 'react';
 import {
   GatherPermitSignatureResult,
   useAddressCompare,
-  useAskHowDidYouLearnCsm,
   useCSModuleWeb3,
   useKeysCache,
   usePermitOrApprove,
@@ -20,12 +19,16 @@ import {
   addressOrZero,
   formatKeys,
   getAddedNodeOperator,
+  packRoles,
   runWithTransactionLogger,
 } from 'utils';
 import { Address, useAccount } from 'wagmi';
 import { useConfirmCustomAddressesModal } from '../hooks/use-confirm-modal';
 import { useTxModalStagesSubmitKeys } from '../hooks/use-tx-modal-stages-submit-keys';
 import { SubmitKeysFormInputType, SubmitKeysFormNetworkData } from './types';
+import { PATH } from 'consts/urls';
+import { useNavigate } from 'shared/navigate';
+import { useOperatorCustomAddresses } from 'features/starter-pack/banner-operator-custom-addresses';
 import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls';
 
 type SubmitKeysOptions = {
@@ -125,9 +128,10 @@ export const useSubmitKeysSubmit = ({
   const sendTx = useSendTx();
   const isUserOrZero = useAddressCompare(true);
   const { addCacheKeys } = useKeysCache();
+  const n = useNavigate();
+  const [, setOperatorCustomAddresses] = useOperatorCustomAddresses();
 
   const confirmCustomAddresses = useConfirmCustomAddressesModal();
-  const { ask } = useAskHowDidYouLearnCsm();
 
   // DAPPNODE
   const { backendUrl } = useDappnodeUrls();
@@ -228,29 +232,36 @@ export const useSubmitKeysSubmit = ({
         // DAPPNODE
 
         const nodeOperator = getAddedNodeOperator(receipt);
+        const roles = packRoles({
+          rewards: isUserOrZero(nodeOperator?.rewards),
+          manager: isUserOrZero(nodeOperator?.manager),
+        });
+
+        void onConfirm?.();
+
+        // TODO: move to onConfirm
+        void addCacheKeys(depositData.map(({ pubkey }) => pubkey));
+
+        if (nodeOperator?.id) {
+          if (roles.length === 0) {
+            setOperatorCustomAddresses(nodeOperator.id);
+            void n(PATH.HOME);
+          } else {
+            appendNO({
+              id: nodeOperator.id,
+              roles,
+            });
+          }
+        }
 
         txModalStages.success(
           {
             nodeOperatorId: nodeOperator?.id,
             keys: depositData.map((key) => key.pubkey),
+            roles,
           },
           txHash,
         );
-        ask();
-
-        // TODO: move to onConfirm
-        void addCacheKeys(depositData.map(({ pubkey }) => pubkey));
-
-        // TODO: move to onConfirm
-        if (nodeOperator) {
-          appendNO({
-            id: nodeOperator.id,
-            manager: isUserOrZero(nodeOperator.managerAddress),
-            rewards: isUserOrZero(nodeOperator.rewardsAddress),
-          });
-        }
-
-        await onConfirm?.();
 
         return true;
       } catch (error) {
@@ -262,13 +273,14 @@ export const useSubmitKeysSubmit = ({
       getPermitOrApprove,
       txModalStages,
       getTx,
+      isUserOrZero,
       onConfirm,
       addCacheKeys,
       sendTx,
+      setOperatorCustomAddresses,
+      n,
       appendNO,
-      isUserOrZero,
       onRetry,
-      ask,
       scanEvents, // DAPPNODE
     ],
   );
