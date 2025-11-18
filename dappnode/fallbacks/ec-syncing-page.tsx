@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Layout } from 'shared/layout';
 import { WelcomeSection } from './welcome-section-component';
 import { WarningWrapper } from 'dappnode/components/text-wrappers';
-import { LoaderBanner } from 'shared/navigate/splash/loader-banner';
+import { Loader } from '@lidofinance/lido-ui';
 
 export const ECSyncingPage: FC = () => {
   return (
@@ -16,7 +16,7 @@ export const ECSyncingPage: FC = () => {
           <br />
           Please, Wait until it&apos;s synced before continuing.
         </p>
-        <LoaderBanner />
+        <Loader />
       </WelcomeSection>
     </Layout>
   );

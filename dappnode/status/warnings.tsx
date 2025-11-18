@@ -6,7 +6,6 @@ import {
   ValidatorMapStack,
   WarningCard,
 } from './styles';
-import { LoaderWrapperStyle } from 'shared/navigate/splash/loader-banner/styles';
 import { Link, Loader, Tooltip } from '@lidofinance/lido-ui';
 import { Address } from '@lidofinance/address';
 import { WarnedValidator } from './types';
@@ -85,13 +84,7 @@ export const Warnings: FC = () => {
     showIf: boolean;
     children: React.ReactNode;
   }> = ({ isLoading = false, showIf, children }) => {
-    return isLoading ? (
-      <LoaderWrapperStyle>
-        <Loader size="small" />
-      </LoaderWrapperStyle>
-    ) : (
-      showIf && <>{children}</>
-    );
+    return isLoading ? <Loader size="small" /> : showIf && <>{children}</>;
   };
 
   return (

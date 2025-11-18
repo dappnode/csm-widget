@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import useDappnodeUrls from './use-dappnode-urls';
-import { useActiveNodeOperator } from 'providers/node-operator-provider';
 import { fetchWithRetry } from 'dappnode/utils/fetchWithRetry';
+import { useActiveNodeOperator } from 'modules/web3/operator-provider/use-active-node-operator';
 
 const useGetExitRequests = () => {
   const { backendUrl } = useDappnodeUrls();
@@ -23,7 +23,7 @@ const useGetExitRequests = () => {
     try {
       setIsLoading(true);
       console.debug(`GETting validators exit requests from indexer API`);
-      const url = `${backendUrl}/api/v0/events_indexer/exit_requests?operatorId=${nodeOperator?.id}`;
+      const url = `${backendUrl}/api/v0/events_indexer/exit_requests?operatorId=${nodeOperator?.[0]?.id}`;
       const options = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },

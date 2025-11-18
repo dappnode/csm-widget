@@ -2,7 +2,6 @@ import { FC } from 'react';
 import { TitleStyled, ItemStyled, SubtitleStyled } from './styles';
 import { Loader, Tooltip } from '@lidofinance/lido-ui';
 import { StatusChip } from 'shared/components';
-import { LoaderWrapperStyle } from 'shared/navigate/splash/loader-banner/styles';
 import { INFRA_STATUS } from './types';
 
 export type InfraItemProps = {
@@ -28,9 +27,7 @@ export const InfraItem: FC<InfraItemProps> = ({
       </div>
 
       {isLoading ? (
-        <LoaderWrapperStyle>
-          <Loader size="small" color="secondary" />
-        </LoaderWrapperStyle>
+        <Loader size="small" color="secondary" />
       ) : (
         <StatusChip status={status} />
       )}

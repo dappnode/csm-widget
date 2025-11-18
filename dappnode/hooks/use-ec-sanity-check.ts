@@ -1,4 +1,4 @@
-import { CHAINS } from '@lido-sdk/constants';
+import { CHAINS } from '@lidofinance/lido-ethereum-sdk';
 import getConfig from 'next/config';
 import { useEffect, useMemo, useState } from 'react';
 import useDappnodeUrls from './use-dappnode-urls';

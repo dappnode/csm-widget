@@ -12,7 +12,6 @@ import { MatomoLink, Note } from 'shared/components';
 import { Step2InfraRow, InfraInstalledLabel, ButtonsRow } from './styles';
 import { Step } from './step-wrapper';
 import { Button, Link } from '@lidofinance/lido-ui';
-import { CONSTANTS_BY_NETWORK } from 'consts/csm-constants';
 import { PATH } from 'consts/urls';
 import { trackMatomoEvent } from 'utils';
 import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls';
@@ -26,9 +25,8 @@ import { useGetInfraStatus } from 'dappnode/hooks/use-get-infra-status';
 import useGetTelegramData from 'dappnode/hooks/use-get-telegram-data';
 import { Loader } from '@lidofinance/lido-ui';
 import { ErrorWrapper } from 'dappnode/components/text-wrappers';
-import { LoaderWrapperStyle } from 'shared/navigate/splash/loader-banner/styles';
 import { NotificationsSteps } from 'dappnode/notifications/notifications-setup-steps';
-import { CHAINS } from '@lido-sdk/constants';
+import { CHAINS } from '@lidofinance/lido-ethereum-sdk';
 import useGetRelaysData from 'dappnode/hooks/use-get-relays-data';
 import getConfig from 'next/config';
 import { StatusTitle } from 'shared/components/status-chip/status-chip';
@@ -137,9 +135,7 @@ const Step2: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
           <p>{'->'}</p>
           <p>
             {isECLoading ? (
-              <LoaderWrapperStyle>
-                <Loader size="small" color="secondary" />
-              </LoaderWrapperStyle>
+              <Loader size="small" color="secondary" />
             ) : (
               <InfraInstalledLabel $isInstalled={isECSynced}>
                 {StatusTitle[ECStatus || 'NOT_INSTALLED']}
@@ -153,9 +149,7 @@ const Step2: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
 
           <p>
             {isCCLoading ? (
-              <LoaderWrapperStyle>
-                <Loader size="small" color="secondary" />
-              </LoaderWrapperStyle>
+              <Loader size="small" color="secondary" />
             ) : (
               <InfraInstalledLabel $isInstalled={isCCSynced}>
                 {StatusTitle[CCStatus || 'NOT_INSTALLED']}
@@ -168,9 +162,7 @@ const Step2: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
           <p>{'->'}</p>
           <p>
             {brainLoading ? (
-              <LoaderWrapperStyle>
-                <Loader size="small" color="secondary" />
-              </LoaderWrapperStyle>
+              <Loader size="small" color="secondary" />
             ) : (
               <InfraInstalledLabel $isInstalled={isSignerInstalled}>
                 {isSignerInstalled ? 'Installed' : 'Not installed'}
@@ -183,9 +175,7 @@ const Step2: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
           <p>{'->'}</p>
           <p>
             {relaysLoading ? (
-              <LoaderWrapperStyle>
-                <Loader size="small" color="secondary" />
-              </LoaderWrapperStyle>
+              <Loader size="small" color="secondary" />
             ) : (
               <InfraInstalledLabel $isInstalled={isMEVInstalled}>
                 {isMEVInstalled ? 'Installed' : 'Not installed'}
@@ -363,9 +353,7 @@ const Step3: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
         >
           {tgUserId || tgBotToken ? (
             isLoading ? (
-              <LoaderWrapperStyle>
-                <Loader size="small" color="secondary" />
-              </LoaderWrapperStyle>
+              <Loader size="small" color="secondary" />
             ) : (
               'Next'
             )
@@ -378,9 +366,7 @@ const Step3: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
   );
 };
 const Step4: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => {
-  const withdrawalByAddres =
-    CONSTANTS_BY_NETWORK[publicRuntimeConfig.defaultChain as CHAINS]
-      ?.withdrawalCredentials;
+  const withdrawalByAddres = 'xxx';
 
   const handleClick = useCallback(() => {
     trackMatomoEvent(MATOMO_CLICK_EVENTS_TYPES.starterPackCreateNodeOperator);

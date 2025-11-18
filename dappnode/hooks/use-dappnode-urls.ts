@@ -1,4 +1,4 @@
-import { CHAINS } from '@lido-sdk/constants';
+import { CHAINS } from '@lidofinance/lido-ethereum-sdk';
 import getConfig from 'next/config';
 
 interface DappnodeUrls {
@@ -54,7 +54,7 @@ const useDappnodeUrls = () => {
       stakersUiUrl: 'http://my.dappnode/stakers/holesky',
       backendUrl: 'http://lido-events.lido-csm-holesky.dappnode:8080',
       ECApiUrl:
-        publicRuntimeConfig.rpcUrls_17000 ||
+        publicRuntimeConfig.rpcUrls_560048 ||
         'http://execution.holesky.dncore.dappnode:8545',
       CCApiUrl: 'http://beacon-chain.holesky.dncore.dappnode:3500',
       CCVersionApiUrl: '/api/consensus-version-holesky',
