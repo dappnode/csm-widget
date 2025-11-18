@@ -56,7 +56,7 @@ export const useShowFlags = (): ShowFlags => {
   const canCreateNO = useCanCreateNodeOperator();
 
   // DAPPNODE
-  const { isInstalled, isSynced, hasLogs } = useECSanityCheck();
+  const { isLoading, isInstalled, isSynced, hasLogs } = useECSanityCheck();
   const { referrer } = useModifyContext();
   const { data: isOwner } = useOperatorIsOwner({
     address,
@@ -87,6 +87,7 @@ export const useShowFlags = (): ShowFlags => {
         !!featureFlags?.[SURVEYS_SETUP_ENABLED],
 
       // DAPPNODE
+      ['IS_EXECUTION_LOADING']: isLoading,
       ['IS_EXECUTION_INSTALLED']: isInstalled,
       ['IS_EXECUTION_SYNCED']: isSynced,
       ['EXECUTION_HAS_LOGS']: hasLogs,
@@ -103,6 +104,7 @@ export const useShowFlags = (): ShowFlags => {
       canClaimICS,
       featureFlags,
       isReportingRole,
+      isLoading,
       isInstalled,
       isSynced,
       hasLogs,

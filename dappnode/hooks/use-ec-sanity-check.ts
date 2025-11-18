@@ -14,7 +14,7 @@ export const useECSanityCheck = () => {
   const contractTx = useMemo(
     () => ({
       [CHAINS.Mainnet]: `0xf5330dbcf09885ed145c4435e356b5d8a10054751bb8009d3a2605d476ac173f`,
-      [CHAINS.Holesky]: `0x1475719ecbb73b28bc531bb54b37695df1bf6b71c6d2bf1d28b4efa404867e26`,
+      [CHAINS.Hoodi]: `0xebc45a0fa30a3f9badbcc4448ea22cef1a5d18b97825802a70df31cecb59127d`,
     }),
     [],
   );

@@ -82,8 +82,8 @@ const Step1: FC<StepsProps> = ({ step, title, setStep }: StepsProps) => (
         <li>
           {' '}
           <p>
-            {publicRuntimeConfig.defaultChain === 17000 ? '2 Holesky' : '2.4'}{' '}
-            ETH (stETH / wstETH equivalent) is required for the first validator{' '}
+            {publicRuntimeConfig.defaultChain === 17000 ? '2 Hoodi' : '2.4'} ETH
+            (stETH / wstETH equivalent) is required for the first validator{' '}
           </p>
         </li>
       </ul>

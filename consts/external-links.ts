@@ -5,7 +5,7 @@ import { config } from 'config';
 export const CSM_MAINNET_LINK =
   'http://my.dappnode/installer/dnp/lido-csm-mainnet.dnp.dappnode.eth'; // DAPPNODE
 export const CSM_TESTNET_LINK =
-  'http://my.dappnode/installer/dnp/lido-csm-holesky.dnp.dappnode.eth'; // DAPPNODE
+  'http://my.dappnode/installer/dnp/lido-csm-hoodi.dnp.dappnode.eth'; // DAPPNODE
 
 // Documentation links
 export const EXTENDED_MODE_LINK =

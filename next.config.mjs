@@ -140,14 +140,14 @@ export default withBundleAnalyzer({
           'http://beacon-chain.mainnet.dncore.dappnode:3500/eth/v1/node/syncing',
       },
       {
-        source: '/api/consensus-version-holesky',
+        source: '/api/consensus-version-hoodi',
         destination:
-          'http://beacon-chain.holesky.dncore.dappnode:3500/eth/v1/node/version',
+          'http://beacon-chain.hoodi.dncore.dappnode:3500/eth/v1/node/version',
       },
       {
-        source: '/api/consensus-status-holesky',
+        source: '/api/consensus-status-hoodi',
         destination:
-          'http://beacon-chain.holesky.dncore.dappnode:3500/eth/v1/node/syncing',
+          'http://beacon-chain.hoodi.dncore.dappnode:3500/eth/v1/node/syncing',
       },
       {
         source: '/api/keys-status-mainnet',
@@ -155,9 +155,9 @@ export default withBundleAnalyzer({
           'http://beacon-chain.mainnet.dncore.dappnode:3500/eth/v1/beacon/states/head/validators',
       },
       {
-        source: '/api/keys-status-holesky',
+        source: '/api/keys-status-hoodi',
         destination:
-          'http://beacon-chain.holesky.dncore.dappnode:3500/eth/v1/beacon/states/head/validators',
+          'http://beacon-chain.hoodi.dncore.dappnode:3500/eth/v1/beacon/states/head/validators',
       },
       {
         source: '/api/brain-keys-mainnet',
@@ -165,26 +165,26 @@ export default withBundleAnalyzer({
           'http://brain.web3signer.dappnode:5000/api/v0/brain/validators?tag=lido&format=pubkey',
       },
       {
-        source: '/api/brain-keys-holesky',
+        source: '/api/brain-keys-hoodi',
         destination:
-          'http://brain.web3signer-holesky.dappnode:5000/api/v0/brain/validators?tag=lido&format=pubkey',
+          'http://brain.web3signer-hoodi.dappnode:5000/api/v0/brain/validators?tag=lido&format=pubkey',
       },
       {
         source: '/api/brain-launchpad-mainnet',
         destination: 'http://brain.web3signer.dappnode:3000/eth/v1/keystores',
       },
       {
-        source: '/api/brain-launchpad-holesky',
+        source: '/api/brain-launchpad-hoodi',
         destination:
-          'http://brain.web3signer-holesky.dappnode:3000/eth/v1/keystores',
+          'http://brain.web3signer-hoodi.dappnode:3000/eth/v1/keystores',
       },
       {
         source: '/api/mev-status-mainnet',
         destination: 'http://mev-boost.dappnode:18550/',
       },
       {
-        source: '/api/mev-status-holesky',
-        destination: 'http://mev-boost-holesky.dappnode:18550/',
+        source: '/api/mev-status-hoodi',
+        destination: 'http://mev-boost-hoodi.dappnode:18550/',
       },
     ];
   },
