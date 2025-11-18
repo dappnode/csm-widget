@@ -4,26 +4,30 @@ import {
   useTransactionModalStage,
 } from 'shared/transaction-modal/hooks/use-transaction-modal-stage';
 
-import { TOKENS } from 'consts/tokens';
-import type { BigNumber } from 'ethers';
+import { NodeOperatorId, TOKENS } from '@lidofinance/lido-csm-sdk';
 import { Plural } from 'shared/components';
-import { AfterKeysUpload, TxAmount } from 'shared/transaction-modal';
+import {
+  AfterCreateCustomNodeOperator,
+  AfterKeysUpload,
+  TxAmount,
+} from 'shared/transaction-modal';
 import {
   TxStagePending,
   TxStageSign,
   TxStageSuccess,
 } from 'shared/transaction-modal/tx-stages-basic';
-import { NodeOperatorId } from 'types';
-import { Button } from '@lidofinance/lido-ui';
-import { PATH } from 'consts/urls';
 
 type Props = {
   keysCount: number;
-  amount: BigNumber;
+  amount: bigint;
   token: TOKENS;
 };
 
-type SuccessProps = { nodeOperatorId?: NodeOperatorId; keys: string[] };
+type SuccessProps = {
+  nodeOperatorId?: NodeOperatorId;
+  keys: string[];
+  hasAnyRole: boolean;
+};
 
 const getTxModalStagesSubmitKeys = (
   transitStage: TransactionModalTransitStage,
@@ -38,7 +42,7 @@ const getTxModalStagesSubmitKeys = (
           <>
             Uploading {keysCount}{' '}
             <Plural variants={['key', 'keys']} value={keysCount} />{' '}
-            {amount && (
+            {!!amount && (
               <>
                 and depositing <TxAmount amount={amount} token={token} />
               </>
@@ -58,7 +62,7 @@ const getTxModalStagesSubmitKeys = (
           <>
             Uploading {keysCount}{' '}
             <Plural variants={['key', 'keys']} value={keysCount} />{' '}
-            {amount && (
+            {!!amount && (
               <>
                 and depositing <TxAmount amount={amount} token={token} />
               </>
@@ -69,7 +73,10 @@ const getTxModalStagesSubmitKeys = (
       />,
     ),
 
-  success: ({ nodeOperatorId, keys }: SuccessProps, txHash?: string) => {
+  success: (
+    { nodeOperatorId, keys, hasAnyRole }: SuccessProps,
+    txHash?: string,
+  ) => {
     return transitStage(
       <TxStageSuccess
         txHash={txHash}
@@ -77,20 +84,14 @@ const getTxModalStagesSubmitKeys = (
         description={
           nodeOperatorId ? (
             <>
-              Your Node Operator ID is <b>{nodeOperatorId}</b>
+              Your Node Operator ID is <b>{nodeOperatorId.toString()}</b>
               <br />
               <br />
-              <AfterKeysUpload keys={keys} />
-              <br />
-              <Button
-                size="sm"
-                variant="outlined"
-                onClick={() => {
-                  window.location.href = PATH.HOME;
-                }}
-              >
-                Go to Dashboard
-              </Button>
+              {hasAnyRole ? (
+                <AfterKeysUpload keys={keys} />
+              ) : (
+                <AfterCreateCustomNodeOperator keys={keys} />
+              )}
             </>
           ) : undefined
         }

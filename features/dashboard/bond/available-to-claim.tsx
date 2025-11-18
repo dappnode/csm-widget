@@ -1,49 +1,47 @@
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
 import { BOND_EXCESS, BOND_INSUFFICIENT } from 'consts/text';
-import { TOKENS } from 'consts/tokens';
-import { useNodeOperatorId } from 'providers/node-operator-provider';
+import {
+  useFrameInfo,
+  useNodeOperatorId,
+  useOperatorBalance,
+  useOperatorRewards,
+} from 'modules/web3';
 import { FC } from 'react';
 import { Counter, IconTooltip } from 'shared/components';
-import {
-  getNextRewardsFrame,
-  useLastRewardsSlot,
-  useNodeOperatorBalance,
-  useNodeOperatorRewards,
-} from 'shared/hooks';
-import { useAvailableToClaim } from 'shared/hooks/useAvailableToClaim';
-import { formatDate } from 'utils';
+import { calculateAvailableToClaim, formatDate } from 'utils';
 import { Balance } from './balance';
 import { AccordionStyle, RowBody, RowHeader, RowTitle } from './styles';
 
 export const AvailableToClaim: FC = () => {
   const id = useNodeOperatorId();
 
-  const { data: bond, initialLoading: isBondLoading } =
-    useNodeOperatorBalance(id);
+  const { data: bond, isPending: isBondLoading } = useOperatorBalance(id);
 
-  const { data: rewards, initialLoading: isRewardsLoading } =
-    useNodeOperatorRewards(id);
+  const { data: rewards, isPending: isRewardsLoading } = useOperatorRewards(id);
 
-  const { data: rewardsSlot } = useLastRewardsSlot();
-  const nextRewardsDate = rewardsSlot?.timestamp
-    ? formatDate(getNextRewardsFrame(rewardsSlot.timestamp))
-    : null;
+  const { data: nextDistribution } = useFrameInfo(
+    (data) => data.lastReport + data.frameDuration,
+  );
+  const nextRewardsDate = formatDate(nextDistribution);
 
-  const availableToClaim = useAvailableToClaim({
+  const availableToClaim = calculateAvailableToClaim({
     bond,
     rewards,
   });
 
   return (
     <AccordionStyle
+      data-testid="availableToClaimBlock"
       summary={
         <RowHeader>
           <RowTitle>
             Available to claim
-            {(bond?.isInsufficient || bond?.locked.gt(0)) && (
+            {(bond?.isInsufficient || !!bond?.locked) && (
               <Counter warning count={1} />
             )}
           </RowTitle>
           <Balance
+            data-testid="commonBalance"
             big
             loading={isBondLoading || isRewardsLoading}
             amount={availableToClaim}
@@ -53,6 +51,7 @@ export const AvailableToClaim: FC = () => {
     >
       <RowBody>
         <Balance
+          data-testid="rewardsBalance"
           title={
             <>
               Rewards
@@ -71,7 +70,7 @@ export const AvailableToClaim: FC = () => {
               warning
               sign="minus"
               title={BOND_INSUFFICIENT}
-              help="Insufficient bond is the missing amount of stETH required to cover all operator’s keys."
+              help="Insufficient bond is the missing amount of stETH required to cover all operator’s keys"
               loading={isBondLoading}
               amount={bond.delta}
             />
@@ -79,6 +78,7 @@ export const AvailableToClaim: FC = () => {
         ) : (
           <>
             <Balance
+              data-testid="excessBondBalance"
               sign="plus"
               title={
                 <>
@@ -91,7 +91,7 @@ export const AvailableToClaim: FC = () => {
             />
           </>
         )}
-        {bond?.locked.gt(0) && (
+        {!!bond?.locked && (
           <>
             <Balance
               warning
@@ -99,8 +99,8 @@ export const AvailableToClaim: FC = () => {
               title="Locked bond"
               loading={isBondLoading}
               amount={bond.locked}
-              token={TOKENS.ETH}
-              help="Bond is locked because of an MEV stealing event reported by a dedicated committee. This measure ensures that Node Operators are held accountable for any misbehavior or rule violations."
+              token={TOKENS.eth}
+              help="Bond is locked because of an MEV stealing event reported by a dedicated committee. This measure ensures that Node Operators are held accountable for any misbehavior or rule violations"
             />
           </>
         )}

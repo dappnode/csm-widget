@@ -1,8 +1,9 @@
-import { useSDK } from '@lido-sdk/react';
-import { addHours } from 'date-fns';
+import { addDays } from 'date-fns';
+import { useDappStatus } from 'modules/web3';
 import { useCallback } from 'react';
 import { SiweMessage } from 'siwe';
 import invariant from 'tiny-invariant';
+import { useSignMessage } from 'wagmi';
 
 const createSiweMessage = (address: string, chainId?: number) => {
   const statement = 'Sign in to use the CSM Surveys';
@@ -18,24 +19,22 @@ const createSiweMessage = (address: string, chainId?: number) => {
     uri,
     version: '1',
     chainId,
-    expirationTime: addHours(new Date(), 1).toISOString(),
+    expirationTime: addDays(new Date(), 1).toISOString(),
   });
   return message.prepareMessage();
 };
 
 export const useSiwe = () => {
-  const { providerWeb3 } = useSDK();
+  const { address, chainId } = useDappStatus();
+  const { signMessageAsync } = useSignMessage();
 
   return useCallback(async () => {
-    const signer = providerWeb3?.getSigner();
-    invariant(signer, 'Signer is not available');
+    invariant(address, 'Signer is not available');
 
-    const message = createSiweMessage(
-      await signer.getAddress(),
-      await signer.getChainId(),
-    );
-
-    const signature = await signer.signMessage(message);
+    const message = createSiweMessage(address, chainId);
+    const signature = await signMessageAsync({
+      message,
+    });
     return { signature, message };
-  }, [providerWeb3]);
+  }, [address, chainId, signMessageAsync]);
 };

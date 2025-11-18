@@ -1,153 +1,68 @@
-import { TOKENS } from 'consts/tokens';
-import { BigNumber } from 'ethers';
-import { BytesLike } from 'ethers/lib/utils.js';
-import { useNodeOperatorContext } from 'providers/node-operator-provider';
+import {
+  DepositData,
+  NodeOperatorShortInfo,
+  Proof,
+  TOKENS,
+  TransactionCallback,
+  TransactionCallbackStage,
+} from '@lidofinance/lido-csm-sdk';
+import { PATH } from 'consts';
+import { useOperatorCustomAddresses } from 'features/starter-pack/banner-operator-custom-addresses';
+import { useAppendOperator, useLidoSDK } from 'modules/web3';
 import { useCallback } from 'react';
-import {
-  GatherPermitSignatureResult,
-  useAddressCompare,
-  useAskHowDidYouLearnCsm,
-  useCSModuleWeb3,
-  useKeysCache,
-  usePermitOrApprove,
-  useSendTx,
-} from 'shared/hooks';
-import { handleTxError } from 'shared/transaction-modal';
+import { FormSubmitterHook } from 'shared/hook-form/form-controller';
+import { useKeysCache } from 'shared/hooks';
+import { useNavigate } from 'shared/navigate';
+import { hasAnyRole } from 'shared/node-operator/utils';
 import invariant from 'tiny-invariant';
-import { Proof } from 'types';
-import {
-  addExtraWei,
-  addressOrZero,
-  formatKeys,
-  getAddedNodeOperator,
-  runWithTransactionLogger,
-} from 'utils';
-import { Address, useAccount } from 'wagmi';
+import { Address } from 'viem';
 import { useConfirmCustomAddressesModal } from '../hooks/use-confirm-modal';
 import { useTxModalStagesSubmitKeys } from '../hooks/use-tx-modal-stages-submit-keys';
 import { SubmitKeysFormInputType, SubmitKeysFormNetworkData } from './types';
-import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls';
 
-type SubmitKeysOptions = {
-  onConfirm?: () => Promise<void> | void;
-  onRetry?: () => void;
-};
-
-type MethodParams = {
-  bondAmount: BigNumber;
-  keysCount: number;
-  publicKeys: BytesLike;
-  signatures: BytesLike;
-  rewardsAddress: Address;
-  managerAddress: Address;
+type SubmitKeysMethodParams = {
+  token: TOKENS;
+  amount: bigint;
+  depositData: DepositData[];
+  rewardsAddress: string;
+  managerAddress: string;
   extendedManagerPermissions: boolean;
-  permit: GatherPermitSignatureResult;
-  eaProof: Proof;
-  referrer: Address;
+  referrer?: Address;
+  callback: TransactionCallback<NodeOperatorShortInfo>;
 };
 
-// this encapsulates eth/steth/wsteth flows
 const useSubmitKeysTx = () => {
-  const CSModuleWeb3 = useCSModuleWeb3();
+  const { csm } = useLidoSDK();
 
   return useCallback(
-    async (token: TOKENS, params: MethodParams) => {
-      invariant(CSModuleWeb3, 'must have CSModuleWeb3');
-
-      switch (token) {
-        case TOKENS.ETH:
-          return {
-            tx: await CSModuleWeb3.populateTransaction.addNodeOperatorETH(
-              params.keysCount,
-              params.publicKeys,
-              params.signatures,
-              {
-                managerAddress: params.managerAddress,
-                rewardAddress: params.rewardsAddress,
-                extendedManagerPermissions: params.extendedManagerPermissions,
-              },
-              params.eaProof,
-              params.referrer,
-              {
-                value: params.bondAmount,
-              },
-            ),
-            txName: 'addNodeOperatorETH',
-          };
-        case TOKENS.STETH:
-          return {
-            tx: await CSModuleWeb3.populateTransaction.addNodeOperatorStETH(
-              params.keysCount,
-              params.publicKeys,
-              params.signatures,
-              {
-                managerAddress: params.managerAddress,
-                rewardAddress: params.rewardsAddress,
-                extendedManagerPermissions: params.extendedManagerPermissions,
-              },
-              params.permit,
-              params.eaProof,
-              params.referrer,
-            ),
-            txName: 'addNodeOperatorStETH',
-          };
-        case TOKENS.WSTETH:
-          return {
-            tx: await CSModuleWeb3.populateTransaction.addNodeOperatorWstETH(
-              params.keysCount,
-              params.publicKeys,
-              params.signatures,
-              {
-                managerAddress: params.managerAddress,
-                rewardAddress: params.rewardsAddress,
-                extendedManagerPermissions: params.extendedManagerPermissions,
-              },
-              params.permit,
-              params.eaProof,
-              params.referrer,
-            ),
-            txName: 'addNodeOperatorWstETH',
-          };
+    async (params: SubmitKeysMethodParams, proof: Proof | null) => {
+      if (proof) {
+        return csm.icsGate.addNodeOperator({
+          ...params,
+          proof,
+        });
+      } else {
+        return csm.permissionlessGate.addNodeOperator(params);
       }
     },
-    [CSModuleWeb3],
+    [csm],
   );
 };
 
-export const useSubmitKeysSubmit = ({
-  onConfirm,
-  onRetry,
-}: SubmitKeysOptions) => {
+export const useSubmitKeysSubmit: FormSubmitterHook<
+  SubmitKeysFormInputType,
+  SubmitKeysFormNetworkData
+> = () => {
   const { txModalStages } = useTxModalStagesSubmitKeys();
-  const { append: appendNO } = useNodeOperatorContext();
-  const getTx = useSubmitKeysTx();
-  const getPermitOrApprove = usePermitOrApprove();
-  const sendTx = useSendTx();
-  const isUserOrZero = useAddressCompare(true);
-  const { addCacheKeys } = useKeysCache();
+
+  const submitKeysTx = useSubmitKeysTx();
+
+  const { addCachePubkeys, removeCachePubkeys } = useKeysCache();
+  const appendNO = useAppendOperator();
+  const [, setOperatorCustomAddresses] = useOperatorCustomAddresses();
+  const n = useNavigate();
 
   const confirmCustomAddresses = useConfirmCustomAddressesModal();
-  const { ask } = useAskHowDidYouLearnCsm();
-
-  // DAPPNODE
-  const { backendUrl } = useDappnodeUrls();
-  const { address } = useAccount();
-  /**
-   *  `scanEvents` is required to trigger a re-scan of events on the backend after a new node operator is added.
-   *  By default, the backend does not re-scan events if the address is already indexed and the block difference
-   *  since last scann is less than 320 blocks.
-   */
-  const scanEvents = useCallback(async () => {
-    const url = `${backendUrl}/api/v0/events_indexer/address_events?address=${address}&force=${true}`;
-    const options = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-    await fetch(url, options);
-  }, [backendUrl, address]);
-  // DAPPNODE
 
   return useCallback(
     async (
@@ -155,17 +70,18 @@ export const useSubmitKeysSubmit = ({
         referrer,
         depositData,
         token,
-        bondAmount,
+        bondAmount: amount,
         specifyCustomAddresses,
         rewardsAddress,
         managerAddress,
         extendedManagerPermissions,
-      }: SubmitKeysFormInputType,
-      { eaProof }: SubmitKeysFormNetworkData,
-    ): Promise<boolean> => {
-      invariant(depositData.length, 'Keys is not defined');
-      invariant(token, 'Token is not defined');
-      invariant(bondAmount, 'BondAmount is not defined');
+      },
+      { address, proof },
+      { onConfirm, onRetry },
+    ) => {
+      invariant(amount !== undefined, 'BondAmount is not defined');
+
+      const pubkeys = depositData.map(({ pubkey }) => pubkey);
 
       if (
         specifyCustomAddresses &&
@@ -179,97 +95,85 @@ export const useSubmitKeysSubmit = ({
       }
 
       try {
-        const { permit } = await getPermitOrApprove({
-          token,
-          amount: addExtraWei(bondAmount, token),
-          txModalStages,
-        });
+        const keysCount = depositData.length;
 
-        const { keysCount, publicKeys, signatures } = formatKeys(depositData);
+        const callback: TransactionCallback<NodeOperatorShortInfo> = async ({
+          stage,
+          payload,
+        }) => {
+          switch (stage) {
+            case TransactionCallbackStage.SIGN:
+              txModalStages.sign({ keysCount, amount, token });
+              break;
+            case TransactionCallbackStage.RECEIPT:
+              txModalStages.pending({ keysCount, amount, token }, payload.hash);
+              break;
+            case TransactionCallbackStage.DONE: {
+              txModalStages.success(
+                {
+                  keys: depositData.map((key) => key.pubkey),
+                  nodeOperatorId: payload.result.nodeOperatorId,
+                  hasAnyRole: hasAnyRole(payload.result, address),
+                },
+                payload.hash,
+              );
+              break;
+            }
+            case TransactionCallbackStage.MULTISIG_DONE:
+              txModalStages.successMultisig();
+              break;
+            case TransactionCallbackStage.ERROR:
+              txModalStages.failed(payload.error, onRetry);
+              break;
+            default:
+          }
+        };
 
-        txModalStages.sign({ keysCount, amount: bondAmount, token });
+        addCachePubkeys(pubkeys);
 
-        const tx = await getTx(token, {
-          bondAmount,
-          keysCount,
-          publicKeys,
-          signatures,
-          permit,
-          eaProof: eaProof || [],
-          rewardsAddress: addressOrZero(
-            specifyCustomAddresses && rewardsAddress,
-          ),
-          managerAddress: addressOrZero(
-            specifyCustomAddresses && managerAddress,
-          ),
-          extendedManagerPermissions:
-            specifyCustomAddresses && extendedManagerPermissions,
-          referrer: addressOrZero(referrer),
-        });
-
-        const [txHash, waitTx] = await runWithTransactionLogger(
-          'AddNodeOperator signing',
-          () => sendTx(tx),
-        );
-
-        txModalStages.pending({ keysCount, amount: bondAmount, token }, txHash);
-
-        const receipt = await runWithTransactionLogger(
-          'AddNodeOperator block confirmation',
-          waitTx,
-        );
-
-        // DAPPNODE
-        await scanEvents().catch((e) => {
-          console.error(
-            `Failed to trigger forced events re-scan after creating new NO: ${e}`,
-          );
-        });
-        // DAPPNODE
-
-        const nodeOperator = getAddedNodeOperator(receipt);
-
-        txModalStages.success(
+        const { result } = await submitKeysTx(
           {
-            nodeOperatorId: nodeOperator?.id,
-            keys: depositData.map((key) => key.pubkey),
+            token,
+            amount,
+            depositData,
+            rewardsAddress: (specifyCustomAddresses && rewardsAddress) || '',
+            managerAddress: (specifyCustomAddresses && managerAddress) || '',
+            extendedManagerPermissions:
+              specifyCustomAddresses && extendedManagerPermissions,
+            referrer: referrer || undefined,
+            callback,
           },
-          txHash,
+          proof ?? null,
         );
-        ask();
-
-        // TODO: move to onConfirm
-        void addCacheKeys(depositData.map(({ pubkey }) => pubkey));
-
-        // TODO: move to onConfirm
-        if (nodeOperator) {
-          appendNO({
-            id: nodeOperator.id,
-            manager: isUserOrZero(nodeOperator.managerAddress),
-            rewards: isUserOrZero(nodeOperator.rewardsAddress),
-          });
-        }
 
         await onConfirm?.();
 
+        // FIXME: !result - mean multisig finish allowance and need to start second transaction
+        if (result) {
+          if (hasAnyRole(result, address)) {
+            appendNO(result);
+          } else {
+            setOperatorCustomAddresses(result.nodeOperatorId);
+            void n(PATH.HOME);
+          }
+        }
+
         return true;
       } catch (error) {
-        return handleTxError(error, txModalStages, onRetry);
+        removeCachePubkeys(pubkeys);
+        txModalStages.failed(error, onRetry);
+        return false;
       }
     },
     [
       confirmCustomAddresses,
-      getPermitOrApprove,
+      addCachePubkeys,
+      submitKeysTx,
       txModalStages,
-      getTx,
-      onConfirm,
-      addCacheKeys,
-      sendTx,
+      setOperatorCustomAddresses,
+      n,
       appendNO,
-      isUserOrZero,
-      onRetry,
-      ask,
-      scanEvents, // DAPPNODE
+      removeCachePubkeys,
     ],
   );
 };

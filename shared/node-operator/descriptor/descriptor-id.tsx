@@ -1,6 +1,10 @@
 import { FC } from 'react';
-import { NodeOperatorId } from 'types';
-import { DescriptorIdWrapperStyle } from './styles';
+import {
+  DescriptorIdWrapperStyle,
+  DescriptorNumber,
+  DescriptorText,
+} from './styles';
+import { NodeOperatorId } from '@lidofinance/lido-csm-sdk';
 
 type DescriptorIdProps = {
   id: NodeOperatorId;
@@ -8,8 +12,9 @@ type DescriptorIdProps = {
 
 export const DescriptorId: FC<DescriptorIdProps> = ({ id }) => {
   return (
-    <DescriptorIdWrapperStyle>
-      Node Operator #<span>{id}</span>
+    <DescriptorIdWrapperStyle data-testid="descriptorId">
+      <DescriptorText>Node Operator</DescriptorText> #
+      <DescriptorNumber>{id.toString()}</DescriptorNumber>
     </DescriptorIdWrapperStyle>
   );
 };

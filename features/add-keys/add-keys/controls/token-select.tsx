@@ -1,10 +1,10 @@
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
 import { MATOMO_CLICK_EVENTS_TYPES } from 'consts/matomo-click-events';
 import { BOND_EXCESS, BOND_INSUFFICIENT } from 'consts/text';
-import { TOKENS } from 'consts/tokens';
 import { PATH } from 'consts/urls';
 import {
   FormTitle,
-  KeysAvailable,
+  // KeysAvailable,
   Stack,
   TitledAmount,
   TokenAmount,
@@ -15,13 +15,12 @@ import { useAddKeysFormData } from '../context';
 
 export const TokenSelect: React.FC = () => {
   const {
-    etherBalance,
+    ethBalance,
     stethBalance,
     wstethBalance,
-    keysAvailable,
+    // keysAvailable,
     bond,
-    loading,
-  } = useAddKeysFormData();
+  } = useAddKeysFormData(true);
 
   return (
     <>
@@ -29,7 +28,7 @@ export const TokenSelect: React.FC = () => {
         extra={
           <LocalLink
             href={PATH.KEYS_SUBMIT}
-            anchor="#how-bond-is-calculated"
+            anchor="#how-much-bond-is-needed"
             matomoEvent={MATOMO_CLICK_EVENTS_TYPES.depositDataLearnMore}
           >
             How bond is calculated
@@ -40,34 +39,22 @@ export const TokenSelect: React.FC = () => {
       </FormTitle>
       <TokenButtonsHookForm
         options={{
-          [TOKENS.ETH]: (
+          [TOKENS.eth]: (
             <Stack direction="column">
-              <TokenAmount
-                token={TOKENS.ETH}
-                amount={etherBalance}
-                loading={loading.isEtherBalanceLoading}
-              />
-              <KeysAvailable {...keysAvailable?.ETH} token={TOKENS.ETH} />
+              <TokenAmount token={TOKENS.eth} amount={ethBalance} />
+              {/* <KeysAvailable {...keysAvailable?.ETH} token={TOKENS.ETH} /> */}
             </Stack>
           ),
-          [TOKENS.STETH]: (
+          [TOKENS.steth]: (
             <Stack direction="column">
-              <TokenAmount
-                token={TOKENS.STETH}
-                amount={stethBalance}
-                loading={loading.isStethBalanceLoading}
-              />
-              <KeysAvailable {...keysAvailable?.STETH} token={TOKENS.STETH} />
+              <TokenAmount token={TOKENS.steth} amount={stethBalance} />
+              {/* <KeysAvailable {...keysAvailable?.STETH} token={TOKENS.STETH} /> */}
             </Stack>
           ),
-          [TOKENS.WSTETH]: (
+          [TOKENS.wsteth]: (
             <Stack direction="column">
-              <TokenAmount
-                token={TOKENS.WSTETH}
-                amount={wstethBalance}
-                loading={loading.isWstethBalanceLoading}
-              />
-              <KeysAvailable {...keysAvailable?.WSTETH} token={TOKENS.WSTETH} />
+              <TokenAmount token={TOKENS.wsteth} amount={wstethBalance} />
+              {/* <KeysAvailable {...keysAvailable?.WSTETH} token={TOKENS.WSTETH} /> */}
             </Stack>
           ),
         }}
@@ -79,9 +66,8 @@ export const TokenSelect: React.FC = () => {
             ? 'Will be added to the transaction amount'
             : 'Will be subtracted from the transaction amount'
         }
-        loading={loading.isBondLoading}
         amount={bond?.delta}
-        token={TOKENS.STETH}
+        token={TOKENS.steth}
       />
     </>
   );

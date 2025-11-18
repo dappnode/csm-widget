@@ -9,7 +9,7 @@ import {
   SurveysSetupPage,
   SurveysSignInPage,
 } from 'features/surveys';
-import { getProps } from 'lib/getProps';
+import { getProps } from 'utilsApi';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { Gate, GateLoaded, Navigate } from 'shared/navigate';
@@ -40,7 +40,7 @@ const Page = () => {
 
   return (
     <GateLoaded>
-      <Gate rule="IS_NODE_OPERATOR" fallback={<Navigate path={PATH.HOME} />}>
+      <Gate rule="IS_SURVEYS_ACTIVE" fallback={<Navigate path={PATH.HOME} />}>
         <SurveyAuthProvider>
           <GateSurveyAuth fallback={<SurveysSignInPage />}>
             {page}

@@ -1,19 +1,13 @@
-import { Zero } from '@ethersproject/constants';
 import { DataTable, DataTableRow } from '@lidofinance/lido-ui';
-import { TOKENS } from 'consts/tokens';
 import { useWatch } from 'react-hook-form';
-import { FormatToken } from 'shared/formatters';
-import styled from 'styled-components';
-import { ClaimBondFormInputType, useClaimBondFormData } from './context';
-import { useBondReceiveAmount } from './hooks/use-bond-receive-amount';
 import { Address } from 'shared/components';
-import {
-  AddressContainerStyle,
-  AddressStyle,
-} from 'shared/components/address/styles';
+import { FormatToken } from 'shared/formatters';
+import { useBondWillReceive } from 'shared/hooks';
+import { ClaimBondFormInputType, useClaimBondFormData } from './context';
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
 
 export const ClaimBondFormInfo = () => {
-  const { rewardsAddress } = useClaimBondFormData();
+  const { rewardsAddress, rewards } = useClaimBondFormData(true);
   const [token, amount, claimRewards] = useWatch<
     ClaimBondFormInputType,
     ['token', 'amount', 'claimRewards']
@@ -21,34 +15,37 @@ export const ClaimBondFormInfo = () => {
     name: ['token', 'amount', 'claimRewards'],
   });
 
-  const bondReceive = useBondReceiveAmount();
+  const [bondReceive] = useBondWillReceive(
+    token,
+    amount,
+    claimRewards ? rewards?.available : undefined,
+  );
 
   return (
-    <DataTable>
+    <DataTable data-testid="claimBondFormInfo">
       <DataTableRow
+        data-testid="claimBondFormInfoTitle"
         title={
-          <AddressStyled>
+          <>
             Rewards Address (
-            <Address address={rewardsAddress} />) will receive
-          </AddressStyled>
+            <Address
+              address={rewardsAddress}
+              size="xxs"
+              weight={700}
+              color="secondary"
+            />
+            ) will receive
+          </>
         }
+        help="The recipient of the claim is the Rewards address. You can change the Rewards address on the Roles tab"
       >
-        <FormatToken amount={amount ?? Zero} token={token} />
+        <FormatToken amount={amount ?? 0n} token={token} />
       </DataTableRow>
       {claimRewards && (
         <DataTableRow title="Bond balance will increase by">
-          <FormatToken amount={bondReceive} token={TOKENS.STETH} />
+          <FormatToken amount={bondReceive} token={TOKENS.steth} />
         </DataTableRow>
       )}
     </DataTable>
   );
 };
-
-const AddressStyled = styled.div`
-  ${AddressContainerStyle} {
-    display: inline-flex;
-  }
-  ${AddressStyle} {
-    font-weight: bold;
-  }
-`;

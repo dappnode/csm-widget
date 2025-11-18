@@ -1,23 +1,28 @@
+import { useRouter } from 'next/router';
 import {
   FC,
   PropsWithChildren,
   createContext,
-  useContext,
-  useState,
-  useMemo,
   useCallback,
+  useContext,
   useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import invariant from 'tiny-invariant';
-import { useRouter } from 'next/router';
 
 import { config } from 'config';
+import { debounce } from 'lodash';
+import { saveScrollDown } from 'utils';
 
 export type InpageNavigationContextValue = {
   hashNav: string;
   navigateInpageAnchor: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   resetInpageAnchor: () => void;
   resetSpecificAnchor: (hash: string) => void;
+  scrollToAnchor: (hash: string) => void;
+  expanded: boolean;
+  toggleExpanded: () => void;
 };
 
 const InpageNavigationContext =
@@ -37,6 +42,13 @@ export const InpageNavigationProvider: FC<PropsWithChildren> = ({
     setHash(hash);
   }, [asPath]);
 
+  const scrollToAnchor = useCallback((hash: string) => {
+    if (!hash) return;
+    document.getElementById(hash)?.scrollIntoView({
+      behavior: 'smooth',
+    });
+  }, []);
+
   const navigateInpageAnchor = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       const href = e.currentTarget.getAttribute('href');
@@ -48,9 +60,7 @@ export const InpageNavigationProvider: FC<PropsWithChildren> = ({
       setHash(hash);
 
       // Perform animated scroll
-      document.getElementById(hash)?.scrollIntoView({
-        behavior: 'smooth',
-      });
+      scrollToAnchor(hash);
 
       // Change the hash for non-ipfs ui, without scrolling the page
       // We have done animated scroll already on next step
@@ -58,7 +68,7 @@ export const InpageNavigationProvider: FC<PropsWithChildren> = ({
         history.pushState({}, '', `#${hash}`);
       }
     },
-    [],
+    [scrollToAnchor],
   );
 
   const resetInpageAnchor = useCallback(() => {
@@ -77,14 +87,36 @@ export const InpageNavigationProvider: FC<PropsWithChildren> = ({
     [resetInpageAnchor, hashNav],
   );
 
+  const [expanded, setExpanded] = useState(false);
+  const toggleExpanded = useCallback(() => setExpanded((prev) => !prev), []);
+
+  useEffect(() => {
+    const handleScroll = debounce(saveScrollDown, 100, { leading: true });
+    window.addEventListener('scroll', saveScrollDown, false);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   const value = useMemo(
     () => ({
       hashNav,
       navigateInpageAnchor,
       resetInpageAnchor,
       resetSpecificAnchor,
+      expanded,
+      toggleExpanded,
+      scrollToAnchor,
     }),
-    [hashNav, navigateInpageAnchor, resetInpageAnchor, resetSpecificAnchor],
+    [
+      expanded,
+      hashNav,
+      navigateInpageAnchor,
+      resetInpageAnchor,
+      resetSpecificAnchor,
+      scrollToAnchor,
+      toggleExpanded,
+    ],
   );
 
   return (

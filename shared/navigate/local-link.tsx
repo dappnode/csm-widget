@@ -12,11 +12,12 @@ import { useCorrectPath } from './use-correct-path';
 type LocalLinkProps = Omit<LinkProps, 'href'> & {
   href?: PATH;
   anchor?: `#${string}`;
+  'data-testid'?: string;
 };
 
 export const LocalLink: FC<
   PropsWithChildren<WithMatomoEvent<LocalLinkProps>>
-> = ({ matomoEvent, href: path, anchor, ...restProps }) => {
+> = ({ matomoEvent, href: path, anchor, onClick, ...restProps }) => {
   const router = useRouter();
   const { ref, embed, app, theme } = router.query;
 
@@ -28,8 +29,9 @@ export const LocalLink: FC<
       trackMatomoEvent(matomoEvent);
       closeModal();
       event.stopPropagation();
+      onClick?.(event);
     },
-    [closeModal, matomoEvent],
+    [closeModal, matomoEvent, onClick],
   );
 
   const extraQuery = {} as Record<string, string>;

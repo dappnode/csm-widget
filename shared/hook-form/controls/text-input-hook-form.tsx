@@ -1,10 +1,9 @@
 import { Input } from '@lidofinance/lido-ui';
 import { useController, UseControllerProps } from 'react-hook-form';
-import { InputAddress } from 'shared/components/input-address';
 import { isValidationErrorTypeValidate } from '../validation/validation-error';
 
 type BlockhashInputHookFormProps = Partial<
-  React.ComponentProps<typeof InputAddress>
+  React.ComponentProps<typeof Input>
 > & {
   fieldName: string;
   label?: string;
@@ -28,7 +27,9 @@ export const TextInputHookForm = ({
   });
 
   const hasErrorHighlight =
-    isValidationErrorTypeValidate(error?.type) || error?.type === 'required';
+    isValidationErrorTypeValidate(error?.type) ||
+    error?.type === 'required' ||
+    error?.type === 'manual';
   // allows to show error state without message
   const errorMessage = hasErrorHighlight && (error?.message || true);
 

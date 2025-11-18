@@ -1,5 +1,5 @@
-import { KeyWithStatus, useNodeOperatorInfo } from 'shared/hooks';
-import { BondBalance, LoadingRecord, NodeOperatorId } from 'types';
+import { KeyWithStatus, NodeOperatorInfo } from '@lidofinance/lido-csm-sdk';
+import { BondBalance, NodeOperatorId } from '@lidofinance/lido-csm-sdk';
 
 export type RemoveKeysFormInputType = {
   selection: {
@@ -9,9 +9,10 @@ export type RemoveKeysFormInputType = {
 };
 
 export type RemoveKeysFormNetworkData = {
-  nodeOperatorId?: NodeOperatorId;
-  keys?: KeyWithStatus[];
-  info?: ReturnType<typeof useNodeOperatorInfo>['data'];
-  bond?: BondBalance;
-  loading: LoadingRecord<'keys' | 'bond' | 'info'>;
+  nodeOperatorId: NodeOperatorId;
+  curveId: bigint;
+  keys: KeyWithStatus[];
+  info: NodeOperatorInfo;
+  bond: BondBalance;
+  removalFee: bigint;
 };

@@ -1,6 +1,7 @@
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
 import { Checkbox } from '@lidofinance/lido-ui';
 import { BOND_EXCESS, BOND_INSUFFICIENT } from 'consts/text';
-import { TOKENS } from 'consts/tokens';
+import { useFrameInfo } from 'modules/web3';
 import { FC, useEffect } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 import {
@@ -10,10 +11,14 @@ import {
   Stack,
   TitledSelectableAmount,
 } from 'shared/components';
+import { formatDate } from 'utils';
 import { ClaimBondFormInputType, useClaimBondFormData } from '../context';
 
 export const SourceSelect: FC = () => {
-  const { bond, rewards, loading, maxValues } = useClaimBondFormData();
+  const { bond, rewards, maxValues } = useClaimBondFormData(true);
+  const { data: nextDistribution } = useFrameInfo(
+    (data) => data.lastReport + data.frameDuration,
+  );
 
   const { field } = useController<ClaimBondFormInputType, 'claimRewards'>({
     name: 'claimRewards',
@@ -22,7 +27,8 @@ export const SourceSelect: FC = () => {
 
   const { setValue } = useFormContext<ClaimBondFormInputType>();
 
-  const availableToClaim = maxValues?.[TOKENS.STETH][Number(field.value)];
+  const availableToClaim = maxValues[TOKENS.steth][Number(field.value)];
+  const nextRewardsDate = formatDate(nextDistribution);
 
   useEffect(() => {
     if (bond?.isInsufficient) {
@@ -30,20 +36,15 @@ export const SourceSelect: FC = () => {
     }
   }, [bond?.isInsufficient, setValue]);
 
-  const showLockedBond = bond?.locked.gt(0);
+  const showLockedBond = !!bond?.locked;
 
   return (
     <>
-      <Stack spaceBetween>
+      <Stack spaceBetween data-testid="availableToClaimBalance">
         <FormTitle>Available to claim</FormTitle>
-        <AmountWithPrice
-          big
-          amount={availableToClaim}
-          token={TOKENS.STETH}
-          loading={loading.isBondLoading || loading.isRewardsLoading}
-        />
+        <AmountWithPrice big amount={availableToClaim} token={TOKENS.steth} />
       </Stack>
-      <Latice>
+      <Latice data-testid="sourceSelect">
         <TitledSelectableAmount
           title={
             <Checkbox
@@ -51,13 +52,14 @@ export const SourceSelect: FC = () => {
               {...field}
               value=""
               checked={!!field.value}
-              disabled={!rewards?.available.gt(0)}
+              disabled={!rewards?.available}
             />
           }
-          help="The rewards amount available to claim, obtained from all active validators of the Node Operator"
-          loading={loading.isRewardsLoading}
+          help={`The rewards amount available to claim, obtained from all active validators of the Node Operator. Next rewards distribution is expected on ${nextRewardsDate}`}
+          helpIcon="calendar"
           amount={rewards?.available}
-          token={TOKENS.STETH}
+          token={TOKENS.steth}
+          data-testid="rewardsSource"
         />
         <TitledSelectableAmount
           warning={bond?.isInsufficient}
@@ -70,22 +72,22 @@ export const SourceSelect: FC = () => {
           }
           help={
             bond?.isInsufficient
-              ? 'Insufficient bond is the missing amount of stETH required to cover all operator’s keys.  In case of a bond insufficient, "unbonded" validators are requested for exit by the protocol'
-              : 'The bond amount available to claim without having to exit validators'
+              ? 'Insufficient bond is the missing amount of stETH required to cover all operator’s keys'
+              : 'The bond amount available to claim without having to exit validators. Increases daily'
           }
+          helpIcon={bond?.isInsufficient ? undefined : 'calendar'}
           sign={bond?.isInsufficient ? 'minus' : 'plus'}
-          loading={loading.isBondLoading}
           amount={bond?.delta}
-          token={TOKENS.STETH}
+          token={TOKENS.steth}
+          data-testid="excessBondSource"
         />
         {showLockedBond && (
           <TitledSelectableAmount
             warning
             title={<Checkbox checked disabled label="Locked bond" />}
-            help="Bond may be locked in the case of an MEV stealing event reported by a dedicated committee. This measure ensures that Node Operators are held accountable for any misbehavior or rule violations."
-            loading={loading.isBondLoading}
+            help="Bond may be locked in the case of an MEV stealing event reported by a dedicated committee. This measure ensures that Node Operators are held accountable for any misbehavior or rule violations"
             amount={bond?.locked}
-            token={TOKENS.ETH}
+            token={TOKENS.eth}
             sign="minus"
           />
         )}

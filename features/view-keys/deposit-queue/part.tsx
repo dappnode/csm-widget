@@ -1,24 +1,60 @@
-import { FC } from 'react';
-import { useHover } from './hover-provider';
-import { GraphPart } from './types';
+import { Tooltip } from '@lidofinance/lido-ui';
+import { FC, useCallback } from 'react';
+import { useGraphInteraction } from './hover-provider';
 import { PartStyle } from './style';
+import { BatchMetadata, GraphPart } from './types';
+import { BatchTooltipContent } from './batch-tooltip-content';
+import { AddedTooltipContent } from './added-tooltip-content';
 
 type PartProps = {
   type: GraphPart;
-  size?: number;
+  width?: number;
   offset?: number;
-} & React.HTMLAttributes<HTMLDivElement>;
+  metadata?: BatchMetadata;
+};
 
-export const Part: FC<PartProps> = ({ type, size, offset, ...props }) => {
-  const { hover } = useHover();
+export const Part: FC<PartProps> = ({ type, width, offset, metadata }) => {
+  const { hover, setFullView } = useGraphInteraction();
 
-  return (
+  const onMouseEnter = useCallback(() => {
+    setFullView(true);
+  }, [setFullView]);
+
+  if (!width && type !== 'limit') {
+    return null;
+  }
+
+  const part = (
     <PartStyle
       $type={type}
-      $size={size}
+      $width={width}
       $offset={offset}
       $fade={hover && hover !== type}
-      {...props}
+      onMouseEnter={type === 'active' ? onMouseEnter : undefined}
     />
   );
+
+  if (type === 'batch' && metadata) {
+    return (
+      <Tooltip
+        title={<BatchTooltipContent metadata={metadata} />}
+        placement="top"
+      >
+        {part}
+      </Tooltip>
+    );
+  }
+
+  if (type === 'added' && metadata) {
+    return (
+      <Tooltip
+        title={<AddedTooltipContent metadata={metadata} />}
+        placement="top"
+      >
+        {part}
+      </Tooltip>
+    );
+  }
+
+  return part;
 };

@@ -1,20 +1,19 @@
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
 import { BOND_EXCESS, BOND_INSUFFICIENT } from 'consts/text';
-import { TOKENS } from 'consts/tokens';
-import { useNodeOperatorId } from 'providers/node-operator-provider';
+import { useNodeOperatorId, useOperatorBalance } from 'modules/web3';
 import { FC } from 'react';
 import { Counter } from 'shared/components';
-import { useNodeOperatorBalance } from 'shared/hooks';
 import { Balance } from './balance';
 import { AccordionStyle, RowBody, RowHeader, RowTitle } from './styles';
 
 export const BondBalance: FC = () => {
   const id = useNodeOperatorId();
 
-  const { data: bond, initialLoading: isBondLoading } =
-    useNodeOperatorBalance(id);
+  const { data: bond, isPending: isBondLoading } = useOperatorBalance(id);
 
   return (
     <AccordionStyle
+      data-testid="bondBalanceBlock"
       summary={
         <RowHeader>
           <RowTitle>
@@ -22,16 +21,18 @@ export const BondBalance: FC = () => {
             {bond?.isInsufficient && <Counter warning count={1} />}
           </RowTitle>
           <Balance
+            data-testid="commonBalance"
             big
             loading={isBondLoading}
             amount={bond?.current}
-            token={TOKENS.STETH}
+            token={TOKENS.steth}
           />
         </RowHeader>
       }
     >
       <RowBody>
         <Balance
+          data-testid="requiredBondBalance"
           title="Required bond"
           loading={isBondLoading}
           amount={bond?.required}
@@ -46,17 +47,18 @@ export const BondBalance: FC = () => {
               title={BOND_INSUFFICIENT}
               loading={isBondLoading}
               amount={bond?.delta}
-              help="Insufficient bond is the missing amount of stETH required to cover all operator’s keys."
+              help="Insufficient bond is the missing amount of stETH required to cover all operator’s keys"
             />
           </>
         ) : (
           <>
             <Balance
+              data-testid="excessBondBalance"
               sign="plus"
               title={BOND_EXCESS}
               loading={isBondLoading}
               amount={bond?.delta}
-              help="The bond amount available to claim without having to exit validators. Increases daily."
+              help="The bond amount available to claim without having to exit validators. Increases daily"
             />
           </>
         )}

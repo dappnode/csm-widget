@@ -1,23 +1,18 @@
 import { FC, useCallback } from 'react';
 import { Stack } from 'shared/components';
-import { useHover } from './hover-provider';
+import { useGraphInteraction } from './hover-provider';
 import { ChipStyle, CircleStyle, LegendStyle, PartStyle } from './style';
+import { getPriorityName } from './get-priority-name';
 import { GraphPart } from './types';
 
 type LegendProps = {
   type: GraphPart;
-  title: string;
-  count?: string;
+  keysCount?: number | bigint;
   hide?: boolean;
 };
 
-export const Legend: FC<LegendProps> = ({
-  type,
-  title,
-  count,
-  hide = false,
-}) => {
-  const { setHover } = useHover();
+export const Legend: FC<LegendProps> = ({ type, keysCount, hide = false }) => {
+  const { setHover } = useGraphInteraction();
 
   const handleHover = useCallback(() => {
     setHover(type);
@@ -30,6 +25,12 @@ export const Legend: FC<LegendProps> = ({
     return null;
   }
 
+  const title = getPriorityName(type);
+
+  if (!keysCount && !['limit', 'active'].includes(type)) {
+    return null;
+  }
+
   return (
     <LegendStyle onMouseEnter={handleHover} onMouseLeave={handleLeave}>
       <Stack center gap="sm">
@@ -37,10 +38,8 @@ export const Legend: FC<LegendProps> = ({
           <PartStyle $type={type} />
         </CircleStyle>
         <span>{title}</span>
-        {(count !== undefined && (
-          <ChipStyle $type={type} $loading={count === '...'}>
-            {count}
-          </ChipStyle>
+        {(keysCount !== undefined && (
+          <ChipStyle $type={type}>{keysCount.toString()}</ChipStyle>
         )) ||
           null}
       </Stack>

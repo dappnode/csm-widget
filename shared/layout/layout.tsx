@@ -1,24 +1,23 @@
 import { FC, PropsWithChildren, ReactNode, useEffect } from 'react';
 
-import { ContainerProps } from '@lidofinance/lido-ui';
-
+import { AlertContainer } from 'shared/alerts';
 import { trackMatomoEvent, WithMatomoEvent } from 'utils';
-import { Footer } from './footer/footer';
-import { DummyHeader } from './header/dummy-header';
-import { Header } from './header/header';
-import { Main } from './main/main';
+import { Footer } from './footer';
+import { DummyHeader, Header, SemiDummyHeader } from './header';
+import { Navigation } from './navigation';
 import {
   Content,
   Heading,
+  LayoutStyle,
   LayoutSubTitleStyle,
   LayoutTitleStyle,
+  Main,
 } from './styles';
 
 type Props = {
   title?: ReactNode;
   subtitle?: ReactNode;
-  containerSize?: ContainerProps['size'];
-  dummy?: boolean;
+  dummy?: boolean | 'semi';
 };
 
 export const Layout: FC<PropsWithChildren<WithMatomoEvent<Props>>> = ({
@@ -26,7 +25,6 @@ export const Layout: FC<PropsWithChildren<WithMatomoEvent<Props>>> = ({
   dummy,
   title,
   subtitle,
-  containerSize,
   matomoEvent,
 }) => {
   const titlesCount = [title, subtitle].filter(Boolean).length;
@@ -36,9 +34,20 @@ export const Layout: FC<PropsWithChildren<WithMatomoEvent<Props>>> = ({
   }, [matomoEvent]);
 
   return (
-    <>
-      {dummy ? <DummyHeader /> : <Header />}
-      <Main size={containerSize}>
+    <LayoutStyle>
+      {dummy === 'semi' ? (
+        <SemiDummyHeader />
+      ) : dummy ? (
+        <DummyHeader />
+      ) : (
+        <>
+          <Navigation />
+          <Header />
+          <AlertContainer />
+        </>
+      )}
+
+      <Main>
         <Heading $titlesCount={titlesCount}>
           {title && <LayoutTitleStyle>{title}</LayoutTitleStyle>}
           {subtitle && <LayoutSubTitleStyle>{subtitle}</LayoutSubTitleStyle>}
@@ -46,6 +55,6 @@ export const Layout: FC<PropsWithChildren<WithMatomoEvent<Props>>> = ({
         <Content>{children}</Content>
       </Main>
       <Footer />
-    </>
+    </LayoutStyle>
   );
 };

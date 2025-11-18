@@ -33,6 +33,9 @@ import { PATH } from 'consts/urls';
 import { SurveyButton } from '../components';
 import { Button } from '@lidofinance/lido-ui';
 import { Setup, SetupRaw, SetupsKeys } from '../types';
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
+import { useSurveysFilled } from 'shared/hooks';
+import { useNodeOperatorId } from 'modules/web3';
 
 const required = { required: true };
 
@@ -52,6 +55,9 @@ export const SurveySetup: FC<{ id?: string }> = ({ id }) => {
 
   const { data: keys, mutate: mutateKeys } =
     useSurveysSWR<SetupsKeys>('setups/keys');
+
+  const nodeOperatorId = useNodeOperatorId();
+  const { refetch } = useSurveysFilled(nodeOperatorId);
 
   const filledWitoutCurrent = Math.max(
     0,
@@ -82,6 +88,7 @@ export const SurveySetup: FC<{ id?: string }> = ({ id }) => {
       try {
         const res = await mutate(data);
         void mutateKeys();
+        void refetch();
         if (!id && res?.index) {
           void navigate(`${PATH.SURVEYS_SETUP}/${res.index}` as PATH);
         }
@@ -90,7 +97,7 @@ export const SurveySetup: FC<{ id?: string }> = ({ id }) => {
         modals.failed(e);
       }
     },
-    [modals, mutate, id, mutateKeys, navigate],
+    [modals, mutate, mutateKeys, refetch, id, navigate],
   );
 
   const handleRemove = useCallback(async () => {
@@ -216,7 +223,6 @@ export const SurveySetup: FC<{ id?: string }> = ({ id }) => {
                   <SelectHookForm
                     fieldName="clientsCountry"
                     options={COUNTRY_OPTIONS}
-                    rules={required}
                   />
                 </Stack>
 
@@ -257,7 +263,6 @@ export const SurveySetup: FC<{ id?: string }> = ({ id }) => {
                     <SelectHookForm
                       fieldName="validatorCountry"
                       options={COUNTRY_OPTIONS}
-                      rules={required}
                     />
                   </Stack>
                 )}
@@ -278,8 +283,7 @@ export const SurveySetup: FC<{ id?: string }> = ({ id }) => {
                   <TokenAmountInputHookForm
                     fieldName="mevMinBid"
                     label="Min bid"
-                    token="ETH"
-                    rules={required}
+                    token={TOKENS.eth}
                   />
                 </Stack>
                 <SubmitButtonHookForm>Submit</SubmitButtonHookForm>

@@ -1,7 +1,7 @@
 import { Block, Box, Button, Modal, Text } from '@lidofinance/lido-ui';
 import type { ModalComponentType } from 'providers/modal-provider';
 import { FC, useCallback, useState } from 'react';
-import { Address, Stack, StepIndicator } from 'shared/components';
+import { Address, OwnerChip, Stack, StepIndicator } from 'shared/components';
 import { ConfirmModalProps } from 'shared/hooks';
 import invariant from 'tiny-invariant';
 
@@ -85,17 +85,19 @@ const CustomAddresses: FC<Required<Props>> = ({
 
     <Stack direction="column">
       <Stack direction="column" gap="xs">
-        <Text size="xs">Rewards Address</Text>
-        <Text size="xs" weight={700}>
-          <Address address={rewardsAddress} symbols={0} bold />
-        </Text>
+        <Stack gap="sm" center>
+          <Text size="xs">Rewards Address</Text>
+          {!extendedManagerPermissions && <OwnerChip />}
+        </Stack>
+        <Address address={rewardsAddress} symbols={0} big weight={700} />
       </Stack>
 
       <Stack direction="column" gap="xs">
-        <Text size="xs">Manager Address</Text>
-        <Text size="xs" weight={700}>
-          <Address address={managerAddress} symbols={0} bold />
-        </Text>
+        <Stack gap="sm" center>
+          <Text size="xs">Manager Address</Text>
+          {extendedManagerPermissions && <OwnerChip />}
+        </Stack>
+        <Address address={managerAddress} symbols={0} big weight={700} />
       </Stack>
     </Stack>
     {extendedManagerPermissions && <StepIndicator length={2} current={0} />}

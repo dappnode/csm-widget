@@ -1,19 +1,19 @@
-import { getExternalLinks } from 'consts/external-links';
+import { NodeOperatorId } from '@lidofinance/lido-csm-sdk';
+import { getExternalLinks, SUBSCRIBE_EVENTS_LINK } from 'consts/external-links';
 import { MATOMO_CLICK_EVENTS_TYPES } from 'consts/matomo-click-events';
 import { PATH } from 'consts/urls';
 import { FC } from 'react';
 import { MatomoLink } from 'shared/components';
 import { LocalLink } from 'shared/navigate';
 import styled from 'styled-components';
-import { NodeOperatorId } from 'types';
-import Link from 'next/link';
 
 type Props = {
   nodeOperatorId?: NodeOperatorId;
   keys: string[];
 };
 
-export const AfterKeysUpload: FC<Props> = () => {
+export const AfterKeysUpload: FC<Props> = ({ keys }) => {
+  const beaconchainDashboardLink = useBeaconchainDashboardLink(keys);
   const { beaconchain } = getExternalLinks();
   return (
     <BlockStyled color="background">
@@ -22,24 +22,46 @@ export const AfterKeysUpload: FC<Props> = () => {
       <ol>
         <li>Wait for your keys to be deposited through the protocol. </li>
         <li>
-          Once your keys become active (check the status on the{' '}
+          Once your keys become active (you can check their statuses on the{' '}
           <LocalLink
             matomoEvent={MATOMO_CLICK_EVENTS_TYPES.createSuccessKeysTab}
             href={PATH.KEYS_VIEW}
           >
             Keys tab
           </LocalLink>
-          , on{' '}
+          {beaconchain && (
+            <>
+              , on{' '}
+              <MatomoLink
+                matomoEvent={MATOMO_CLICK_EVENTS_TYPES.createSuccessBeaconchain}
+                href={beaconchain}
+              >
+                beaconcha.in
+              </MatomoLink>
+            </>
+          )}{' '}
+          or subscribe to the{' '}
           <MatomoLink
-            matomoEvent={MATOMO_CLICK_EVENTS_TYPES.createSuccessBeaconchain}
-            href={beaconchain}
+            matomoEvent={MATOMO_CLICK_EVENTS_TYPES.createSuccessSubscribeEvents}
+            href={SUBSCRIBE_EVENTS_LINK}
           >
-            beaconcha.in
-          </MatomoLink>{' '}
-          or subscribe to the
-          {/* DAPPNODE */}
-          <Link href={PATH.NOTIFICATIONS}>CSM Telegram notifications</Link>)
-          make sure your validators are producing attestations.
+            CSM events notifications
+          </MatomoLink>
+          ) make sure your validators are producing attestations{' '}
+          {beaconchainDashboardLink && (
+            <>
+              (you can use the{' '}
+              <MatomoLink
+                matomoEvent={
+                  MATOMO_CLICK_EVENTS_TYPES.createSuccessBeaconchainDashboard
+                }
+                href={beaconchainDashboardLink}
+              >
+                beaconcha.in dashboard
+              </MatomoLink>{' '}
+              to check)
+            </>
+          )}
         </li>
       </ol>
     </BlockStyled>

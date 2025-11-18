@@ -1,33 +1,34 @@
-import { BOND_EXCESS, BOND_INSUFFICIENT } from 'consts/text';
-import { TOKENS } from 'consts/tokens';
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
+import { UNBONDED_VALIDATORS_LINK } from 'consts/external-links';
+import { BOND_INSUFFICIENT } from 'consts/text';
 import { FC } from 'react';
 import { Latice, MatomoLink, Stack, TitledAmount } from 'shared/components';
 import { useAddBondFormData } from '../context';
 
 export const Info: FC = () => {
-  const { bond, loading } = useAddBondFormData();
+  const { bond } = useAddBondFormData(true);
 
   return (
     <>
       <Latice variant="secondary">
-        <Stack direction="column" gap="sm">
+        <Stack direction="column" gap="sm" data-testid="formInfo">
           <TitledAmount
             warning={bond?.isInsufficient}
-            title={bond?.isInsufficient ? BOND_INSUFFICIENT : BOND_EXCESS}
+            title={bond?.isInsufficient ? BOND_INSUFFICIENT : 'Bond balance'}
             help={
               bond?.isInsufficient
                 ? 'Insufficient bond is the missing amount of stETH required to cover all operator’s keys.  In case of a bond insufficient, "unbonded" validators are requested for exit by the protocol'
-                : 'The bond amount available to claim without having to exit validators'
+                : undefined
             }
-            loading={loading.isBondLoading}
             amount={bond?.delta}
-            token={TOKENS.STETH}
+            token={TOKENS.steth}
+            data-testid="titledAmount"
           />
           {bond?.isInsufficient ? (
             <p>
               Your Node Operator has an Insufficient bond because of the penalty
-              applied. Now your Node Operator’s bond is less than required to
-              cover the Node Operator’s current validators.
+              applied. Now your Node Operator&apos;s bond is less than required
+              to cover the Node Operator&apos;s current validators.
               <br />
               <b>Action required:</b>
               <br />
@@ -41,7 +42,7 @@ export const Info: FC = () => {
               <br />
               Adding a bond serves as a voluntary security measure for your Node
               Operator to prevent your validators from becoming{' '}
-              <MatomoLink href="https://docs.lido.fi/staking-modules/csm/guides/unbonded-validators">
+              <MatomoLink href={UNBONDED_VALIDATORS_LINK}>
                 unbonded
               </MatomoLink>{' '}
               and being requested to exit in case of applied penalties.

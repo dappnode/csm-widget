@@ -1,31 +1,26 @@
 import { FC } from 'react';
-import { LogoLido } from 'shared/components';
 
-import { config } from 'config';
-import { AlertContainer } from 'shared/alerts';
+import { HeaderBurger } from './components/header-burger';
 import HeaderChain from './components/header-chain';
-import HeaderEaMember from './components/header-ea-member';
 import HeaderNodeOperator from './components/header-node-operator';
-import { HeaderSettingsButton } from './components/header-settings-button';
-// import HeaderTheme from './components/header-theme';
+import HeaderTheme from './components/header-theme';
 import HeaderWallet from './components/header-wallet';
-import { Navigation } from './components/navigation/navigation';
-import { HeaderActionsStyle, HeaderContentStyle, HeaderStyle } from './styles';
+import { Logos } from './components/logos';
+import { HeaderActionsStyle, HeaderStyle, HeaderWrapper } from './styles';
+import { HeaderCustomActionsSlot } from './header-custom-actions-slot';
 
 export const Header: FC = () => (
-  <HeaderStyle size="full" forwardedAs="header">
-    <HeaderContentStyle>
-      <LogoLido />
-      <Navigation />
+  <HeaderWrapper>
+    <HeaderStyle>
+      <Logos />
       <HeaderActionsStyle>
         <HeaderChain />
-        <HeaderEaMember />
+        <HeaderCustomActionsSlot />
         <HeaderNodeOperator />
         <HeaderWallet />
-        {config.ipfsMode && <HeaderSettingsButton />}
-        {/* <HeaderTheme /> // DAPPNODE*/}
+        <HeaderTheme />
+        <HeaderBurger />
       </HeaderActionsStyle>
-    </HeaderContentStyle>
-    <AlertContainer />
-  </HeaderStyle>
+    </HeaderStyle>
+  </HeaderWrapper>
 );

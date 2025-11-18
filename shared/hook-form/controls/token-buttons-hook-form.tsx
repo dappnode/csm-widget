@@ -1,4 +1,4 @@
-import { TOKENS } from 'consts/tokens';
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
 import { FC, ReactNode } from 'react';
 import { useController } from 'react-hook-form';
 import { RadioButton } from 'shared/components';
@@ -19,7 +19,7 @@ export const TokenButtonsHookForm: FC<Props> = ({
   const { field } = useController<Record<string, TOKENS>>({ name: fieldName });
 
   return (
-    <StackWrap>
+    <StackWrap data-testid="tokenButtons">
       {Object.keys(options).map((key) => (
         <RadioButton
           key={key}
