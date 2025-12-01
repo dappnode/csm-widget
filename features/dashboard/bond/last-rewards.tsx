@@ -161,7 +161,7 @@ const LastReportStats: FC = () => {
       )}
 
       <TextBlock title="Distribution transaction" loading={isTxLoading}>
-        <Box as="span" fontWeight={400}>
+        <Box as="span" fontWeight={400} fontSize={12}>
           <TxLinkEtherscan txHash={txHash} />
         </Box>
       </TextBlock>
