@@ -4,7 +4,6 @@ import { useGetNextReport } from 'dappnode/hooks/use-get-next-report';
 import { Link, Loader } from '@lidofinance/lido-ui';
 import { dappnodeLidoDocsUrls } from 'dappnode/utils/dappnode-docs-urls';
 import { useGetPendingReports } from 'dappnode/hooks/use-get-pending-reports';
-import { LoaderWrapperStyle } from 'shared/navigate/splash/loader-banner/styles';
 
 export const PerformanceCardsSection = () => {
   const daysUntilNextReport = useGetNextReport();
@@ -33,9 +32,7 @@ export const PerformanceCardsSection = () => {
         }
       >
         {isLoading ? (
-          <LoaderWrapperStyle>
-            <Loader size="small" />
-          </LoaderWrapperStyle>
+          <Loader size="small" />
         ) : (
           <p>
             {pendingReports} {pendingReports === 1 ? 'report' : 'reports'}

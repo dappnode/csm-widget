@@ -16,7 +16,6 @@ import {
   SuccessWrapper,
 } from 'dappnode/components/text-wrappers';
 import { NotificationsSteps } from './notifications-setup-steps';
-import { LoaderWrapperStyle } from 'shared/navigate/splash/loader-banner/styles';
 
 export const NotificationsComponent = () => {
   const [newTgUserId, setNewTgUserId] = useState('');
@@ -155,9 +154,7 @@ export const NotificationsComponent = () => {
           }
         >
           {isLoading ? (
-            <LoaderWrapperStyle>
-              <Loader size="small" color="secondary" />
-            </LoaderWrapperStyle>
+            <Loader size="small" color="secondary" />
           ) : (
             'Update Telegram Data'
           )}
