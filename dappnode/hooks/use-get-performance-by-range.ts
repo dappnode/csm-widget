@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGetOperatorPerformance } from './use-get-operator-performance';
 import { Range, ValidatorStats } from '../performance/types';
-import { useAccount } from 'shared/hooks';
+import { useDappStatus } from 'modules/web3';
 
 export const useGetPerformanceByRange = (range: Range) => {
   const { operatorData, isLoading } = useGetOperatorPerformance();
@@ -12,7 +12,7 @@ export const useGetPerformanceByRange = (range: Range) => {
   const [threshold, setThreshold] = useState<number>(0);
   const [thresholdsByEpoch, setThresholdsByEpoch] = useState<any[]>([]);
 
-  const { chainId } = useAccount();
+  const { chainId } = useDappStatus();
 
   const epochRanges: Record<Range, number> = {
     week: 1575, // 7 days * 225 epochs / day

@@ -98,3 +98,5 @@ export const FAQ_NOTIFICATIONS = [
   Notifications2,
   Notifications3,
 ];
+
+export const FAQ_PERFORMANCE = [];

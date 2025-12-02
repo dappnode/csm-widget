@@ -1,11 +1,11 @@
-import { useChainId } from 'wagmi';
-import { CONSTANTS_BY_NETWORK, getCsmConstants } from 'consts/csm-constants';
+import { REPORT_TIMESTAMPS_BY_NETWORK } from 'consts';
+import { useDappStatus } from 'modules/web3';
 
 export const useGetNextReport = () => {
-  const chainId = useChainId() as keyof typeof CONSTANTS_BY_NETWORK;
+  const { chainId } = useDappStatus();
   const currentTimestamp = Math.floor(Date.now() / 1000);
 
-  const deploymentTimestamp = getCsmConstants(chainId).reportTimestamp;
+  const deploymentTimestamp = REPORT_TIMESTAMPS_BY_NETWORK[chainId];
 
   const reportsIntervalDays = chainId === 1 ? 28 : 7;
   const reportsIntervalSeconds = reportsIntervalDays * 24 * 60 * 60;

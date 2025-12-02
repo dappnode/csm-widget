@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 import useDappnodeUrls from './use-dappnode-urls';
-import { useNodeOperatorsList } from 'providers/node-operator-provider/use-node-operators-list';
-import { useGetActiveNodeOperator } from 'providers/node-operator-provider/use-get-active-node-operator';
+import { useNodeOperator } from 'modules/web3';
 
 export const useGetPendingReports = () => {
   const { backendUrl } = useDappnodeUrls();
-  const { list } = useNodeOperatorsList();
-  const { active: activeNO } = useGetActiveNodeOperator(list);
 
   const [pendingReports, setPendingReports] = useState();
   const [isLoading, setIsLoading] = useState(false);
+
+  const { nodeOperator } = useNodeOperator();
 
   useEffect(() => {
     const getPendingReports = async () => {
@@ -17,7 +16,7 @@ export const useGetPendingReports = () => {
       try {
         console.debug(`GETting pending reports from events indexer API`);
         const response = await fetch(
-          `${backendUrl}/api/v0/events_indexer/pending_hashes?operatorId=${activeNO?.id}`,
+          `${backendUrl}/api/v0/events_indexer/pending_hashes?operatorId=${nodeOperator?.id}`,
           {
             method: 'GET',
             headers: {
@@ -41,10 +40,10 @@ export const useGetPendingReports = () => {
       }
     };
 
-    if (activeNO) {
+    if (nodeOperator) {
       void getPendingReports();
     }
-  }, [activeNO, backendUrl]);
+  }, [nodeOperator, backendUrl]);
 
   return { isLoading, pendingReports };
 };
