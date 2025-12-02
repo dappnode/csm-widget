@@ -3,9 +3,6 @@ import { DropZoneContainer, KeystoreFileRow } from './styles';
 import { PasswordInput } from './password-input';
 import useKeystoreDrop from './use-keystore-drop';
 import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls';
-import { useFormDepositData } from 'shared/hook-form/form-controller';
-import { SubmitKeysFormInputType } from 'features/create-node-operator/submit-keys-form/context';
-import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import ImportKeysConfirmModal from './import-keys-confirm-modal';
 
@@ -33,11 +30,6 @@ export const KeysBrainUpload = ({
       setIsImportModalOpen(true);
     }
   }, [keysFiles]);
-
-  const formObject = useForm<SubmitKeysFormInputType>({
-    mode: 'onChange',
-  });
-  useFormDepositData(formObject);
 
   return (
     <>

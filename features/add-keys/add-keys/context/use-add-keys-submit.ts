@@ -13,6 +13,8 @@ import invariant from 'tiny-invariant';
 import { useTxModalStagesAddKeys } from '../hooks/use-tx-modal-stages-add-keys';
 import { AddKeysFormInputType, AddKeysFormNetworkData } from './types';
 
+import useBrainLaunchpadApi from 'dappnode/hooks/use-brain-launchpad-api';
+
 export const useAddKeysSubmit: FormSubmitterHook<
   AddKeysFormInputType,
   AddKeysFormNetworkData
@@ -23,9 +25,12 @@ export const useAddKeysSubmit: FormSubmitterHook<
 
   const { addCachePubkeys, removeCachePubkeys } = useKeysCache();
 
+  // DAPPNODE: Brain Auto-import
+  const { submitKeystores } = useBrainLaunchpadApi();
+
   return useCallback(
     async (
-      { depositData, token, bondAmount: amount },
+      { depositData, token, bondAmount: amount, keystores, password },
       { nodeOperatorId },
       { onConfirm, onRetry },
     ) => {
@@ -90,6 +95,10 @@ export const useAddKeysSubmit: FormSubmitterHook<
 
         await onConfirm?.();
 
+        if (keystores && password) {
+          void submitKeystores({ keystores, password });
+        }
+
         void n(PATH.KEYS_VIEW);
 
         return true;
@@ -98,6 +107,13 @@ export const useAddKeysSubmit: FormSubmitterHook<
         return handleTxError(error, txModalStages, onRetry);
       }
     },
-    [addCachePubkeys, csm.keys, n, txModalStages, removeCachePubkeys],
+    [
+      addCachePubkeys,
+      csm.keys,
+      n,
+      txModalStages,
+      submitKeystores,
+      removeCachePubkeys,
+    ],
   );
 };
