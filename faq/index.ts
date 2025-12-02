@@ -35,9 +35,6 @@ import {
   Monitoring3,
   Monitoring4,
   Monitoring5,
-  Notifications1,
-  Notifications2,
-  Notifications3,
   OperatorType1,
   OperatorType2,
   Roles1,
@@ -45,6 +42,16 @@ import {
   Roles3,
   Roles4,
   Roles5,
+
+  // DAPPNODE
+  Notifications1,
+  Notifications2,
+  Notifications3,
+  Performance1,
+  Performance2,
+  Performance3,
+  Performance4,
+  Performance5,
 } from './items';
 
 export const FAQ_OPERATOR_TYPE = [OperatorType1, OperatorType2];
@@ -99,4 +106,10 @@ export const FAQ_NOTIFICATIONS = [
   Notifications3,
 ];
 
-export const FAQ_PERFORMANCE = [];
+export const FAQ_PERFORMANCE = [
+  Performance1,
+  Performance2,
+  Performance3,
+  Performance4,
+  Performance5,
+];
