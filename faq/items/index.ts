@@ -41,3 +41,8 @@ export * from './roles-2';
 export * from './roles-3';
 export * from './roles-4';
 export * from './roles-5';
+
+// DAPPNODE
+export * from './notifications-1';
+export * from './notifications-2';
+export * from './notifications-3';

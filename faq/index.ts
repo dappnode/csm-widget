@@ -35,6 +35,9 @@ import {
   Monitoring3,
   Monitoring4,
   Monitoring5,
+  Notifications1,
+  Notifications2,
+  Notifications3,
   OperatorType1,
   OperatorType2,
   Roles1,
@@ -87,4 +90,11 @@ export const FAQ_KEYS = [
   Keys13,
   Keys14,
   Keys15,
+];
+
+// DAPPNODE
+export const FAQ_NOTIFICATIONS = [
+  Notifications1,
+  Notifications2,
+  Notifications3,
 ];
