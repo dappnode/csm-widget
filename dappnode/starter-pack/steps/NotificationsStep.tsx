@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Button } from '@lidofinance/lido-ui';
+import { Link, Button } from '@lidofinance/lido-ui';
 import { Step } from '../step-wrapper';
 import { StepsProps } from '../steps';
 import { useDappStatus } from 'modules/web3';
@@ -20,17 +20,19 @@ export const NotificationsStep: FC<StepsProps> = ({
           Dappnode&apos;s notification system allows you to receive alerts
           regarding your node and Lido validators directly in your Dappmanager
           UI under the{' '}
-          <a href="http://my.dappnode/notifications/inbox">notifications tab</a>
+          <Link href="http://my.dappnode/notifications/inbox">
+            Notifications Inbox
+          </Link>
           , or on your phone if you are a{' '}
-          <a href="http://my.dappnode/premium/activate">Premium</a> user.
+          <Link href="http://my.dappnode/premium/activate">Premium</Link> user.
         </p>
 
         <p>
           By default, all notifications are enabled, but you can customize which
           ones you want to receive in the{' '}
-          <a href="http://my.dappnode/notifications/settings">
+          <Link href="http://my.dappnode/notifications/settings">
             Notifications Settings tab
-          </a>{' '}
+          </Link>{' '}
           under the Lido CSM {CHAINS[chainId]} section.
         </p>
 

@@ -45,8 +45,6 @@ import {
 
   // DAPPNODE
   Notifications1,
-  Notifications2,
-  Notifications3,
   Performance1,
   Performance2,
   Performance3,
@@ -100,11 +98,7 @@ export const FAQ_KEYS = [
 ];
 
 // DAPPNODE
-export const FAQ_NOTIFICATIONS = [
-  Notifications1,
-  Notifications2,
-  Notifications3,
-];
+export const FAQ_NOTIFICATIONS = [Notifications1];
 
 export const FAQ_PERFORMANCE = [
   Performance1,

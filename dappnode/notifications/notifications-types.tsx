@@ -60,11 +60,6 @@ const avaliableNotifications = {
       value:
         'The execution client is missing log receipts, preventing event scanning. Update your configuration or switch to a compatible client.',
     },
-    {
-      title: 'CsModule events notifications 📋',
-      value:
-        'Covers updates on rewards, penalties, new keys, and manager address proposals for the Lido CSModule smart contract.',
-    },
   ],
 };
 
@@ -72,7 +67,12 @@ export default function NotificationsTypes() {
   return (
     <Section title="Available Notifications">
       {Object.entries(avaliableNotifications).map(([key, value]) => (
-        <AccordionNavigatable summary={key} key={key} defaultExpanded={true}>
+        <AccordionNavigatable
+          summary={key}
+          key={key}
+          defaultExpanded={true}
+          id={key}
+        >
           <NotificationsList>
             {value.map((notification, i) => (
               <li key={i}>

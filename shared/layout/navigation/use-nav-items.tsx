@@ -106,7 +106,7 @@ const routes: Route[] = [
   {
     name: 'Notifications',
     path: PATH.NOTIFICATIONS,
-    icon: <AlertIcon />,
+    icon: <AlertIcon style={{ margin: '0 4px 0 3px' }} />,
     showRules: ['IS_NODE_OPERATOR'],
     suffix: <CounterInvites />,
   },

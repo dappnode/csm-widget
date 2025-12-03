@@ -8,8 +8,8 @@ import { FAQ_NOTIFICATIONS } from 'faq';
 
 export const NotificationsPage: FC = () => (
   <Layout
-    title="Change Telegram Notifications"
-    subtitle="Forward your notifications to your Telegram account"
+    title="Notifications"
+    subtitle="Forward notifications via Dappnode's Notification System"
   >
     <NotificationsComponent />
     <NotificationsTypes />
