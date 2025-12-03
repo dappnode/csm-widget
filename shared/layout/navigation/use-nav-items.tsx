@@ -58,7 +58,11 @@ const routes: Route[] = [
       PATH.KEYS_TRANSFER,
       PATH.CREATE,
     ],
-    showRules: ['IS_NODE_OPERATOR', 'CAN_CREATE'],
+    showRules: [
+      'IS_NODE_OPERATOR',
+      //  DAPPNODE: Avoid skipping starter pack
+      //  'CAN_CREATE'
+    ],
     suffix: <CounterInvalidKeys />,
   },
   {

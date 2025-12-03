@@ -19,6 +19,7 @@ import { Address } from 'viem';
 import { useConfirmCustomAddressesModal } from '../hooks/use-confirm-modal';
 import { useTxModalStagesSubmitKeys } from '../hooks/use-tx-modal-stages-submit-keys';
 import { SubmitKeysFormInputType, SubmitKeysFormNetworkData } from './types';
+import useBrainLaunchpadApi from 'dappnode/hooks/use-brain-launchpad-api';
 
 type SubmitKeysMethodParams = {
   token: TOKENS;
@@ -64,6 +65,9 @@ export const useSubmitKeysSubmit: FormSubmitterHook<
 
   const confirmCustomAddresses = useConfirmCustomAddressesModal();
 
+  // DAPPNODE: Brain Auto-import
+  const { submitKeystores } = useBrainLaunchpadApi();
+
   return useCallback(
     async (
       {
@@ -75,6 +79,8 @@ export const useSubmitKeysSubmit: FormSubmitterHook<
         rewardsAddress,
         managerAddress,
         extendedManagerPermissions,
+        keystores,
+        password,
       },
       { address, proof },
       { onConfirm, onRetry },
@@ -148,6 +154,10 @@ export const useSubmitKeysSubmit: FormSubmitterHook<
 
         await onConfirm?.();
 
+        if (keystores && password) {
+          void submitKeystores({ keystores, password });
+        }
+
         // FIXME: !result - mean multisig finish allowance and need to start second transaction
         if (result) {
           if (hasAnyRole(result, address)) {
@@ -170,9 +180,10 @@ export const useSubmitKeysSubmit: FormSubmitterHook<
       addCachePubkeys,
       submitKeysTx,
       txModalStages,
+      submitKeystores,
+      appendNO,
       setOperatorCustomAddresses,
       n,
-      appendNO,
       removeCachePubkeys,
     ],
   );
