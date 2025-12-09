@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react';
 import { useGetOperatorPerformance } from './use-get-operator-performance';
 import { Range, ValidatorStats } from '../performance/types';
@@ -29,141 +28,6 @@ export const useGetPerformanceByRange = (range: Range) => {
 
   useEffect(() => {
     if (!operatorDataRaw) return;
-
-    // Example of operatorDataRaw structure:
-    //     [
-    //     {
-    //         "frame": [
-    //             52850,
-    //             54424
-    //         ],
-    //         "operators": {
-    //             "330": {
-    //                 "distributed_rewards": 0,
-    //                 "validators": {
-    //                     "1236473": {
-    //                         "performance": 0.9980952380952381,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9066196549913157
-    //                     },
-    //                     "1236474": {
-    //                         "performance": 0.9968253968253968,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9066196549913157
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     },
-    //     {
-    //         "frame": [
-    //             54425,
-    //             55999
-    //         ],
-    //         "operators": {
-    //             "330": {
-    //                 "distributed_rewards": 0,
-    //                 "validators": {
-    //                     "1236473": {
-    //                         "performance": 1,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9158714685009193
-    //                     },
-    //                     "1236474": {
-    //                         "performance": 0.9993650793650793,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9158714685009193
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     },
-    //     {
-    //         "frame": [
-    //             56000,
-    //             57574
-    //         ],
-    //         "operators": {
-    //             "330": {
-    //                 "distributed_rewards": 0,
-    //                 "validators": {
-    //                     "1236473": {
-    //                         "performance": 1,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9270561498332749
-    //                     },
-    //                     "1236474": {
-    //                         "performance": 1,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9270561498332749
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     },
-    //     {
-    //         "frame": [
-    //             57575,
-    //             59149
-    //         ],
-    //         "operators": {
-    //             "330": {
-    //                 "distributed_rewards": 0,
-    //                 "validators": {
-    //                     "1236473": {
-    //                         "performance": 0.9992576095025983,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9318850831318516
-    //                     },
-    //                     "1236474": {
-    //                         "performance": 0.9992576095025983,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9318850831318516
-    //                     },
-    //                     "1251794": {
-    //                         "performance": 1,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9318850831318516
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     },
-    //     {
-    //         "frame": [
-    //             49700,
-    //             51274
-    //         ],
-    //         "operators": {
-    //             "330": {
-    //                 "distributed_rewards": 0,
-    //                 "validators": {
-    //                     "1236473": {
-    //                         "performance": 0.9936215450035436,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9376923237837359
-    //                     },
-    //                     "1236474": {
-    //                         "performance": 0.9922041105598866,
-    //                         "slashed": false,
-    //                         "strikes": 0,
-    //                         "threshold": 0.9376923237837359
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // ]
 
     // Map operator data to a more usable format
     const operatorData = Object.fromEntries(
@@ -275,73 +139,82 @@ export const useGetPerformanceByRange = (range: Range) => {
     );
   }, [chainId, epochsInRange, operatorDataRaw, parsedNOId, range]);
 
-  // useEffect(() => {
-  //   if (!operatorDataByRange) return;
+  useEffect(() => {
+    if (!operatorDataByRange) return;
 
-  //   const statsPerValidator: { [key: string]: ValidatorStats[] } = {};
-  //   const thresholds: number[] = [];
+    const statsPerValidator: { [key: string]: ValidatorStats[] } = {};
+    const thresholds: number[] = [];
 
-  //   // Process data for validatorsStats
-  //   for (const key of Object.keys(operatorDataByRange)) {
-  //     const validatorsData = operatorDataByRange[key]?.data?.validators || {};
-  //     thresholds.push(operatorDataByRange[key]?.threshold);
+    // Process data for validatorsStats
+    for (const key of Object.keys(operatorDataByRange)) {
+      const validatorsData =
+        operatorDataByRange[key]?.operators[parsedNOId]?.validators || {};
 
-  //     for (const validator of Object.keys(validatorsData)) {
-  //       if (!statsPerValidator[validator]) {
-  //         statsPerValidator[validator] = [];
-  //       }
+      thresholds.push(
+        operatorDataByRange[key]?.operators[parsedNOId]?.threshold,
+      );
 
-  //       const validatorPerf = validatorsData[validator].perf;
-  //       const attestations = {
-  //         included: validatorPerf.included,
-  //         assigned: validatorPerf.assigned,
-  //       };
+      for (const validator of Object.keys(validatorsData)) {
+        if (!statsPerValidator[validator]) {
+          statsPerValidator[validator] = [];
+        }
 
-  //       statsPerValidator[validator].push({
-  //         index: parseInt(validator),
-  //         attestations,
-  //         efficiency: validatorPerf.included / validatorPerf.assigned,
-  //       });
-  //     }
-  //   }
+        const validatorPerf = validatorsData[validator].performance;
+        // const attestations = {
+        //   included: validatorPerf.included,
+        //   assigned: validatorPerf.assigned,
+        // };
 
-  //   // Calculate average threshold
-  //   setThreshold(
-  //     thresholds.reduce((sum, value) => sum + value, 0) / thresholds.length,
-  //   );
+        statsPerValidator[validator].push({
+          index: parseInt(validator),
+          attestations: {
+            included: 100,
+            assigned: 0,
+          },
+          efficiency: validatorPerf,
+        });
+      }
+    }
 
-  //   const getValidatorStats = (
-  //     data: Record<string, any[]>,
-  //   ): ValidatorStats[] => {
-  //     return Object.entries(data).map(([key, entries]) => {
-  //       const totalAssigned = entries.reduce(
-  //         (sum, entry) => sum + entry.attestations.assigned,
-  //         0,
-  //       );
-  //       const totalIncluded = entries.reduce(
-  //         (sum, entry) => sum + entry.attestations.included,
-  //         0,
-  //       );
-  //       const totalEfficiency = entries.reduce(
-  //         (sum, entry) => sum + (entry.efficiency || 0),
-  //         0,
-  //       );
+    // Calculate average threshold
+    setThreshold(
+      thresholds.reduce((sum, value) => sum + value, 0) / thresholds.length,
+    );
 
-  //       return {
-  //         index: parseInt(key, 10),
-  //         attestations: {
-  //           assigned: totalAssigned,
-  //           included: totalIncluded,
-  //         },
-  //         efficiency: totalEfficiency / entries.length,
-  //       };
-  //     });
-  //   };
+    const getValidatorStats = (
+      data: Record<string, any[]>,
+    ): ValidatorStats[] => {
+      return Object.entries(data).map(([key, entries]) => {
+        const totalAssigned = entries.reduce(
+          (sum, entry) => sum + entry.attestations.assigned,
+          0,
+        );
+        const totalIncluded = entries.reduce(
+          (sum, entry) => sum + entry.attestations.included,
+          0,
+        );
 
-  //   // Calculate stats for validators
-  //   const result = getValidatorStats(statsPerValidator);
-  //   setValidatorsStats(result);
-  // }, [operatorDataByRange]);
+        const totalEfficiency = entries.reduce(
+          (sum, entry) => sum + (entry.efficiency || 0),
+          0,
+        );
+
+        return {
+          index: parseInt(key, 10),
+          attestations: {
+            assigned: totalAssigned,
+            included: totalIncluded,
+          },
+          efficiency: totalEfficiency / entries.length,
+        };
+      });
+    };
+
+    // Calculate stats for validators
+    const result = getValidatorStats(statsPerValidator);
+
+    setValidatorsStats(result);
+  }, [operatorDataByRange, parsedNOId, threshold]);
 
   return {
     isLoading,

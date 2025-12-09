@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FC, useState } from 'react';
 import { Faq } from 'shared/components';
 import { Layout } from 'shared/layout';
@@ -47,8 +46,8 @@ export const PerformancePage: FC = () => {
 
       <PerformanceTableSection
         isLoading={isLoading}
-        validatorsStats={[]}
-        threshold={0.5}
+        validatorsStats={validatorsStats}
+        threshold={threshold}
       />
 
       <Faq items={FAQ_PERFORMANCE} />
