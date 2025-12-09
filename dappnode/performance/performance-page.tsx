@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FC, useState } from 'react';
 import { Faq } from 'shared/components';
 import { Layout } from 'shared/layout';
@@ -18,6 +19,12 @@ export const PerformancePage: FC = () => {
   const [range, setRange] = useState<Range>('ever');
   const { isLoading, validatorsStats, threshold, thresholdsByEpoch } =
     useGetPerformanceByRange(range);
+
+  // console.log('validatorsStats', validatorsStats);
+  // console.log('threshold', threshold);
+  // console.log('thresholdsByEpoch', thresholdsByEpoch);
+
+  // const { operatorData, isLoading } = useGetOperatorPerformance();
 
   return (
     <Layout
@@ -40,8 +47,8 @@ export const PerformancePage: FC = () => {
 
       <PerformanceTableSection
         isLoading={isLoading}
-        validatorsStats={validatorsStats}
-        threshold={threshold}
+        validatorsStats={[]}
+        threshold={0.5}
       />
 
       <Faq items={FAQ_PERFORMANCE} />

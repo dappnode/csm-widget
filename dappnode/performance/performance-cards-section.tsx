@@ -1,13 +1,20 @@
 import { Stack } from 'shared/components';
 import { PerformanceCard } from './components/performance-card';
-import { useGetNextReport } from 'dappnode/hooks/use-get-next-report';
 import { Link, Loader } from '@lidofinance/lido-ui';
 import { dappnodeLidoDocsUrls } from 'dappnode/utils/dappnode-docs-urls';
 import { useGetPendingReports } from 'dappnode/hooks/use-get-pending-reports';
+import { useFrameInfo } from 'modules/web3';
+import { countCalendarDaysLeft } from 'utils';
 
 export const PerformanceCardsSection = () => {
-  const daysUntilNextReport = useGetNextReport();
   const { pendingReports, isLoading } = useGetPendingReports();
+
+  const { data: rewardsFrame } = useFrameInfo((data) => ({
+    nextDistribution: data.lastReport + data.frameDuration,
+  }));
+  const daysUntilNextReport = countCalendarDaysLeft(
+    rewardsFrame?.nextDistribution,
+  );
 
   return (
     <Stack wrap>

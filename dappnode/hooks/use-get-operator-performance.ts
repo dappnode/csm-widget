@@ -5,12 +5,13 @@ import { useEffect, useState } from 'react';
 export const useGetOperatorPerformance = () => {
   const { backendUrl } = useDappnodeUrls();
   const nodeOperatorId = useNodeOperatorId();
+
   const [operatorData, setOperatorData] = useState<any>();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const getDataWithRetry = async () => {
-      const url = `${backendUrl}/api/v0/events_indexer/operator_performance?operatorId=${nodeOperatorId}`;
+      const url = `${backendUrl}/api/v0/events_indexer/operator_performance?operatorId=${Number(nodeOperatorId)}`;
       const options = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
