@@ -1,4 +1,3 @@
-import { KeyWithStatus } from '@lidofinance/lido-csm-sdk';
 import { ReactComponent as BeaconchaLink } from 'assets/icons/beaconcha-link.svg';
 import { getExternalLinks } from 'consts/external-links';
 import { MATOMO_CLICK_EVENTS_TYPES } from 'consts/matomo-click-events';
@@ -7,24 +6,34 @@ import { MatomoLink } from '../matomo-link/matomo-link';
 
 const { beaconchain } = getExternalLinks();
 
-export const BeaconchainPubkeyLink: FC<
-  Pick<KeyWithStatus, 'pubkey' | 'validatorIndex'>
-> = ({ pubkey, validatorIndex }) => {
-  const href = beaconchain ? `${beaconchain}/validator/${pubkey}` : '';
+// Dappnode: Allow validatorIndex prop for cases where pubkey is not available
+interface BeaconchainPubkeyLinkProps {
+  pubkey?: string;
+  validatorIndex?: string | number;
+}
 
-  if (!validatorIndex) return null;
+export const BeaconchainPubkeyLink: FC<BeaconchainPubkeyLinkProps> = ({
+  pubkey,
+  validatorIndex,
+}) => {
+  let href = '';
+  if (beaconchain) {
+    if (pubkey) {
+      href = `${beaconchain}/validator/${pubkey}`;
+    } else if (validatorIndex !== undefined && validatorIndex !== null) {
+      href = `${beaconchain}/validator/${validatorIndex}`;
+    }
+  }
+
+  if (!href) return null;
 
   return (
-    <>
-      {href && (
-        <MatomoLink
-          href={href}
-          title="View on beaconcha.in"
-          matomoEvent={MATOMO_CLICK_EVENTS_TYPES.beaconchainPubkeyLink}
-        >
-          <BeaconchaLink />
-        </MatomoLink>
-      )}
-    </>
+    <MatomoLink
+      href={href}
+      title="View on beaconcha.in"
+      matomoEvent={MATOMO_CLICK_EVENTS_TYPES.beaconchainPubkeyLink}
+    >
+      <BeaconchaLink />
+    </MatomoLink>
   );
 };
