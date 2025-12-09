@@ -10,6 +10,8 @@ import {
 import invariant from 'tiny-invariant';
 import { useActiveNodeOperator } from './use-active-node-operator';
 import { useAvailableOperators } from './use-available-operators';
+// Dappnode
+import { usePostNodeOperator } from 'dappnode/hooks/use-post-node-operator';
 
 export type NodeOperatorContextValue = {
   isPending: boolean;
@@ -61,6 +63,9 @@ export const NodeOperatorPrivider: FC<PropsWithChildren> = ({ children }) => {
     },
     [list, setActive],
   );
+
+  // Dappnode
+  usePostNodeOperator(active);
 
   const value = useMemo(
     () => ({ isPending, nodeOperator: active, switchNodeOperator }),
