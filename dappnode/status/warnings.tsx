@@ -1,29 +1,27 @@
 import { FC, useEffect, useState } from 'react';
-import { BeaconchainPubkeyLink, Stack } from 'shared/components';
+import { Stack } from 'shared/components';
 import {
   AddressRow,
   NumWarningsLabel,
   ValidatorMapStack,
   WarningCard,
 } from './styles';
-import { Link, Loader, Tooltip } from '@lidofinance/lido-ui';
+import { Link, Loader } from '@lidofinance/lido-ui';
 import { Address } from '@lidofinance/address';
-import { WarnedValidator } from './types';
 import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls';
 import useMissingKeys from 'dappnode/hooks/use-missing-keys';
-import useGetExitRequests from 'dappnode/hooks/use-get-exit-requests';
 import ImportKeysWarningModal from './import-keys-warning-modal';
 import useGetRelaysData from 'dappnode/hooks/use-get-relays-data';
 import { useGetInfraStatus } from 'dappnode/hooks/use-get-infra-status';
 
 export const Warnings: FC = () => {
-  const { brainUrl, stakersUiUrl, MEVPackageConfig } = useDappnodeUrls();
+  const { stakersUiUrl, MEVPackageConfig } = useDappnodeUrls();
   const { missingKeys, keysLoading, error: errorBrain } = useMissingKeys();
-  const {
-    exitRequests,
-    getExitRequests,
-    isLoading: exitsLoading,
-  } = useGetExitRequests();
+  // const {
+  //   exitRequests,
+  //   getExitRequests,
+  //   isLoading: exitsLoading,
+  // } = useGetExitRequests();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const { ECStatus, CCStatus, isCCLoading, isECLoading } = useGetInfraStatus();
   const {
@@ -34,33 +32,11 @@ export const Warnings: FC = () => {
     isLoading: relaysLoading,
   } = useGetRelaysData();
 
-  const [validatorsExitRequests, setValidatorsExitRequests] = useState<
-    WarnedValidator[]
-  >([]);
-
   const [numWarnings, setNumWarnings] = useState(0);
-  useEffect(() => {
-    void getExitRequests();
-  }, [getExitRequests]);
-
-  useEffect(() => {
-    if (exitRequests) {
-      Object.keys(exitRequests).forEach((key) => {
-        setValidatorsExitRequests((prevState) => [
-          ...prevState,
-          {
-            index: exitRequests[key].event.ValidatorIndex,
-            pubkey: exitRequests[key].validator_pubkey_hex,
-          },
-        ]);
-      });
-    }
-  }, [exitRequests]);
 
   useEffect(() => {
     setNumWarnings(
-      validatorsExitRequests.length +
-        (errorBrain ? 1 : missingKeys.length) +
+      (errorBrain ? 1 : missingKeys.length) +
         (ECStatus === 'NOT_INSTALLED' ? 1 : 0) +
         (CCStatus === 'NOT_INSTALLED' ? 1 : 0) +
         (isMEVRunning ? 0 : 1) +
@@ -68,7 +44,6 @@ export const Warnings: FC = () => {
         (isMEVRunning && usedBlacklistedRelays.length > 0 ? 1 : 0),
     );
   }, [
-    validatorsExitRequests,
     errorBrain,
     missingKeys,
     ECStatus,
@@ -90,13 +65,7 @@ export const Warnings: FC = () => {
   return (
     <Stack direction="column" gap="sm">
       <WarningWrapper
-        showIf={
-          !isECLoading &&
-          !isCCLoading &&
-          !keysLoading &&
-          !relaysLoading &&
-          !exitsLoading
-        }
+        showIf={!isECLoading && !isCCLoading && !keysLoading && !relaysLoading}
       >
         <WarningCard $hasWarning={numWarnings > 0}>
           <div>
@@ -144,7 +113,6 @@ export const Warnings: FC = () => {
             {missingKeys.map((key) => (
               <AddressRow key={key}>
                 <Address address={key} symbols={16} />
-                <BeaconchainPubkeyLink pubkey={key} />
               </AddressRow>
             ))}
             <button onClick={() => setIsImportModalOpen(true)}>
@@ -164,31 +132,6 @@ export const Warnings: FC = () => {
           <h3>Your Brain API is not Up!</h3>
           <p>Please, if Web3Signer is already installed, re-install it</p>
           <Link href={stakersUiUrl}> Set Web3Signer</Link>
-        </WarningCard>
-      </WarningWrapper>
-
-      <WarningWrapper showIf={validatorsExitRequests.length > 0}>
-        <WarningCard>
-          <ValidatorMapStack $direction="column">
-            <Tooltip
-              placement="top"
-              title="At least one of your validators has been requested by Lido to exit"
-            >
-              <h3>
-                <NumWarningsLabel>
-                  {validatorsExitRequests.length}
-                </NumWarningsLabel>
-                Validator/s requested to exit
-              </h3>
-            </Tooltip>
-            {validatorsExitRequests.map((val) => (
-              <AddressRow key={val.pubkey}>
-                <p>{val.index}</p>
-                <BeaconchainPubkeyLink pubkey={val.pubkey} />
-              </AddressRow>
-            ))}
-            <Link href={brainUrl}>Exit validators</Link>
-          </ValidatorMapStack>
         </WarningCard>
       </WarningWrapper>
 
