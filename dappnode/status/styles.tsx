@@ -52,6 +52,7 @@ export const WarningCard = styled(StackStyle).attrs<{ $hasWarning?: boolean }>(
     $hasWarning: props.$hasWarning ?? true,
   }),
 )<{ $hasWarning?: boolean }>`
+  width: 100%;
   justify-content: center;
   text-align: center;
   border-radius: ${({ theme }) => theme.borderRadiusesMap.md}px;

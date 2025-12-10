@@ -63,7 +63,7 @@ export const Warnings: FC = () => {
   };
 
   return (
-    <Stack direction="column" gap="sm">
+    <Stack direction="column" gap="sm" center>
       <WarningWrapper
         showIf={!isECLoading && !isCCLoading && !keysLoading && !relaysLoading}
       >
