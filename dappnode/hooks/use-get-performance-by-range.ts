@@ -160,6 +160,7 @@ export const useGetPerformanceByRange = (range: Range) => {
         }
 
         const validatorPerf = validatorsData[validator].performance;
+        // ATTESTATIONS
         // const attestations = {
         //   included: validatorPerf.included,
         //   assigned: validatorPerf.assigned,
@@ -167,10 +168,11 @@ export const useGetPerformanceByRange = (range: Range) => {
 
         statsPerValidator[validator].push({
           index: parseInt(validator),
-          attestations: {
-            included: 100,
-            assigned: 0,
-          },
+          // ATTESTATIONS
+          // attestations: {
+          //   included: 0,
+          //   assigned: 0,
+          // },
           efficiency: validatorPerf,
         });
       }
@@ -185,14 +187,15 @@ export const useGetPerformanceByRange = (range: Range) => {
       data: Record<string, any[]>,
     ): ValidatorStats[] => {
       return Object.entries(data).map(([key, entries]) => {
-        const totalAssigned = entries.reduce(
-          (sum, entry) => sum + entry.attestations.assigned,
-          0,
-        );
-        const totalIncluded = entries.reduce(
-          (sum, entry) => sum + entry.attestations.included,
-          0,
-        );
+        // ATTESTATIONS
+        // const totalAssigned = entries.reduce(
+        //   (sum, entry) => sum + entry.attestations.assigned,
+        //   0,
+        // );
+        // const totalIncluded = entries.reduce(
+        //   (sum, entry) => sum + entry.attestations.included,
+        //   0,
+        // );
 
         const totalEfficiency = entries.reduce(
           (sum, entry) => sum + (entry.efficiency || 0),
@@ -201,10 +204,11 @@ export const useGetPerformanceByRange = (range: Range) => {
 
         return {
           index: parseInt(key, 10),
-          attestations: {
-            assigned: totalAssigned,
-            included: totalIncluded,
-          },
+          // ATTESTATIONS
+          // attestations: {
+          //   assigned: totalAssigned,
+          //   included: totalIncluded,
+          // },
           efficiency: totalEfficiency / entries.length,
         };
       });

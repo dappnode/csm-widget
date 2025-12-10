@@ -19,12 +19,6 @@ export const PerformancePage: FC = () => {
   const { isLoading, validatorsStats, threshold, thresholdsByEpoch } =
     useGetPerformanceByRange(range);
 
-  // console.log('validatorsStats', validatorsStats);
-  // console.log('threshold', threshold);
-  // console.log('thresholdsByEpoch', thresholdsByEpoch);
-
-  // const { operatorData, isLoading } = useGetOperatorPerformance();
-
   return (
     <Layout
       title="Dappnode Validators"
