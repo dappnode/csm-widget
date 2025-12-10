@@ -52,7 +52,10 @@ export const PerformanceTable: FC<PerformanceTableProps> = ({
               <Text size="xxs" color="secondary">
                 {validator.index}
               </Text>
-              <BeaconchainPubkeyLink validatorIndex={`${validator.index}`} />
+              <BeaconchainPubkeyLink
+                validatorIndex={`${validator.index}`}
+                statuses={[]}
+              />
             </AddressRow>
           </Td>
           <Td>

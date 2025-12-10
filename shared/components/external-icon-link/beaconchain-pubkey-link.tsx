@@ -17,13 +17,29 @@ const NON_DEPOSITED_STATUSES: KEY_STATUS[] = [
   KEY_STATUS.UNCHECKED,
 ];
 
-export const BeaconchainPubkeyLink: FC<
-  Pick<KeyWithStatus, 'pubkey' | 'statuses'>
-> = ({ pubkey, statuses }) => {
-  const href = beaconchain ? `${beaconchain}/validator/${pubkey}` : '';
+// Dappnode: Allow validatorIndex prop for cases where pubkey is not available
+export interface BeaconchainPubkeyLinkProps {
+  pubkey?: string;
+  validatorIndex?: string | number;
+  statuses: KeyWithStatus['statuses'];
+}
+
+export const BeaconchainPubkeyLink: FC<BeaconchainPubkeyLinkProps> = ({
+  pubkey,
+  validatorIndex,
+  statuses,
+}) => {
+  let href = '';
+  if (beaconchain) {
+    if (pubkey) {
+      href = `${beaconchain}/validator/${pubkey}`;
+    } else if (validatorIndex !== undefined && validatorIndex !== null) {
+      href = `${beaconchain}/validator/${validatorIndex}`;
+    }
+  }
   const skip = hasInterception(statuses, NON_DEPOSITED_STATUSES);
 
-  if (skip) return null;
+  if (skip || !href) return null;
 
   return (
     <MatomoLink
