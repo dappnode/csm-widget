@@ -79,6 +79,8 @@ export const enum MATOMO_CLICK_EVENTS_TYPES {
   transferKeysLinkAlert = 'transferKeysLinkAlert',
   unlockBondLinkAlert = 'unlockBondLinkAlert',
   claimIcsLinkAlert = 'claimIcsLinkAlert',
+  feeRecipientDocsLink = 'feeRecipientDocsLink',
+  feeRecipientDismissButton = 'feeRecipientDismissButton',
   // Dashboard
   dashboardKeysLink = 'dashboardKeysLink',
   dashboardBondLink = 'dashboardBondLink',
@@ -119,6 +121,8 @@ export const enum MATOMO_CLICK_EVENTS_TYPES {
   page500 = 'page500',
   // Actions
   switchNodeOperator = 'switchNodeOperator',
+  // Rewards History
+  rewardsHistoryExport = 'rewardsHistoryExport',
   // modifiers
   visitWithModeExtended = 'visitWithModeExtended',
   visitWithReferrer = 'visitWithReferrer',
@@ -336,6 +340,14 @@ export const MATOMO_CLICK_EVENTS: Record<
     'Click «Claim ICS» link on Claim ICS alert',
     'claim_ics_link_alert',
   ),
+  [MATOMO_CLICK_EVENTS_TYPES.feeRecipientDocsLink]: createEvent(
+    'Click «How to change feeRecipient» link on Wrong Fee Recipient alert',
+    'fee_recipient_docs_link_alert',
+  ),
+  [MATOMO_CLICK_EVENTS_TYPES.feeRecipientDismissButton]: createEvent(
+    "Click «I've changed the feeRecipient» button on Wrong Fee Recipient alert",
+    'fee_recipient_dismiss_button_alert',
+  ),
   // Dashboard
   [MATOMO_CLICK_EVENTS_TYPES.dashboardKeysLink]: createEvent(
     'Push «Keys section» arrow on Dashboard screen',
@@ -486,6 +498,11 @@ export const MATOMO_CLICK_EVENTS: Record<
   [MATOMO_CLICK_EVENTS_TYPES.switchNodeOperator]: createEvent(
     'Switch Node Operator',
     'switch_node_operator',
+  ),
+  // Rewards History
+  [MATOMO_CLICK_EVENTS_TYPES.rewardsHistoryExport]: createEvent(
+    'Push «Export all to CSV» button on Rewards History page',
+    'rewards_history_export',
   ),
   // Modifiers
   [MATOMO_CLICK_EVENTS_TYPES.visitWithModeExtended]: createEvent(

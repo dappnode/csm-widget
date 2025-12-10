@@ -1,31 +1,29 @@
-import { ReactComponent as BeaconchaLink } from 'assets/icons/beaconcha-link.svg';
+import { KEY_STATUS, KeyWithStatus } from '@lidofinance/lido-csm-sdk';
 import { getExternalLinks } from 'consts/external-links';
 import { MATOMO_CLICK_EVENTS_TYPES } from 'consts/matomo-click-events';
 import { FC } from 'react';
+import { hasInterception } from 'utils';
 import { MatomoLink } from '../matomo-link/matomo-link';
+
+import { ReactComponent as BeaconchaLink } from 'assets/icons/beaconcha-link.svg';
 
 const { beaconchain } = getExternalLinks();
 
-// Dappnode: Allow validatorIndex prop for cases where pubkey is not available
-interface BeaconchainPubkeyLinkProps {
-  pubkey?: string;
-  validatorIndex?: string | number;
-}
+const NON_DEPOSITED_STATUSES: KEY_STATUS[] = [
+  KEY_STATUS.DEPOSITABLE,
+  KEY_STATUS.DUPLICATED,
+  KEY_STATUS.INVALID,
+  KEY_STATUS.NON_QUEUED,
+  KEY_STATUS.UNCHECKED,
+];
 
-export const BeaconchainPubkeyLink: FC<BeaconchainPubkeyLinkProps> = ({
-  pubkey,
-  validatorIndex,
-}) => {
-  let href = '';
-  if (beaconchain) {
-    if (pubkey) {
-      href = `${beaconchain}/validator/${pubkey}`;
-    } else if (validatorIndex !== undefined && validatorIndex !== null) {
-      href = `${beaconchain}/validator/${validatorIndex}`;
-    }
-  }
+export const BeaconchainPubkeyLink: FC<
+  Pick<KeyWithStatus, 'pubkey' | 'statuses'>
+> = ({ pubkey, statuses }) => {
+  const href = beaconchain ? `${beaconchain}/validator/${pubkey}` : '';
+  const skip = hasInterception(statuses, NON_DEPOSITED_STATUSES);
 
-  if (!href) return null;
+  if (skip) return null;
 
   return (
     <MatomoLink

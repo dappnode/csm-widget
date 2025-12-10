@@ -8,46 +8,86 @@ import { LidoSDKClient } from 'tests/services/csmSDK.client';
 import { SdkService } from 'tests/services/ethereumSDK.client';
 import { WidgetService } from 'tests/services/widget.service';
 import { mnemonicToAccount } from 'viem/accounts';
+import { FORK_WARM_UP_TIMEOUT } from 'tests/consts/timeouts';
+import ForkActionsService from 'tests/services/forkActions.service';
+import { warmUpForkedNode } from 'tests/helpers/warmUpFork';
 
 type WorkerFixtures = {
+  // fixture-options
   secretPhrase: string;
+  useFork: boolean;
+
+  autoConnectWallet: boolean;
   browserWithWallet: BrowserService;
   widgetService: WidgetService;
   csmSDK: LidoSDKClient;
   ethereumSDK: SdkService;
+  forkActionService: ForkActionsService;
 };
 
 export const test = base.extend<{ widgetConfig: IConfig }, WorkerFixtures>({
-  widgetConfig: async ({}, use) => {
-    await use(widgetFullConfig);
-  },
+  // fixture-options
+  useFork: [
+    async ({}, use) => {
+      await use(false);
+    },
+    { scope: 'worker', option: true },
+  ],
+  forkActionService: [
+    async ({}, use) => {
+      const svc = new ForkActionsService({
+        cwd: process.env.JUST_DIR || './community-staking-module',
+      });
+      await use(svc);
+    },
+    { scope: 'worker' },
+  ],
+  autoConnectWallet: [
+    async ({}, use) => {
+      await use(true);
+    },
+    { scope: 'worker' },
+  ],
   secretPhrase: [
     async ({}, use) => {
       await use(widgetFullConfig.accountConfig.SECRET_PHRASE);
     },
     { scope: 'worker' },
   ],
+  widgetConfig: async ({}, use) => {
+    await use(widgetFullConfig);
+  },
+
+  // fixture-methods
   browserWithWallet: [
-    async ({ secretPhrase }, use) => {
+    async ({ secretPhrase, useFork, csmSDK }, use) => {
+      const forkRpcURL = `http://${widgetFullConfig.standConfig.nodeConfig.host}:${widgetFullConfig.standConfig.nodeConfig.port}`;
+      const rpcUrl = useFork
+        ? forkRpcURL
+        : widgetFullConfig.standConfig.networkConfig.rpcUrl;
+
       const browserService = new BrowserService({
-        networkConfig: widgetFullConfig.standConfig.networkConfig,
+        networkConfig: {
+          ...widgetFullConfig.standConfig.networkConfig,
+          rpcUrl,
+        },
         accountConfig: {
           ...widgetFullConfig.accountConfig,
           SECRET_PHRASE: secretPhrase,
         },
-        walletConfig: {
-          ...widgetFullConfig.walletConfig,
-          LATEST_STABLE_DOWNLOAD_LINK:
-            'https://github.com/MetaMask/metamask-extension/releases/download/v12.10.4/metamask-chrome-12.10.4.zip',
+        walletConfig: widgetFullConfig.walletConfig,
+        nodeConfig: {
+          ...widgetFullConfig.standConfig.nodeConfig,
+          useExternalFork: true,
+          warmUpCallback: warmUpForkedNode.bind(null, csmSDK, secretPhrase),
         },
-        nodeConfig: { rpcUrlToMock: '**/api/rpc?chainId=1' },
         browserOptions: {
           reducedMotion: 'reduce',
           cookies: REFUSE_CF_BLOCK_COOKIE,
         },
       });
 
-      await browserService.initWalletSetup();
+      await browserService.initWalletSetup(useFork);
 
       await use(browserService);
 
@@ -61,22 +101,27 @@ export const test = base.extend<{ widgetConfig: IConfig }, WorkerFixtures>({
 
       await browserService.teardown();
     },
-    { scope: 'worker' },
+    { scope: 'worker', timeout: FORK_WARM_UP_TIMEOUT },
   ],
   widgetService: [
-    async ({ browserWithWallet }, use) => {
+    async ({ browserWithWallet, autoConnectWallet }, use) => {
       const ws = new WidgetService(
         browserWithWallet.getBrowserContextPage(),
         browserWithWallet.getWalletPage(),
       );
-      await ws.connectWallet();
+      if (autoConnectWallet) await ws.connectWallet();
       await use(ws);
     },
     { scope: 'worker' },
   ],
   csmSDK: [
-    async ({}, use) => {
-      await use(new LidoSDKClient());
+    async ({ useFork }, use) => {
+      const forkRpcURL = `http://${widgetFullConfig.standConfig.nodeConfig.host}:${widgetFullConfig.standConfig.nodeConfig.port}`;
+      const rpcUrl = useFork
+        ? forkRpcURL
+        : widgetFullConfig.standConfig.networkConfig.rpcUrl;
+
+      await use(new LidoSDKClient([rpcUrl]));
     },
     { scope: 'worker' },
   ],

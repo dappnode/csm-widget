@@ -36,7 +36,7 @@ export class WidgetService {
 
   async connectWallet(expectConnectionState = true) {
     await test.step('Open default page for connect.', async () => {
-      await this.page.goto('/');
+      await this.page.goto('/?survey-setup=1&ics-appy=1&?wallet-rpc=1');
     });
     await test.step('Connect wallet to widget', async () => {
       const element = new ElementController(this.page);
@@ -53,7 +53,7 @@ export class WidgetService {
       ) {
         try {
           const [connectWalletPage] = await Promise.all([
-            this.page.context().waitForEvent('page', { timeout: 90000 }),
+            this.page.context().waitForEvent('page', { timeout: 10000 }),
             // @Fixme dbclick() when https://linear.app/lidofi/issue/SI-1447/mm-incorrect-network-required-double-click resolved
             await walletIcon.dblclick(),
           ]);
@@ -214,6 +214,18 @@ export class WidgetService {
       const match = rowHeader.match(/#(\d+)/);
       if (!match) throw new Error('Cannot extract ID from header');
       return Number(match[1]);
+    });
+  }
+
+  async mockValidationAddressRequest(isValid = false) {
+    await test.step('Mock route for Blacklisted wallet address', async () => {
+      await this.page.route(`**/api/validation?address=*`, async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          json: { isValid },
+        });
+      });
     });
   }
 }
