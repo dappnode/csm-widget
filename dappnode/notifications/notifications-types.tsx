@@ -20,23 +20,7 @@ const avaliableNotifications = {
         'Your validator has successfully entered the exit queue without requiring manual action.',
     },
   ],
-  Performance: [
-    {
-      title: 'Operator in status stuck in latest report 🚨',
-      value:
-        "An operator is in a 'stuck' state for the specified epoch range. Performance should be checked.",
-    },
-    {
-      title: 'Operator bad performance in latest report 🚨',
-      value:
-        "The operator's performance was below the acceptable threshold during the specified epoch range.",
-    },
-    {
-      title: 'Operator good performance in latest report ✅',
-      value:
-        "The operator's performance exceeded the threshold during the specified epoch range.",
-    },
-  ],
+
   Relays: [
     {
       title: 'Blacklisted relay 🚨',
@@ -50,11 +34,6 @@ const avaliableNotifications = {
     },
   ],
   Others: [
-    {
-      title: 'New distribution log updated 📦',
-      value:
-        'A new distribution log has been updated and will be used for validator performance visualization.',
-    },
     {
       title: 'Execution client does not have logs receipts 🚨',
       value:
