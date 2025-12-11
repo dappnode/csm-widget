@@ -220,6 +220,7 @@ export const PerformanceCardStyle = styled(StackStyle).attrs({ $gap: 'sm' })`
   background: var(--lido-color-foreground);
   display: flex;
   flex-direction: row;
+  gap: 100px;
   justify-content: space-between;
   align-items: center;
   position: relative;

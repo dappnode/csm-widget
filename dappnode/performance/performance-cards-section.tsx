@@ -13,7 +13,7 @@ export const PerformanceCardsSection = () => {
   );
 
   return (
-    <Stack wrap>
+    <Stack justify="center">
       <PerformanceCard
         title="Next Lido report in:"
         tooltip="The time remaining until the next Lido CSM report"
