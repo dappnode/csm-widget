@@ -93,7 +93,8 @@ export const LidoSDKProvider = ({ children }: React.PropsWithChildren) => {
         chainId === CHAINS.Mainnet
           ? undefined
           : config.MAX_BLOCK_RANGE_FOR_EVENTS,
-      skipHistoricalCalls: chainId !== CHAINS.Mainnet,
+      // DAPPNODE
+      skipHistoricalCalls: true,
       keysApiUrl: config.keysApiUrl,
       feesMonitoringApiUrl: config.feesMonitoringApiUrl,
     });
