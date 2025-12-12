@@ -248,7 +248,8 @@ export default withBundleAnalyzer({
     migalabsApiToken: process.env.ETHSEER_API_TOKEN,
 
     // DAPPNODE
-    cspTrustedHosts: 'https://*.lido.fi,http://*.dappnode',
+    cspTrustedHosts:
+      'https://*.lido.fi,http://ui.lido-csm-hoodi.dappnode,http://ui.lido-csm-mainnet.dappnode',
     cspReportUri: process.env.CSP_REPORT_URI,
     cspReportOnly: process.env.CSP_REPORT_ONLY,
 
