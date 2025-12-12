@@ -29,7 +29,7 @@ export const contentSecurityPolicy: ContentSecurityPolicyOption = {
     scriptSrc: [
       "'self'",
       "'unsafe-inline'",
-      ...(config.developmentMode ? ["'unsafe-eval'"] : []), // for HMR
+      "'unsafe-eval'", // for HMR
       ...trustedHosts,
     ],
 
