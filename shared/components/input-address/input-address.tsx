@@ -1,14 +1,15 @@
-import { Identicon } from '@lidofinance/lido-ui';
-import { isAddress } from 'ethers/lib/utils.js';
+import { Address, Identicon, Loader } from '@lidofinance/lido-ui';
 import {
   ChangeEvent,
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useRef,
 } from 'react';
+import { useAddressResolution } from 'shared/hooks';
 import { InputDecoratorLocked } from '../input-amount/input-decorator-locked';
-import { StyledInput } from './styles';
+import { AddressChip, StyledInput } from './styles';
 import { InputAddressProps } from './types';
 import { VerifiedChip } from './verified-chip';
 
@@ -23,16 +24,26 @@ export const InputAddress = forwardRef<
     const inputRef = useRef<HTMLInputElement>(null);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     useImperativeHandle(ref, () => inputRef.current!, []);
+    const { address, isLoading, resolveAddress } = useAddressResolution();
+
+    useEffect(() => {
+      if (address.value !== undefined) onChange?.(address.value);
+    }, [address, onChange]);
 
     const handleChange = useCallback(
       (e: ChangeEvent<HTMLInputElement>) => {
         const currentValue = e.currentTarget.value;
-        onChange?.(currentValue);
+        void resolveAddress(currentValue);
       },
-      [onChange],
+      [resolveAddress],
     );
 
-    const isAddressValid = isAddress(value || '');
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.value = value ?? '';
+      }
+      void resolveAddress(value ?? '');
+    }, [resolveAddress, value]);
 
     return (
       <StyledInput
@@ -40,15 +51,24 @@ export const InputAddress = forwardRef<
         label={
           <>
             {label}
+            {address.ens && address.value && (
+              <AddressChip>
+                <Address address={address.value} symbols={32} />
+              </AddressChip>
+            )}
             {addressName && <VerifiedChip>{addressName}</VerifiedChip>}
           </>
         }
         ref={inputRef}
-        value={value}
+        defaultValue={value}
         onChange={handleChange}
         placeholder="Ethereum address"
         leftDecorator={
-          value && isAddressValid ? <Identicon address={value} /> : null
+          isLoading ? (
+            <Loader size="small" />
+          ) : address.value ? (
+            <Identicon address={address.value} />
+          ) : null
         }
         rightDecorator={
           rightDecorator ?? (

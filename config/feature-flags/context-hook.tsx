@@ -1,8 +1,8 @@
-import { useMemo, useState, useCallback } from 'react';
-import { useLocalStorage } from '@lido-sdk/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getFeatureFlagsDefault } from './utils';
+import { useLocalStorage } from 'shared/hooks/use-local-storage';
 import { FeatureFlagsType } from './types';
+import { getFeatureFlagsDefault } from './utils';
 
 const STORAGE_FEATURE_FLAGS = 'lido-feature-flags';
 
@@ -17,19 +17,21 @@ export const useFeatureFlagsContext = () => {
     useLocalStorage(STORAGE_FEATURE_FLAGS, FEATURE_FLAGS_DEFAULT);
 
   const [featureFlagsState, setFeatureFlagsState] = useState<FeatureFlagsType>(
-    featureFlagsLocalStorage,
+    FEATURE_FLAGS_DEFAULT,
   );
+
+  useEffect(() => {
+    setFeatureFlagsState(featureFlagsLocalStorage);
+  }, [featureFlagsLocalStorage]);
 
   const setFeatureFlag = useCallback(
     (featureFlag: keyof FeatureFlagsType, value: boolean) => {
-      setFeatureFlagsLocalStorage({
+      const newFlags = {
         ...featureFlagsState,
         [featureFlag]: value,
-      });
-      setFeatureFlagsState({
-        ...featureFlagsState,
-        [featureFlag]: value,
-      });
+      };
+      setFeatureFlagsLocalStorage(newFlags);
+      setFeatureFlagsState(newFlags);
     },
     [featureFlagsState, setFeatureFlagsLocalStorage],
   );

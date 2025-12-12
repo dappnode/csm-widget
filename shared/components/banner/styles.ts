@@ -1,5 +1,6 @@
 import { Block, Theme, ThemeName } from '@lidofinance/lido-ui';
 import styled, { css } from 'styled-components';
+import { StackStyle } from '../stack/style';
 
 type InjectedProps = {
   theme: Theme;
@@ -31,7 +32,6 @@ const VARIANTS = {
         ? 'linear-gradient(106deg, #FEF9BF 2.02%, #FFE0BC 99.17%)'
         : 'linear-gradient(106deg, #A8892A 2.02%, #8C6246 99.17%)'};
   `,
-
   sunset: css`
     background: radial-gradient(
         1435.85% 196.07% at 95.46% -44.7%,
@@ -44,6 +44,18 @@ const VARIANTS = {
       text-align: center;
     }
   `,
+  secondary: css`
+    background: ${({ theme }) =>
+      theme.name === ThemeName.light ? '#d8e0ea' : '#676772'};
+    text-align: center;
+
+    ${BannerHeader} {
+      text-align: center;
+    }
+    ${StackStyle} {
+      justify-content: center;
+    }
+  `,
 };
 
 export type BannerVariant = keyof typeof VARIANTS;
@@ -52,6 +64,7 @@ export const BannerStyled = styled(Block)<{ $variant?: BannerVariant }>`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spaceMap.md}px;
+  width: 100%;
 
   ${({ $variant }) => ($variant ? VARIANTS[$variant] : '')}
 `;

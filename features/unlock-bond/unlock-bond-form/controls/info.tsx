@@ -1,10 +1,14 @@
-import { TOKENS } from 'consts/tokens';
 import { FC } from 'react';
 import { Latice, MatomoLink, Stack, TitledAmount } from 'shared/components';
 import { useUnlockBondFormData } from '../context';
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
+import {
+  MEV_STEALING_LINK,
+  LIDO_REWARDS_VAULT_LINK,
+} from 'consts/external-links';
 
 export const Info: FC = () => {
-  const { lockedBond, loading } = useUnlockBondFormData();
+  const { lockedBond } = useUnlockBondFormData();
   return (
     <>
       <Latice variant="secondary">
@@ -12,20 +16,19 @@ export const Info: FC = () => {
           <TitledAmount
             warning
             title="Locked bond"
-            help="Bond may be locked in the case of an MEV stealing event reported by a dedicated committee. This measure ensures that Node Operators are held accountable for any misbehavior or rule violations."
-            loading={loading.isLockedBondLoading}
+            help="Bond may be locked in the case of an MEV stealing event reported by a dedicated committee. This measure ensures that Node Operators are held accountable for any misbehavior or rule violations"
             amount={lockedBond}
-            token={TOKENS.ETH}
+            token={TOKENS.eth}
           />
-          {lockedBond?.gt(0) && (
-            <p>
-              <MatomoLink href="https://docs.lido.fi/staking-modules/csm/guides/mev-stealing">
+          {!!lockedBond && (
+            <div>
+              <MatomoLink href={MEV_STEALING_LINK}>
                 EL reward stealing
               </MatomoLink>{' '}
               penalties have been applied to your Node Operator because one of
               your validators produced a block with the EL rewards sent to the
               wrong address (an address different from from{' '}
-              <MatomoLink href="https://etherscan.io/address/0x388C818CA8B9251b393131C08a736A67ccB19297">
+              <MatomoLink href={LIDO_REWARDS_VAULT_LINK}>
                 the Lido Execution Layer Rewards Vault
               </MatomoLink>
               )
@@ -40,13 +43,13 @@ export const Info: FC = () => {
                 <li>
                   Check if the feeRecipient address of your validators consensus
                   / validator client is set to{' '}
-                  <MatomoLink href="https://etherscan.io/address/0x388C818CA8B9251b393131C08a736A67ccB19297">
+                  <MatomoLink href={LIDO_REWARDS_VAULT_LINK}>
                     the Lido Execution Layer Rewards Vault
                   </MatomoLink>{' '}
                   to avoid the further penalties.
                 </li>
               </ul>
-            </p>
+            </div>
           )}
         </Stack>
       </Latice>

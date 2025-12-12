@@ -1,6 +1,8 @@
 interface Window {
   // see _document.js for definition
   _paq: undefined | [string, ...unknown[]][];
+
+  ethereum?: any;
 }
 
 declare module '*.svg' {
@@ -26,35 +28,34 @@ declare module 'next/config' {
       maintenance: boolean;
 
       defaultChain: string;
+
       rpcUrls_1: string | undefined;
       rpcUrls_17000: string | undefined;
-      ethplorerApiKey: string | undefined;
+      rpcUrls_560048: string | undefined;
+
       clApiUrls_1: string | undefined;
       clApiUrls_17000: string | undefined;
+      clApiUrls_560048: string | undefined;
 
-      oneInchApiKey: string | undefined;
+      migalabsApiUrl: string | undefined;
+      migalabsApiToken: string | undefined;
 
       cspTrustedHosts: string | undefined;
       cspReportUri: string | undefined;
       cspReportOnly: string | undefined;
 
-      subgraphMainnet: string | undefined;
-      subgraphGoerli: string | undefined;
-      subgraphHolesky: string | undefined;
-      subgraphRequestTimeout: string | undefined;
-
       rateLimit: string;
       rateLimitTimeFrame: string;
 
-      ethAPIBasePath: string;
-      rewardsBackendAPI: string | undefined;
+      validationAPI: string | undefined;
+      validationFilePath: string | undefined;
     };
     publicRuntimeConfig: {
       basePath: string | undefined;
       developmentMode: boolean;
       // DAPPNODE
       rpcUrls_1: string | undefined;
-      rpcUrls_17000: string | undefined;
+      rpcUrls_560048: string | undefined;
       defaultChain: number | undefined;
       supportedChains: number[] | undefined;
     };

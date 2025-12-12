@@ -1,10 +1,10 @@
+import { FC, PropsWithChildren } from 'react';
 import {
   BlockStyled,
   CSMLogo,
   Header,
   Heading,
-} from 'features/welcome/welcome-section/styles';
-import { FC, PropsWithChildren } from 'react';
+} from 'shared/components/welcome-section/styles';
 import styled from 'styled-components';
 
 const ContentWrapper = styled.div`

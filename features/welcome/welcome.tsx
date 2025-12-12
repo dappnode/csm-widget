@@ -1,35 +1,25 @@
 import { FC } from 'react';
 
 import { MATOMO_CLICK_EVENTS_TYPES } from 'consts/matomo-click-events';
-import { Stack } from 'shared/components';
-import { useAccount } from 'shared/hooks';
-import { useCsmPaused, useCsmPublicRelease } from 'shared/hooks/useCsmStatus';
+import { useDappStatus } from 'modules/web3';
+import { Stack, WelcomeSection } from 'shared/components';
 import { Connect, Fallback } from 'shared/wallet';
-import { EarlyAdoptionBanner } from './early-adoption-banner';
-import { WelcomeSection } from './welcome-section';
 import styled from 'styled-components';
-import { HoleskyBanner } from './holesky-banner';
-import { getConfig } from 'config';
-import { CHAINS } from 'consts/chains';
-
-const { defaultChain } = getConfig();
 
 export const Welcome: FC = () => {
-  const { active, isConnected } = useAccount();
-  const { data: isPublicRelease } = useCsmPublicRelease();
-  const { data: paused } = useCsmPaused();
+  const { isSupportedChain, isWalletConnected } = useDappStatus();
 
-  const isWrongChain = isConnected && !active;
+  const isWrongChain = isWalletConnected && !isSupportedChain;
 
   return (
     <>
-      {defaultChain === CHAINS.Holesky && paused && <HoleskyBanner />}
       {isWrongChain && <Fallback />}
       <WelcomeSection>
         <Stack wrap>
           <ConnectStyle
             fullwidth
             matomoEvent={MATOMO_CLICK_EVENTS_TYPES.connectAsNodeOperator}
+            data-testid="iAmANodeOperatorBtn"
           >
             I am a Node Operator
           </ConnectStyle>
@@ -37,12 +27,12 @@ export const Welcome: FC = () => {
             fullwidth
             matomoEvent={MATOMO_CLICK_EVENTS_TYPES.connectToBecomeNodeOperator}
             color="secondary"
+            data-testid="becomeANodeOperatorBtn"
           >
             Become a Node Operator
           </ConnectStyle>
         </Stack>
       </WelcomeSection>
-      {!isPublicRelease && !paused && <EarlyAdoptionBanner />}
     </>
   );
 };

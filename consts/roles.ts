@@ -1,10 +1,3 @@
-export const ROLES = {
-  MANAGER: 'MANAGER',
-  REWARDS: 'REWARDS',
-} as const;
-
-export type ROLES = keyof typeof ROLES;
-
 // TODO: spectacular
 export const ROLE_CODE = {
   NONE: 0,

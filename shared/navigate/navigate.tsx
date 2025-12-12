@@ -1,12 +1,12 @@
 import { PATH } from 'consts/urls';
 import { FC, ReactNode, useEffect } from 'react';
 import { useNavigate } from './use-navigate';
-import { SplashPage } from './splash';
+import { SplashPage } from './inner-pages';
 
 type Props = { path: PATH; fallback?: ReactNode };
 
 export const Navigate: FC<Props> = ({ path, fallback = <SplashPage /> }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(true);
 
   useEffect(() => void navigate(path), [navigate, path]);
 

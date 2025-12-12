@@ -1,71 +1,77 @@
-import { useCallback } from 'react';
-import type { Resolver } from 'react-hook-form';
+import { useLidoSDK } from 'modules/web3';
 import {
-  handleResolverValidationError,
+  useFormValidation,
   validateBondAmount,
   validateDepositData,
   ValidationError,
 } from 'shared/hook-form/validation';
-import { useAccount, useAwaitNetworkData } from 'shared/hooks';
 import type { AddKeysFormInputType, AddKeysFormNetworkData } from './types';
 
-export const useAddKeysValidation = (networkData: AddKeysFormNetworkData) => {
-  const dataPromise = useAwaitNetworkData(networkData);
-  const { chainId } = useAccount();
+export const useAddKeysValidation = () => {
+  const {
+    csm: { depositData: sdk },
+  } = useLidoSDK();
 
-  return useCallback<Resolver<AddKeysFormInputType>>(
-    async (values, _, options) => {
-      try {
-        const { token, bondAmount, depositData, confirmKeysReady } = values;
+  return useFormValidation<AddKeysFormInputType, AddKeysFormNetworkData>(
+    'token',
+    async (
+      { token, bondAmount, depositData, rawDepositData, confirmKeysReady },
+      {
+        operatorInfo,
+        curveParameters,
+        maxStakeEth,
+        ethBalance,
+        stethBalance,
+        wstethBalance,
+      },
+      validate,
+    ) => {
+      // FIXME: validate on submit that token, bondAmount and depositData.length are defined
 
-        const {
-          stethBalance,
-          wstethBalance,
-          etherBalance,
-          maxStakeEther,
-          keysUploadLimit,
-          blockNumber,
-        } = await dataPromise;
-
+      await validate(['token', 'bondAmount'], () =>
         validateBondAmount({
           token,
           bondAmount,
-          maxStakeEther,
-          etherBalance,
+          maxStakeEth,
+          ethBalance,
           stethBalance,
           wstethBalance,
+        }),
+      );
+
+      // TODO: validate length is zero
+      await validate('rawDepositData', () => {
+        if (rawDepositData) {
+          const { error } = sdk.parseDepositData(rawDepositData);
+          if (error) {
+            throw new ValidationError('rawDepositData', error);
+          }
+        } else {
+          throw new ValidationError('rawDepositData', '');
+        }
+      });
+
+      // TODO: refactor this validation
+      await validate(['rawDepositData', 'depositData'], async () => {
+        await validateDepositData({
+          depositData,
+          sdk,
+          keysLimit: curveParameters?.keysLimit,
+          currentActiveKeys:
+            operatorInfo &&
+            operatorInfo.totalAddedKeys - operatorInfo.totalWithdrawnKeys,
         });
+      });
 
-        if (
-          options.names?.includes('depositData') ||
-          options.names?.includes('rawDepositData')
-        )
-          await validateDepositData({
-            depositData,
-            chainId,
-            keysUploadLimit,
-            blockNumber,
-          });
-
-        if (options.names?.includes('confirmKeysReady') && !confirmKeysReady) {
+      await validate('confirmKeysReady', () => {
+        if (!confirmKeysReady) {
           throw new ValidationError(
             'confirmKeysReady',
             'Please confirm that the keys are ready',
           );
         }
-
-        return {
-          values,
-          errors: {},
-        };
-      } catch (error) {
-        return handleResolverValidationError(
-          error,
-          'AddKeysForm',
-          'depositData',
-        );
-      }
+      });
     },
-    [chainId, dataPromise],
+    [sdk],
   );
 };

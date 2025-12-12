@@ -1,39 +1,48 @@
-import { useCallback } from 'react';
 import {
-  ButtonIcon,
-  Modal,
-  Identicon,
-  External,
-  Copy,
   Address,
+  ButtonIcon,
+  Copy,
+  External,
+  Identicon,
+  Modal,
 } from '@lidofinance/lido-ui';
-import { useEtherscanOpen } from '@lido-sdk/react';
+import { useCallback, useEffect } from 'react';
 import { useConnectorInfo, useDisconnect } from 'reef-knot/core-react';
 
+import { useDappStatus } from 'modules/web3';
+import Link from 'next/link';
 import type { ModalComponentType } from 'providers/modal-provider';
-import { useAccount, useCopyToClipboard } from 'shared/hooks';
+import { useCopyToClipboard } from 'shared/hooks';
 import {
-  WalletModalContentStyle,
+  WalletModalAccountStyle,
+  WalletModalActionsStyle,
+  WalletModalAddressStyle,
   WalletModalConnectedStyle,
   WalletModalConnectorStyle,
+  WalletModalContentStyle,
   WalletModalDisconnectStyle,
-  WalletModalAccountStyle,
-  WalletModalAddressStyle,
-  WalletModalActionsStyle,
 } from './styles';
+import { getEtherscanAddressLink } from 'utils';
 
 export const WalletModal: ModalComponentType = ({ onClose, ...props }) => {
-  const { address } = useAccount();
+  const { address, chainId } = useDappStatus();
   const { connectorName } = useConnectorInfo();
   const { disconnect } = useDisconnect();
 
   const handleDisconnect = useCallback(() => {
-    disconnect?.();
     onClose?.();
-  }, [disconnect, onClose]);
+  }, [onClose]);
 
   const handleCopy = useCopyToClipboard(address ?? '');
-  const handleEtherscan = useEtherscanOpen(address ?? '', 'address');
+
+  useEffect(() => {
+    // Close the modal if a wallet was somehow disconnected while the modal was open
+    if (address == null || address.length === 0) {
+      onClose?.();
+    }
+  }, [address, onClose]);
+
+  if (!address) return null;
 
   return (
     <Modal title="Account" onClose={onClose} {...props}>
@@ -50,7 +59,6 @@ export const WalletModal: ModalComponentType = ({ onClose, ...props }) => {
               size="xs"
               variant="outlined"
               onClick={handleDisconnect}
-              data-testid="disconnectBtn"
             >
               Disconnect
             </WalletModalDisconnectStyle>
@@ -58,11 +66,11 @@ export const WalletModal: ModalComponentType = ({ onClose, ...props }) => {
         </WalletModalConnectedStyle>
 
         <WalletModalAccountStyle>
-          <Identicon address={address ?? ''} />
+          <Identicon address={address} />
           <WalletModalAddressStyle>
             <Address
               data-testid="connectedAddress"
-              address={address ?? ''}
+              address={address}
               symbols={6}
             />
           </WalletModalAddressStyle>
@@ -78,15 +86,16 @@ export const WalletModal: ModalComponentType = ({ onClose, ...props }) => {
           >
             Copy address
           </ButtonIcon>
-          <ButtonIcon
-            data-testid="etherscanBtn"
-            onClick={handleEtherscan}
-            icon={<External />}
-            size="xs"
-            variant="ghost"
-          >
-            View on Etherscan
-          </ButtonIcon>
+          <Link href={getEtherscanAddressLink(chainId ?? 1, address)}>
+            <ButtonIcon
+              data-testid="etherscanBtn"
+              icon={<External />}
+              size="xs"
+              variant="ghost"
+            >
+              View on Etherscan
+            </ButtonIcon>
+          </Link>
         </WalletModalActionsStyle>
       </WalletModalContentStyle>
     </Modal>

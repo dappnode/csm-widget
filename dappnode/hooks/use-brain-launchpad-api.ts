@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import useDappnodeUrls from './use-dappnode-urls';
-import { CONSTANTS_BY_NETWORK } from 'consts/csm-constants';
-import { useChainId } from 'wagmi';
+import { FEE_RECIPIENT_BY_NETWORK } from 'consts/chains';
+import { useDappStatus } from 'modules/web3';
 
 const useBrainLaunchpadApi = () => {
   const { brainLaunchpadUrl } = useDappnodeUrls();
@@ -9,10 +9,9 @@ const useBrainLaunchpadApi = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<Error | undefined>(undefined);
 
-  const chainId = useChainId() as keyof typeof CONSTANTS_BY_NETWORK;
+  const { chainId } = useDappStatus();
 
-  const lidoFeeRecipient =
-    CONSTANTS_BY_NETWORK[chainId]?.lidoFeeRecipient ?? '';
+  const lidoFeeRecipient = FEE_RECIPIENT_BY_NETWORK[chainId] ?? '';
 
   const submitKeystores = useCallback(
     async ({

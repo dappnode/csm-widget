@@ -1,15 +1,18 @@
+import { OPERATOR_TYPE } from '@lidofinance/lido-csm-sdk';
 import { FC } from 'react';
-import { CURVE_TYPE } from 'shared/hooks';
 import { DescriptorCurveStyle } from './styles';
 
-export const CurveBadge: FC<{ type?: CURVE_TYPE | null }> = ({ type }) => {
-  const title =
-    type === CURVE_TYPE.EA ? 'EA' : type === CURVE_TYPE.CUSTOM ? 'CC' : null;
+type Props = { type?: OPERATOR_TYPE; noStyle?: boolean };
+
+export const CurveBadge: FC<Props> = ({ type, noStyle }) => {
+  const title = type || null;
 
   return (
     <>
-      {type && title && (
-        <DescriptorCurveStyle $variant={type}>{title}</DescriptorCurveStyle>
+      {title && (
+        <DescriptorCurveStyle $variant={noStyle ? undefined : type}>
+          {title}
+        </DescriptorCurveStyle>
       )}
     </>
   );

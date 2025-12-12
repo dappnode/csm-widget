@@ -1,140 +1,89 @@
-import { BigNumber } from 'ethers';
-import { useCallback } from 'react';
-import invariant from 'tiny-invariant';
-
-import { TOKENS } from 'consts/tokens';
 import {
-  useCSAccountingRPC,
-  useCSModuleWeb3,
-  usePermitOrApprove,
-  useSendTx,
-} from 'shared/hooks';
-import { GatherPermitSignatureResult } from 'shared/hooks';
+  AddBondResult,
+  TransactionCallback,
+  TransactionCallbackStage,
+} from '@lidofinance/lido-csm-sdk';
+import { useLidoSDK } from 'modules/web3';
+import { useCallback } from 'react';
+import { FormSubmitterHook } from 'shared/hook-form/form-controller';
 import { handleTxError } from 'shared/transaction-modal';
-import { NodeOperatorId } from 'types';
-import { addExtraWei, runWithTransactionLogger } from 'utils';
-import { AddBondFormInputType, AddBondFormNetworkData } from '../context';
+import invariant from 'tiny-invariant';
 import { useTxModalStagesAddBond } from '../hooks/use-tx-modal-stages-add-bond';
+import { AddBondFormInputType, AddBondFormNetworkData } from './types';
 
-type UseAddBondOptions = {
-  onConfirm?: () => Promise<void> | void;
-  onRetry?: () => void;
-};
-
-type AddBondMethodParams = {
-  amount: BigNumber;
-  permit: GatherPermitSignatureResult;
-  nodeOperatorId: NodeOperatorId;
-};
-
-// encapsulates eth/steth/wsteth flows
-const useAddBondTx = () => {
-  const CSModuleWeb3 = useCSModuleWeb3();
+export const useAddBondSubmit: FormSubmitterHook<
+  AddBondFormInputType,
+  AddBondFormNetworkData
+> = () => {
+  const { csm } = useLidoSDK();
+  const { txModalStages } = useTxModalStagesAddBond();
 
   return useCallback(
-    async (token: TOKENS, params: AddBondMethodParams) => {
-      invariant(CSModuleWeb3, 'must have CSModuleWeb3');
-
-      switch (token) {
-        case TOKENS.ETH:
-          return {
-            tx: await CSModuleWeb3.populateTransaction.depositETH(
-              params.nodeOperatorId,
-              {
-                value: params.amount,
-              },
-            ),
-            txName: 'depositETH',
-          };
-        case TOKENS.STETH:
-          return {
-            tx: await CSModuleWeb3.populateTransaction.depositStETH(
-              params.nodeOperatorId,
-              params.amount,
-              params.permit,
-            ),
-            txName: 'depositStETH',
-          };
-        case TOKENS.WSTETH:
-          return {
-            tx: await CSModuleWeb3.populateTransaction.depositWstETH(
-              params.nodeOperatorId,
-              params.amount,
-              params.permit,
-            ),
-            txName: 'depositWstETH',
-          };
-      }
-    },
-    [CSModuleWeb3],
-  );
-};
-
-export const useAddBondSubmit = ({ onConfirm, onRetry }: UseAddBondOptions) => {
-  const { txModalStages } = useTxModalStagesAddBond();
-  const CSAccounting = useCSAccountingRPC();
-
-  const getTx = useAddBondTx();
-  const sendTx = useSendTx();
-  const getPermitOrApprove = usePermitOrApprove();
-
-  const addBond = useCallback(
     async (
-      { bondAmount: amount, token }: AddBondFormInputType,
-      { nodeOperatorId }: AddBondFormNetworkData,
-    ): Promise<boolean> => {
-      invariant(token, 'Token is not defined');
-      invariant(amount, 'BondAmount is not defined');
-      invariant(nodeOperatorId, 'NodeOperatorId is not defined');
+      { bondAmount: amount, token },
+      { nodeOperatorId },
+      { onConfirm, onRetry },
+    ) => {
+      invariant(amount !== undefined, 'BondAmount is not defined');
 
       try {
-        const { permit } = await getPermitOrApprove({
-          token,
-          amount: addExtraWei(amount, token),
-          txModalStages,
-        });
+        const callback: TransactionCallback<AddBondResult> = async ({
+          stage,
+          payload,
+        }) => {
+          switch (stage) {
+            case TransactionCallbackStage.SIGN:
+              txModalStages.sign({ amount, token });
+              break;
+            case TransactionCallbackStage.RECEIPT:
+              txModalStages.pending({ amount, token }, payload.hash);
+              break;
+            case TransactionCallbackStage.PERMIT_SIGN:
+              txModalStages.signPermit();
+              break;
+            case TransactionCallbackStage.APPROVE_SIGN:
+              txModalStages.signApproval(payload.amount, payload.token);
+              break;
+            case TransactionCallbackStage.APPROVE_RECEIPT:
+              txModalStages.pendingApproval(
+                payload.amount,
+                payload.token,
+                payload.hash,
+              );
+              break;
+            case TransactionCallbackStage.DONE: {
+              txModalStages.success(
+                {
+                  balance: payload.result.current,
+                },
+                payload.hash,
+              );
+              break;
+            }
+            case TransactionCallbackStage.MULTISIG_DONE:
+              txModalStages.successMultisig();
+              break;
+            case TransactionCallbackStage.ERROR:
+              txModalStages.failed(payload.error, onRetry);
+              break;
+            default:
+          }
+        };
 
-        txModalStages.sign({ amount, token });
-
-        const tx = await getTx(token, {
+        await csm.bond.addBond({
           nodeOperatorId,
+          token,
           amount,
-          permit,
+          callback,
         });
-
-        const [txHash, waitTx] = await runWithTransactionLogger(
-          'AddBond signing',
-          () => sendTx(tx),
-        );
-
-        txModalStages.pending({ amount, token }, txHash);
-
-        await runWithTransactionLogger('AddBond block confirmation', waitTx);
-
-        // TODO: move to onConfirm
-        const { current } = await CSAccounting.getBondSummary(nodeOperatorId);
 
         await onConfirm?.();
-
-        txModalStages.success({ balance: current }, txHash);
 
         return true;
       } catch (error) {
         return handleTxError(error, txModalStages, onRetry);
       }
     },
-    [
-      getTx,
-      getPermitOrApprove,
-      txModalStages,
-      CSAccounting,
-      onConfirm,
-      sendTx,
-      onRetry,
-    ],
+    [csm.bond, txModalStages],
   );
-
-  return {
-    addBond,
-  };
 };

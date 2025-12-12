@@ -6,26 +6,26 @@ import {
   Text,
   Tooltip,
 } from '@lidofinance/lido-ui';
-import { differenceInCalendarDays, fromUnixTime } from 'date-fns';
+import {
+  useNodeOperatorId,
+  useOperatorInfo,
+  useOperatorLastRewards,
+  useFrameInfo,
+  useRewardsLastReportTxHash,
+} from 'modules/web3';
 import { ModalComponentType, useModal } from 'providers/modal-provider';
-import { useNodeOperatorId } from 'providers/node-operator-provider';
 import { FC, useCallback } from 'react';
 import {
+  FaqLink,
   GrayText,
   Plural,
   Stack,
   TextBlock,
   TxLinkEtherscan,
 } from 'shared/components';
+import { LIDO_OPERATOR_PORTAL_PERFORMANCE_ORACLE } from 'consts/external-links';
 import { FaqElement } from 'shared/components/faq/styles';
-import {
-  getNextRewardsFrame,
-  getPrevRewardsFrame,
-  useLastOperatorRewards,
-  useLastRewardsSlot,
-  useNodeOperatorInfo,
-} from 'shared/hooks';
-import { formatDate, formatPercent } from 'utils';
+import { countCalendarDaysLeft, formatDate, formatPercent } from 'utils';
 import { Balance } from './balance';
 import {
   AccordionStyle,
@@ -35,53 +35,46 @@ import {
   RowHeader,
   RowTitle,
 } from './styles';
-import { useLastRewrdsTx } from 'dappnode/hooks/useLastRewardsFrame-api'; // DAPPNODE
+// import { useLastRewrdsTx } from 'dappnode/hooks/useLastRewardsFrame-api'; // DAPPNODE
 
 export const LastRewards: FC = () => {
-  const { data: lastRewards, initialLoading: isLoading } =
-    useLastOperatorRewards();
-
   const id = useNodeOperatorId();
-  const { data: info } = useNodeOperatorInfo(id);
 
-  const { data: rewardsSlot } = useLastRewardsSlot();
+  const { data: info } = useOperatorInfo(id);
+  const { data: lastRewards, isPending: isLoading } =
+    useOperatorLastRewards(id);
+  const { data: rewardsFrame } = useFrameInfo((data) => ({
+    lastDistribution: data.lastReport,
+    prevDistribution: data.lastReport - data.frameDuration,
+    nextDistribution: data.lastReport + data.frameDuration,
+  }));
 
-  const lastRewardsDate = rewardsSlot?.timestamp
-    ? formatDate(rewardsSlot.timestamp)
-    : null;
-  const prevRewardsDate = rewardsSlot?.timestamp
-    ? formatDate(getPrevRewardsFrame(rewardsSlot.timestamp))
-    : null;
-  const nextRewardsDate = rewardsSlot?.timestamp
-    ? formatDate(getNextRewardsFrame(rewardsSlot.timestamp))
-    : null;
-
-  const daysLeft = rewardsSlot?.timestamp
-    ? differenceInCalendarDays(
-        fromUnixTime(getNextRewardsFrame(rewardsSlot.timestamp)),
-        new Date(),
-      )
-    : null;
+  const lastRewardsDate = formatDate(rewardsFrame?.lastDistribution);
+  const prevRewardsDate = formatDate(rewardsFrame?.prevDistribution);
+  const nextRewardsDate = formatDate(rewardsFrame?.nextDistribution);
+  const daysLeft = countCalendarDaysLeft(rewardsFrame?.nextDistribution);
 
   const showThisSection = lastRewards || (info?.totalDepositedKeys ?? 0) > 0;
 
-  const showWhy = lastRewards && lastRewards.distributed.isZero();
+  const showWhy = lastRewards && lastRewards.distributed === 0n;
 
   if (!showThisSection) return null;
 
   return (
     <AccordionStyle
+      data-testid="lastRewardsBlock"
       summary={
         <RowHeader>
-          <Stack direction="column" gap="xxs">
+          <Stack direction="column" gap="xxs" data-testid="rowHeader">
             <RowTitle>Latest rewards distribution</RowTitle>
             {prevRewardsDate && lastRewardsDate && (
-              <GrayText>
+              <GrayText data-testid="reportFrame">
                 Report frame: {prevRewardsDate} — {lastRewardsDate}
               </GrayText>
             )}
           </Stack>
           <Balance
+            data-testid="commonBalance"
             big
             loading={isLoading}
             amount={lastRewards?.distributed}
@@ -93,13 +86,13 @@ export const LastRewards: FC = () => {
       <Stack direction="column" gap="lg">
         <LastReportStats />
         <Divider />
-        <Stack spaceBetween center>
+        <Stack spaceBetween center data-testid="nextRewardsInfo">
           <Stack direction="column" gap="xxs">
             <Text size="xs" weight={700}>
               Next rewards distribution
             </Text>
-            {rewardsSlot?.timestamp ? (
-              <GrayText>
+            {lastRewardsDate && nextRewardsDate ? (
+              <GrayText data-testid="reportFrame">
                 Report frame: {lastRewardsDate} — {nextRewardsDate}
               </GrayText>
             ) : (
@@ -112,7 +105,7 @@ export const LastRewards: FC = () => {
                 Oracle report is delayed
               </BadgeStyle>
             ) : (
-              <Stack center gap="xs">
+              <Stack center gap="xs" data-testid="expectedDays">
                 <GrayText>Expected</GrayText>
                 <BadgeStyle>
                   {daysLeft === 0 ? (
@@ -133,12 +126,13 @@ export const LastRewards: FC = () => {
 };
 
 const LastReportStats: FC = () => {
-  const { data: lastRewards, initialLoading: isLoading } =
-    useLastOperatorRewards();
-  const { data: txHash, initialLoading: isTxLoading } = useLastRewrdsTx();
+  const nodeOperatorId = useNodeOperatorId();
+  const { data: lastRewards, isPending: isLoading } =
+    useOperatorLastRewards(nodeOperatorId);
+  const { data: txHash, isPending: isTxLoading } = useRewardsLastReportTxHash();
 
   return (
-    <RowBody>
+    <RowBody data-testid="lastRewardsInfo">
       {!lastRewards || lastRewards.validatorsCount ? (
         <>
           {' '}
@@ -146,22 +140,18 @@ const LastReportStats: FC = () => {
             title="Keys over threshold"
             loading={isLoading}
             description={
-              <Tooltip title={lastRewards?.threshold} placement="bottomLeft">
-                <span>Threshold: {formatPercent(lastRewards?.threshold)}%</span>
-              </Tooltip>
+              lastRewards?.threshold ? (
+                <Tooltip title={lastRewards?.threshold} placement="bottomLeft">
+                  <span>
+                    Threshold: {formatPercent(lastRewards?.threshold)}
+                  </span>
+                </Tooltip>
+              ) : null
             }
             help="Number of your keys above the performance threshold in the latest report frame"
           >
             {lastRewards?.validatorsOverThresholdCount}{' '}
             <i>/{lastRewards?.validatorsCount}</i>
-          </TextBlock>
-          <TextBlock
-            title="Stuck keys found"
-            loading={isLoading}
-            warning={lastRewards?.stuck}
-            help="Indicates whether any of your Node Operator keys were marked as “Stuck” during the latest report frame. Stuck keys prevent the Node Operator from receiving rewards for any key(s) in that frame."
-          >
-            {lastRewards?.stuck ? 'YES' : 'NO'}
           </TextBlock>
         </>
       ) : (
@@ -171,7 +161,7 @@ const LastReportStats: FC = () => {
       )}
 
       <TextBlock title="Distribution transaction" loading={isTxLoading}>
-        <Box as="span" fontWeight={400}>
+        <Box as="span" fontWeight={400} fontSize={12}>
           <TxLinkEtherscan txHash={txHash} />
         </Box>
       </TextBlock>
@@ -196,32 +186,18 @@ const Why: FC = () => {
 };
 
 export const WhyModal: ModalComponentType = ({ ...props }) => (
-  <Modal {...props} title="Why didn’t I get rewards?">
+  <Modal {...props} title="Why didn’t I get rewards?" data-testid="whyModal">
     <FaqElement>
-      <p>There are two main reasons of you getting no reward within a frame:</p>
+      <p>There are main reason of you getting no reward within a frame:</p>
       <ol>
         <li>
           If your validator’s performance was below the threshold within the CSM
-          Performance Oracle frame (7 days for testnet) the validator does not
-          receive rewards for the given frame. Read more about{' '}
-          <a
-            href="https://operatorportal.lido.fi/modules/community-staking-module#block-c6dc8d00f13243fcb17de3fa07ecc52c"
-            target="_blank"
-            rel="nofollow noopener noreferrer"
-          >
+          Performance Oracle frame the validator does not receive rewards for
+          the given frame. Read more about{' '}
+          <FaqLink href={LIDO_OPERATOR_PORTAL_PERFORMANCE_ORACLE}>
             the CSM Performance Oracle
-          </a>
+          </FaqLink>
           .
-        </li>
-        <li>
-          <a
-            href="https://operatorportal.lido.fi/modules/community-staking-module#block-0ed61a4c0a5a439bbb4be20e814b4e38"
-            target="_blank"
-            rel="nofollow noopener noreferrer"
-          >
-            Your Node Operator has stuck keys
-          </a>{' '}
-          due to not exiting a validator requested for exit timely.
         </li>
       </ol>
     </FaqElement>

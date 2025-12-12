@@ -1,111 +1,85 @@
 import { useCallback } from 'react';
-import invariant from 'tiny-invariant';
 
-import { ROLES } from 'consts/roles';
-import { useNodeOperatorContext } from 'providers/node-operator-provider';
-import { useCSModuleWeb3, useSendTx } from 'shared/hooks';
+import {
+  NodeOperatorShortInfo,
+  TransactionCallback,
+  TransactionCallbackStage,
+} from '@lidofinance/lido-csm-sdk';
+import { PATH } from 'consts/urls';
+import { useAppendOperator, useLidoSDK } from 'modules/web3';
+import { FormSubmitterHook } from 'shared/hook-form/form-controller';
+import { useNavigate } from 'shared/navigate';
 import { handleTxError } from 'shared/transaction-modal';
-import { NodeOperatorId } from 'types';
-import { runWithTransactionLogger } from 'utils';
+import invariant from 'tiny-invariant';
 import { useTxModalStagesAcceptInvite } from '../hooks/use-tx-modal-stages-accept-invite';
 import {
   AcceptInviteFormInputType,
   AcceptInviteFormNetworkData,
 } from './types';
 
-// TODO: move to hooks
-type UseAcceptInviteOptions = {
-  onConfirm?: () => Promise<void> | void;
-  onRetry?: () => void;
-};
-
-type AcceptInviteMethodParams = {
-  nodeOperatorId: NodeOperatorId;
-};
-
-// encapsulates eth/steth/wsteth flows
-const useAcceptInviteTx = () => {
-  const CSModuleWeb3 = useCSModuleWeb3();
+export const useAcceptInviteSubmit: FormSubmitterHook<
+  AcceptInviteFormInputType,
+  AcceptInviteFormNetworkData
+> = () => {
+  const { csm } = useLidoSDK();
+  const { txModalStages } = useTxModalStagesAcceptInvite();
+  const appendNO = useAppendOperator();
+  const n = useNavigate();
 
   return useCallback(
-    async (role: ROLES, params: AcceptInviteMethodParams) => {
-      invariant(CSModuleWeb3, 'must have CSModuleWeb3');
-
-      switch (role) {
-        case ROLES.MANAGER:
-          return {
-            tx: await CSModuleWeb3.populateTransaction.confirmNodeOperatorManagerAddressChange(
-              params.nodeOperatorId,
-            ),
-            txName: 'confirmNodeOperatorManagerAddressChange',
-          };
-        case ROLES.REWARDS:
-          return {
-            tx: await CSModuleWeb3.populateTransaction.confirmNodeOperatorRewardAddressChange(
-              params.nodeOperatorId,
-            ),
-            txName: 'confirmNodeOperatorRewardAddressChange',
-          };
-      }
-    },
-    [CSModuleWeb3],
-  );
-};
-
-export const useAcceptInviteSubmit = ({
-  onConfirm,
-  onRetry,
-}: UseAcceptInviteOptions) => {
-  const { txModalStages } = useTxModalStagesAcceptInvite();
-  const { append: appendNO } = useNodeOperatorContext();
-
-  const getTx = useAcceptInviteTx();
-  const sendTx = useSendTx();
-
-  const acceptInvite = useCallback(
     async (
-      { invite }: AcceptInviteFormInputType,
-      { address }: AcceptInviteFormNetworkData,
-    ): Promise<boolean> => {
-      invariant(invite, 'Invite is not defined');
+      { invite },
+      { address, nodeOperatorId, invites },
+      { onConfirm, onRetry },
+    ) => {
+      invariant(invite !== undefined, 'Invite is not defined');
 
       try {
-        txModalStages.sign(invite);
+        const callback: TransactionCallback<NodeOperatorShortInfo> = async ({
+          stage,
+          payload,
+        }) => {
+          switch (stage) {
+            case TransactionCallbackStage.SIGN:
+              txModalStages.sign(invite);
+              break;
+            case TransactionCallbackStage.RECEIPT:
+              txModalStages.pending(invite, payload.hash);
+              break;
+            case TransactionCallbackStage.DONE:
+              txModalStages.success({ ...invite, address }, payload.hash);
+              break;
+            case TransactionCallbackStage.MULTISIG_DONE:
+              txModalStages.successMultisig();
+              break;
+            case TransactionCallbackStage.ERROR:
+              txModalStages.failed(payload.error, onRetry);
+              break;
+            default:
+          }
+        };
 
-        const tx = await getTx(invite.role, {
+        const { result } = await csm.roles.confirmRole({
           nodeOperatorId: invite.id,
+          role: invite.role,
+          callback,
         });
-
-        const [txHash, waitTx] = await runWithTransactionLogger(
-          'AcceptInvite signing',
-          () => sendTx(tx),
-        );
-
-        txModalStages.pending(invite, txHash);
-
-        if (typeof tx === 'object') {
-          await runWithTransactionLogger(
-            'AcceptInvite block confirmation',
-            waitTx,
-          );
-        }
 
         await onConfirm?.();
 
-        txModalStages.success({ ...invite, address }, txHash);
+        if (result) {
+          appendNO(result);
+        }
 
-        // TODO: move to onConfirm
-        appendNO(invite);
+        if (nodeOperatorId === undefined && invites.length <= 1) {
+          void n(PATH.HOME);
+        }
 
         return true;
       } catch (error) {
         return handleTxError(error, txModalStages, onRetry);
       }
     },
-    [getTx, txModalStages, onConfirm, appendNO, sendTx, onRetry],
+    [csm.roles, appendNO, txModalStages, n],
   );
-
-  return {
-    acceptInvite,
-  };
 };

@@ -20,23 +20,7 @@ const avaliableNotifications = {
         'Your validator has successfully entered the exit queue without requiring manual action.',
     },
   ],
-  Performance: [
-    {
-      title: 'Operator in status stuck in latest report 🚨',
-      value:
-        "An operator is in a 'stuck' state for the specified epoch range. Performance should be checked.",
-    },
-    {
-      title: 'Operator bad performance in latest report 🚨',
-      value:
-        "The operator's performance was below the acceptable threshold during the specified epoch range.",
-    },
-    {
-      title: 'Operator good performance in latest report ✅',
-      value:
-        "The operator's performance exceeded the threshold during the specified epoch range.",
-    },
-  ],
+
   Relays: [
     {
       title: 'Blacklisted relay 🚨',
@@ -51,19 +35,9 @@ const avaliableNotifications = {
   ],
   Others: [
     {
-      title: 'New distribution log updated 📦',
-      value:
-        'A new distribution log has been updated and will be used for validator performance visualization.',
-    },
-    {
       title: 'Execution client does not have logs receipts 🚨',
       value:
         'The execution client is missing log receipts, preventing event scanning. Update your configuration or switch to a compatible client.',
-    },
-    {
-      title: 'CsModule events notifications 📋',
-      value:
-        'Covers updates on rewards, penalties, new keys, and manager address proposals for the Lido CSModule smart contract.',
     },
   ],
 };
@@ -72,7 +46,12 @@ export default function NotificationsTypes() {
   return (
     <Section title="Available Notifications">
       {Object.entries(avaliableNotifications).map(([key, value]) => (
-        <AccordionNavigatable summary={key} key={key} defaultExpanded={true}>
+        <AccordionNavigatable
+          summary={key}
+          key={key}
+          defaultExpanded={true}
+          id={key}
+        >
           <NotificationsList>
             {value.map((notification, i) => (
               <li key={i}>

@@ -1,4 +1,5 @@
 import { FC, PropsWithChildren, ReactNode } from 'react';
+import { Stack } from '../stack/stack';
 import {
   BannerContent,
   BannerHeader,
@@ -9,15 +10,20 @@ import {
 type BannerProps = {
   title?: ReactNode;
   variant?: BannerVariant;
+  extra?: ReactNode;
 };
 
 export const Banner: FC<PropsWithChildren<BannerProps>> = ({
   title,
   variant,
+  extra,
   children,
 }) => (
   <BannerStyled $variant={variant}>
-    <BannerHeader>{title}</BannerHeader>
+    <Stack spaceBetween center>
+      <BannerHeader>{title}</BannerHeader>
+      {extra}
+    </Stack>
     <BannerContent>{children}</BannerContent>
   </BannerStyled>
 );

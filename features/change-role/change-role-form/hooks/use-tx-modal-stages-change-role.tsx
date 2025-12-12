@@ -1,7 +1,10 @@
-import { ROLES } from 'consts/roles';
+import { ROLES } from '@lidofinance/lido-csm-sdk';
+import { Text } from '@lidofinance/lido-ui';
 import { capitalize } from 'lodash';
+import { Address as AddressComponent } from 'shared/components';
 import { getRoleTitle } from 'shared/node-operator';
 import {
+  AfterAddressProposed,
   TransactionModalTransitStage,
   TxStagePending,
   TxStageSign,
@@ -9,10 +12,11 @@ import {
   getGeneralTransactionModalStages,
   useTransactionModalStage,
 } from 'shared/transaction-modal';
+import { Address } from 'viem';
 
 type Props = {
-  address: string;
-  currentAddress: string;
+  address: Address;
+  currentAddress: Address;
   role: ROLES;
   isManagerReset: boolean;
   isRewardsChange: boolean;
@@ -20,38 +24,78 @@ type Props = {
   isRevoke: boolean;
 };
 
-// TODO: show address with <Address> component
 const getTexts = (props: Props) => {
   return props.isManagerReset || props.isRewardsChange
     ? {
         sign: {
           title: `You are changing ${getRoleTitle(props.role)} address`,
-          description: `New address ${props.address}`,
+          description: (
+            <>
+              New {getRoleTitle(props.role)} address is{' '}
+              <Text size="xxs">
+                <AddressComponent address={props.address} showIcon />
+              </Text>
+            </>
+          ),
         },
         success: {
           title: `${capitalize(getRoleTitle(props.role))} address has been changed`,
-          description: `New address ${props.address}`,
+          description: (
+            <>
+              New {getRoleTitle(props.role)} address is{' '}
+              <Text size="xxs">
+                <AddressComponent address={props.address} showIcon />
+              </Text>
+            </>
+          ),
         },
       }
     : props.isRevoke
       ? {
           sign: {
             title: `You are revoking request for ${getRoleTitle(props.role)} address change`,
-            description: `Address stays ${props.currentAddress}`,
+            description: (
+              <>
+                Address stays{' '}
+                <Text size="xxs">
+                  <AddressComponent address={props.currentAddress} showIcon />
+                </Text>
+              </>
+            ),
           },
           success: {
             title: `Proposed request for ${getRoleTitle(props.role)} address has been revoked`,
-            description: `Address stays ${props.currentAddress}`,
+            description: (
+              <>
+                Address stays{' '}
+                <Text size="xxs">
+                  <AddressComponent address={props.currentAddress} showIcon />
+                </Text>
+              </>
+            ),
           },
         }
       : {
           sign: {
             title: `You are proposing ${getRoleTitle(props.role)} address change`,
-            description: `Proposed address ${props.address}`,
+            description: (
+              <>
+                Proposed address{' '}
+                <Text size="xxs">
+                  <AddressComponent address={props.address} showIcon />
+                </Text>
+              </>
+            ),
           },
           success: {
             title: `New ${getRoleTitle(props.role)} address has been proposed`,
-            description: `To complete the address change, the owner of the new address must confirm the change`,
+            description: (
+              <>
+                <br />
+                <br />
+                <AfterAddressProposed address={props.address} />
+              </>
+            ),
           },
         };
 };

@@ -1,37 +1,31 @@
 import { TryCSM } from 'features/welcome/try-csm';
+import { useCsmStatus } from 'modules/web3';
 import { FC } from 'react';
-import { Faq } from 'shared/components';
-import { useCsmEarlyAdoption } from 'shared/hooks';
-import { useCsmPaused, useCsmPublicRelease } from 'shared/hooks/useCsmStatus';
-import { ConsumedBanner } from './consumed-banner';
-import { NotEligibleBanner } from './not-eligible-banner/not-eligible-banner';
+import { BannerOperatorCustomAddresses } from './banner-operator-custom-addresses';
+// import { CreateOperatorButton } from './create-operator-button';
 import { PausedBanner } from './paused-banner';
 import { StarterPackSection } from './stacter-pack-section';
 
 export const StarterPack: FC = () => {
-  const { data: paused } = useCsmPaused();
-  const { data: isPublicRelease } = useCsmPublicRelease();
-  const { data: ea } = useCsmEarlyAdoption();
+  const { data: status } = useCsmStatus();
 
+  //DAPPNODE
+  // let content = (
+  //   <StarterPackSection>
+  //     <CreateOperatorButton />
+  //   </StarterPackSection>
+  // );
   let content = <StarterPackSection />;
 
-  if (!isPublicRelease && ea?.consumed) {
-    content = <ConsumedBanner />;
-  }
-
-  if (!isPublicRelease && !ea?.proof) {
-    content = <NotEligibleBanner />;
-  }
-
-  if (paused?.isPaused || paused?.isAccountingPaused) {
+  if (status?.isPaused) {
     content = <PausedBanner />;
   }
 
   return (
     <>
+      <BannerOperatorCustomAddresses />
       {content}
       <TryCSM />
-      <Faq />
     </>
   );
 };

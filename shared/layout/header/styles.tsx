@@ -1,32 +1,55 @@
-import { Container, ContainerProps, ThemeToggler } from '@lidofinance/lido-ui';
-import { LogoLidoStyle } from 'shared/components/logos/styles';
+import {
+  Button,
+  ButtonProps,
+  Divider,
+  ThemeToggler,
+} from '@lidofinance/lido-ui';
 import styled, { keyframes } from 'styled-components';
 
 import { NAV_MOBILE_MEDIA } from 'styles/constants';
 
-export const HeaderContentStyle = styled.div`
+export const HeaderWrapper = styled.div`
+  grid-area: header;
+
   display: flex;
+  flex-direction: column;
+  gap: 0;
   align-items: center;
 
-  flex-wrap: wrap;
-  row-gap: 8px;
+  position: sticky;
+  z-index: 250;
+  top: 0;
+  left: 0;
+  right: 0;
 
-  @media screen and (max-width: 880px) {
-    flex-wrap: nowrap;
-  }
-
-  ${LogoLidoStyle} {
-    height: 44px;
-  }
+  padding: 0 32px;
+  margin: 0 -32px;
 `;
 
-export const HeaderStyle = styled((props: ContainerProps) => (
-  <Container {...props} />
-))`
-  min-width: 100%; // DAPPNODE
-  position: relative;
-  padding-top: 18px;
-  padding-bottom: 18px;
+export const HeaderStyle = styled.header`
+  align-self: center;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: 100%;
+  padding: 18px 0;
+
+  transition:
+    box-shadow 0.3s ease,
+    background 0.3s ease-out;
+
+  html:is([data-scrolldown='true']) & {
+    background: var(--lido-color-background);
+    box-shadow: 0px 3px 3px -3px var(--lido-color-shadowDark);
+  }
+
+  ${NAV_MOBILE_MEDIA} {
+    nav[aria-expanded='true'] + & {
+      background: none !important;
+      box-shadow: none !important;
+    }
+  }
 `;
 
 export const HeaderActionsStyle = styled.div`
@@ -37,10 +60,8 @@ export const HeaderActionsStyle = styled.div`
   flex-shrink: 1;
   gap: ${({ theme }) => theme.spaceMap.sm}px;
 
-  ${({ theme }) => theme.mediaQueries.lg} {
-    flex-wrap: wrap;
-    justify-content: end;
-  }
+  flex-wrap: nowrap;
+  justify-content: end;
 `;
 
 export const HeaderWalletChainWrapper = styled.div`
@@ -82,6 +103,81 @@ export const IPFSInfoBoxOnlyDesktopWrapper = styled.div`
   }
 `;
 
-export const ThemeTogglerStyle = styled(ThemeToggler)`
+export const ThemeTogglerStyle = styled(ThemeToggler)<{ $always?: boolean }>`
   margin: 0;
+
+  ${NAV_MOBILE_MEDIA} {
+    display: ${({ $always }) => ($always ? 'inline-grid' : 'none')};
+  }
+`;
+
+export const LogosStyle = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+
+  height: 28px;
+  margin-block: 8px;
+  align-self: start;
+
+  ${({ theme }) => theme.mediaQueries.md} {
+    > :not(:nth-child(1)) {
+      display: none;
+    }
+  }
+`;
+
+export const LogoDivider = styled(Divider).attrs({ type: 'vertical' })`
+  opacity: 0.6;
+`;
+
+export const HeaderButton = styled((props: ButtonProps) => (
+  <Button size="sm" variant="text" color="secondary" {...props} />
+))`
+  --grouped-padding-offset: 2px;
+  --padding: 8px;
+  flex-shrink: 1;
+  min-width: unset;
+  overflow: hidden;
+  height: 44px; // header height
+  padding: 0 var(--padding);
+
+  > span:first-of-type {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+export const ButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  > * {
+    :not(:first-child) {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      padding-left: calc(
+        var(--padding, 0px) - var(--grouped-padding-offset, 0px)
+      );
+    }
+    :not(:last-child) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      padding-right: calc(
+        var(--padding, 0px) - var(--grouped-padding-offset, 0px)
+      );
+    }
+  }
+
+  &:empty {
+    display: none;
+  }
+`;
+
+export const StyledSlot = styled.div`
+  &:empty {
+    display: none;
+  }
 `;

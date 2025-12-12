@@ -3,11 +3,11 @@ import { DropZoneContainer, KeystoreFileRow } from './styles';
 import { PasswordInput } from './password-input';
 import useKeystoreDrop from './use-keystore-drop';
 import useDappnodeUrls from 'dappnode/hooks/use-dappnode-urls';
-import { useFormDepositData } from 'shared/hook-form/form-controller';
-import { SubmitKeysFormInputType } from 'features/create-node-operator/submit-keys-form/context';
-import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import ImportKeysConfirmModal from './import-keys-confirm-modal';
+import { useFormContext } from 'react-hook-form';
+import { AddKeysFormInputType } from 'features/add-keys/add-keys/context/types';
+import { SubmitKeysFormInputType } from 'features/create-node-operator/submit-keys-form/context';
 
 type KeysBrainUploadProps = {
   label?: string;
@@ -18,7 +18,7 @@ type KeysBrainUploadProps = {
 };
 
 export const KeysBrainUpload = ({
-  label = 'Drop keystores JSON files here, or click to select files',
+  label = 'Drop keystores JSON files here, or click to select files and auto-import to Staking Brain',
   showErrorMessage,
   error: errorProp,
   missingKeys,
@@ -34,10 +34,23 @@ export const KeysBrainUpload = ({
     }
   }, [keysFiles]);
 
-  const formObject = useForm<SubmitKeysFormInputType>({
-    mode: 'onChange',
-  });
-  useFormDepositData(formObject);
+  const { watch, clearErrors, setError } = useFormContext<
+    AddKeysFormInputType | SubmitKeysFormInputType
+  >();
+
+  const keystores = watch('keystores');
+  const password = watch('password');
+
+  useEffect(() => {
+    if (keystores && keystores.length > 0 && !password) {
+      setError('password', {
+        type: 'validate',
+        message: `Keystores' password is required to auto-import to Staking Brain`,
+      });
+    } else {
+      clearErrors('password');
+    }
+  }, [keystores, password, clearErrors, setError]);
 
   return (
     <>

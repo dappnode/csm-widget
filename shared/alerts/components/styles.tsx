@@ -1,12 +1,7 @@
+import { Button, CheckLarge, Input, Select } from '@lidofinance/lido-ui';
+import { CloseButton } from 'shared/components/copy-button/close-button';
+import { StackStyle } from 'shared/components/stack/style';
 import styled from 'styled-components';
-import { StackStyle } from '../../components/stack/style';
-import {
-  ButtonIcon,
-  CheckLarge,
-  Close,
-  Input,
-  Select,
-} from '@lidofinance/lido-ui';
 
 export const AlertStyled = styled(StackStyle).attrs({
   $direction: 'column',
@@ -20,17 +15,10 @@ export const AlertStyled = styled(StackStyle).attrs({
   font-size: ${({ theme }) => theme.fontSizesMap.xxs}px;
 `;
 
-export const AlertClose = styled(ButtonIcon).attrs({
-  icon: <Close />,
-  color: 'secondary',
-  variant: 'ghost',
-  size: 'xs',
-})`
+export const AlertClose = styled(CloseButton)`
   position: absolute;
-  top: 4px;
-  right: 4px;
-  color: var(--lido-color-textSecondary);
-  flex-shrink: 0;
+  top: 6px;
+  right: 6px;
   border-radius: 50%;
 `;
 
@@ -62,4 +50,13 @@ export const SuccessIcon = styled(CheckLarge)`
   border: 2px solid var(--lido-color-success);
   border-radius: 50%;
   color: var(--lido-color-success);
+`;
+
+export const AlertButton = styled(Button).attrs({
+  size: 'xs',
+  color: 'secondary',
+})`
+  width: fit-content;
+  white-space: break-spaces;
+  line-height: ${({ theme }) => theme.fontSizesMap.sm}px;
 `;

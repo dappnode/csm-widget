@@ -1,4 +1,4 @@
-import { useConnectorInfo } from 'reef-knot/web3-react';
+import { useConnectorInfo } from 'reef-knot/core-react';
 
 import {
   LedgerFail,
@@ -15,7 +15,7 @@ import {
   FailIcon,
   TxLoader,
   WarningIcon,
-} from './iconsStyles';
+} from './icons-styles';
 
 const createStageIcon = (
   iconEl: React.ReactNode,

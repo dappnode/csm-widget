@@ -91,7 +91,22 @@ export const PerformanceChartSection: FC<PerformanceChartProps> = ({
     setVisibleValidators(allValidators);
   }, [thresholdsByEpoch]);
 
-  const visibleData = thresholdsByEpoch.slice(-reportsRange);
+  // Transform data so validator keys map to numbers, not objects
+  const visibleData = thresholdsByEpoch.slice(-reportsRange).map((entry) => {
+    const newEntry = { ...entry };
+    Object.keys(newEntry).forEach((key) => {
+      if (
+        key !== 'name' &&
+        key !== 'lidoThreshold' &&
+        typeof newEntry[key] === 'object' &&
+        newEntry[key] !== null &&
+        'performance' in newEntry[key]
+      ) {
+        newEntry[key] = (newEntry[key].performance * 100).toFixed(4);
+      }
+    });
+    return newEntry;
+  });
 
   const handleRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newRange = Math.max(2, parseInt(event.target.value, 10)); // Ensure the value is not below 2 since at least 2 reports needed to display the chart

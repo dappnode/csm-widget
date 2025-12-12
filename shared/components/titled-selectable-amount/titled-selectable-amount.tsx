@@ -1,15 +1,15 @@
-import { TOKENS } from 'consts/tokens';
-import { BigNumber } from 'ethers';
-import { FC, ReactNode } from 'react';
+import { ComponentProps, FC, ReactNode } from 'react';
 import { AmountWithPrice, IconTooltip, Stack } from 'shared/components';
 import { TitledAmountStyle } from './style';
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
 
 type Props = {
   title?: ReactNode;
   help?: string;
+  helpIcon?: ComponentProps<typeof IconTooltip>['type'];
   warning?: boolean;
   loading?: boolean;
-  amount?: BigNumber;
+  amount?: bigint;
   token?: TOKENS;
   sign?: 'minus' | 'plus';
 };
@@ -17,16 +17,21 @@ type Props = {
 export const TitledSelectableAmount: FC<Props> = ({
   title,
   help,
+  helpIcon,
   warning,
+  loading,
+  amount,
+  token,
+  sign,
   ...props
 }) => {
   return (
-    <TitledAmountStyle $warning={warning}>
+    <TitledAmountStyle $warning={warning} {...props}>
       <Stack gap="xs" center>
         {title}
-        <IconTooltip tooltip={help} />
+        <IconTooltip tooltip={help} type={helpIcon} />
       </Stack>
-      <AmountWithPrice {...props} />
+      <AmountWithPrice {...{ amount, token, loading, sign }} />
     </TitledAmountStyle>
   );
 };

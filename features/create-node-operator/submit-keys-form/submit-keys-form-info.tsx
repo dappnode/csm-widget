@@ -7,18 +7,17 @@ export const SubmitKeysFormInfo = () => {
     name: ['depositData'],
   });
 
-  const { shareLimit } = useSubmitKeysFormData();
+  const { shareLimit } = useSubmitKeysFormData(true);
 
   return (
     <DataTable data-testid="submitKeysFormInfo">
       <DataTableRow title="Number of keys">{depositData.length}</DataTableRow>
       <Divider />
       <DataTableRow
-        loading={!shareLimit}
         title="Deposit queue"
         help="The number of validators in the CSM deposit queue at the moment"
       >
-        {shareLimit?.queue.toString()}
+        {shareLimit?.queue?.toString()}
       </DataTableRow>
     </DataTable>
   );

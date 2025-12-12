@@ -1,58 +1,47 @@
-import { Block, Table } from '@lidofinance/lido-ui';
-import { StackStyle } from 'shared/components/stack/style';
+import { Table } from 'shared/components';
 import styled from 'styled-components';
 
-export const ViewKeysBlock = styled(Block)`
-  display: flex;
-  gap: ${({ theme }) => theme.spaceMap.md}px;
-  flex-direction: column;
-`;
-
 export const TableStyle = styled(Table)`
-  margin: -32px -32px;
+  grid-template-columns: 5fr 4fr 1fr;
 
-  thead tr::before,
-  thead tr::after,
-  th {
-    border-top: none;
-  }
+  tr {
+    gap: 12px 32px;
 
-  th {
-    padding: 24px 8px 16px 8px;
-    min-width: 40px;
-  }
+    ${({ theme }) => theme.mediaQueries.md} {
+      grid-template-columns: 1fr;
 
-  td {
-    padding: 12px 8px;
-  }
-
-  th > div {
-    display: flex;
-    gap: ${({ theme }) => theme.spaceMap.xs}px;
-    align-items: center;
-
-    svg {
-      width: 16px;
+      padding: 20px 32px;
     }
   }
 
-  td {
-    border-bottom: none;
+  th:nth-child(4) {
+    display: none;
   }
 
-  td:last-child {
-    max-width: 200px;
+  td:nth-child(4) {
+    grid-column: 1 / -1;
+
+    &:empty {
+      display: none;
+    }
   }
 
-  td:nth-child(2) {
-    min-width: max-content;
+  td:empty,
+  td:has(> span:empty) {
+    display: none;
   }
 
-  tbody tr:nth-child(odd) {
-    background-color: var(--lido-color-accentControlBg);
-  }
-`;
+  td:nth-child(3) {
+    justify-self: center;
 
-export const AddressRow = styled(StackStyle).attrs({ $gap: 'xs' })`
-  align-items: center;
+    ${({ theme }) => theme.mediaQueries.md} {
+      justify-self: start;
+    }
+  }
+
+  thead {
+    ${({ theme }) => theme.mediaQueries.md} {
+      display: none;
+    }
+  }
 `;

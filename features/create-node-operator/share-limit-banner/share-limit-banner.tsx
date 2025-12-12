@@ -1,7 +1,12 @@
 import { MATOMO_CLICK_EVENTS_TYPES } from 'consts/matomo-click-events';
+import {
+  SHARE_LIMIT_STATUS,
+  useHasPriorityQueueSpots,
+  useShareLimit,
+  useShareLimitStatus,
+} from 'modules/web3';
 import { FC } from 'react';
 import { Banner } from 'shared/components';
-import { SHARE_LIMIT_STATUS, useCSMShareLimitInfo } from 'shared/hooks';
 import { LocalLink } from 'shared/navigate';
 
 type Props = { activeLeft: string; queue: string };
@@ -15,7 +20,7 @@ const ReachedBanner: FC = () => (
     the near future (possibly for months).
     <br />
     <LocalLink
-      anchor="#stake-share-limit"
+      anchor="#what-is-the-csm-stake-share-limit"
       matomoEvent={MATOMO_CLICK_EVENTS_TYPES.stakeShareLimitLinkBanner}
     >
       Read more in the FAQ section
@@ -37,7 +42,7 @@ const ExhaustedBanner: FC<Props> = ({ activeLeft, queue }) => (
     can be active for CSM is constantly changing due to protocol dynamics.
     <br />
     <LocalLink
-      anchor="#stake-share-limit"
+      anchor="#what-is-the-csm-stake-share-limit"
       matomoEvent={MATOMO_CLICK_EVENTS_TYPES.stakeShareLimitLinkBanner}
     >
       Read more in the FAQ section
@@ -56,7 +61,7 @@ const ApproachingBanner: FC<Props> = ({ activeLeft, queue }) => (
     can be active for CSM is constantly changing due to protocol dynamics.
     <br />
     <LocalLink
-      anchor="#stake-share-limit"
+      anchor="#what-is-the-csm-stake-share-limit"
       matomoEvent={MATOMO_CLICK_EVENTS_TYPES.stakeShareLimitLinkBanner}
     >
       Read more in the FAQ section
@@ -65,18 +70,24 @@ const ApproachingBanner: FC<Props> = ({ activeLeft, queue }) => (
 );
 
 export const ShareLimitBanner: FC = () => {
-  const { data } = useCSMShareLimitInfo();
+  const { data } = useShareLimit();
+  const { data: status } = useShareLimitStatus();
+  const { data: hasPrioritySpots } = useHasPriorityQueueSpots();
+
+  if (!data || !status) {
+    return null;
+  }
 
   return (
     <>
-      {data?.status === SHARE_LIMIT_STATUS.REACHED ? (
+      {status === SHARE_LIMIT_STATUS.REACHED ? (
         <ReachedBanner />
-      ) : data?.status === SHARE_LIMIT_STATUS.EXHAUSTED ? (
+      ) : status === SHARE_LIMIT_STATUS.EXHAUSTED && !hasPrioritySpots ? (
         <ExhaustedBanner
           activeLeft={data.activeLeft.toString()}
           queue={data.queue.toString()}
         />
-      ) : data?.status === SHARE_LIMIT_STATUS.APPROACHING ? (
+      ) : status === SHARE_LIMIT_STATUS.APPROACHING ? (
         <ApproachingBanner
           activeLeft={data.activeLeft.toString()}
           queue={data.queue.toString()}

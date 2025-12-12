@@ -1,19 +1,18 @@
 import { MATOMO_CLICK_EVENTS_TYPES } from 'consts/matomo-click-events';
-import { TOKENS } from 'consts/tokens';
 import { PATH } from 'consts/urls';
 import {
   FormTitle,
-  KeysAvailable,
+  // KeysAvailable,
   Stack,
   TokenAmount,
 } from 'shared/components';
 import { TokenButtonsHookForm } from 'shared/hook-form/controls';
 import { LocalLink } from 'shared/navigate';
 import { useSubmitKeysFormData } from '../context';
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
 
 export const TokenSelect: React.FC = () => {
-  const { etherBalance, stethBalance, wstethBalance, keysAvailable, loading } =
-    useSubmitKeysFormData();
+  const { ethBalance, stethBalance, wstethBalance } = useSubmitKeysFormData();
 
   return (
     <>
@@ -21,7 +20,7 @@ export const TokenSelect: React.FC = () => {
         extra={
           <LocalLink
             href={PATH.CREATE}
-            anchor="#how-bond-is-calculated"
+            anchor="#how-much-bond-is-needed"
             matomoEvent={MATOMO_CLICK_EVENTS_TYPES.depositDataLearnMore}
           >
             How bond is calculated
@@ -32,34 +31,22 @@ export const TokenSelect: React.FC = () => {
       </FormTitle>
       <TokenButtonsHookForm
         options={{
-          [TOKENS.ETH]: (
+          [TOKENS.eth]: (
             <Stack direction="column">
-              <TokenAmount
-                token={TOKENS.ETH}
-                amount={etherBalance}
-                loading={loading.isEtherBalanceLoading}
-              />
-              <KeysAvailable {...keysAvailable?.ETH} token={TOKENS.ETH} />
+              <TokenAmount token={TOKENS.eth} amount={ethBalance} />
+              {/* <KeysAvailable {...keysAvailable?.ETH} token={TOKENS.eth} /> */}
             </Stack>
           ),
-          [TOKENS.STETH]: (
+          [TOKENS.steth]: (
             <Stack direction="column">
-              <TokenAmount
-                token={TOKENS.STETH}
-                amount={stethBalance}
-                loading={loading.isStethBalanceLoading}
-              />
-              <KeysAvailable {...keysAvailable?.STETH} token={TOKENS.STETH} />
+              <TokenAmount token={TOKENS.steth} amount={stethBalance} />
+              {/* <KeysAvailable {...keysAvailable?.STETH} token={TOKENS.steth} /> */}
             </Stack>
           ),
-          [TOKENS.WSTETH]: (
+          [TOKENS.wsteth]: (
             <Stack direction="column">
-              <TokenAmount
-                token={TOKENS.WSTETH}
-                amount={wstethBalance}
-                loading={loading.isWstethBalanceLoading}
-              />
-              <KeysAvailable {...keysAvailable?.WSTETH} token={TOKENS.WSTETH} />
+              <TokenAmount token={TOKENS.wsteth} amount={wstethBalance} />
+              {/* <KeysAvailable {...keysAvailable?.WSTETH} token={TOKENS.wsteth} /> */}
             </Stack>
           ),
         }}

@@ -1,6 +1,13 @@
-import { ROLE_CODE, ROLES } from 'consts/roles';
+import {
+  NodeOperator,
+  NodeOperatorInvite,
+  NodeOperatorShortInfo,
+  packRoles,
+  ROLES,
+} from '@lidofinance/lido-csm-sdk';
+import { ROLE_CODE } from 'consts/roles';
 import { capitalize } from 'lodash';
-import { NodeOperator, NodeOperatorInvite } from 'types';
+import { Address, isAddressEqual } from 'viem';
 
 const SHORT_ROLES = {
   [ROLES.REWARDS]: 'R',
@@ -20,11 +27,43 @@ export const getRoleTitle = (role: ROLES, capitalized = false) => {
 };
 
 export const getRoleCode = (nodeOperator?: NodeOperator) => {
-  const getRoleCode = (role: ROLES, code: ROLE_CODE) =>
-    (Number(nodeOperator?.roles.includes(role) ?? 0) * code) as ROLE_CODE;
-  return (getRoleCode(ROLES.REWARDS, ROLE_CODE.REWARDS) +
-    getRoleCode(ROLES.MANAGER, ROLE_CODE.MANAGER)) as ROLE_CODE;
+  switch (true) {
+    case nodeOperator?.roles?.includes(ROLES.MANAGER) &&
+      nodeOperator?.roles?.includes(ROLES.REWARDS):
+      return ROLE_CODE.REWARDS_AND_MANAGER;
+    case nodeOperator?.roles?.includes(ROLES.MANAGER):
+      return ROLE_CODE.MANAGER;
+    case nodeOperator?.roles?.includes(ROLES.REWARDS):
+      return ROLE_CODE.REWARDS;
+    default:
+      return ROLE_CODE.NONE;
+  }
 };
 
 export const getInviteId = (invite: NodeOperatorInvite) =>
   `${getShortRole(invite.role)}-${invite.id}` as const;
+
+export const getAddressRoles = (
+  {
+    managerAddress,
+    rewardsAddress,
+  }: Pick<NodeOperatorShortInfo, 'managerAddress' | 'rewardsAddress'>,
+  address: Address,
+) =>
+  packRoles({
+    [ROLES.REWARDS]: isAddressEqual(rewardsAddress, address),
+    [ROLES.MANAGER]: isAddressEqual(managerAddress, address),
+  });
+
+export const hasAnyRole = (
+  {
+    managerAddress,
+    rewardsAddress,
+  }: Pick<NodeOperatorShortInfo, 'managerAddress' | 'rewardsAddress'>,
+  address: Address,
+) => {
+  return (
+    isAddressEqual(rewardsAddress, address) ||
+    isAddressEqual(managerAddress, address)
+  );
+};

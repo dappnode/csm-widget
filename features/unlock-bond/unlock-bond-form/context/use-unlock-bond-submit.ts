@@ -1,95 +1,71 @@
-import { BigNumber } from 'ethers';
 import { useCallback } from 'react';
-import invariant from 'tiny-invariant';
 
-import { useCSAccountingRPC, useCSModuleWeb3, useSendTx } from 'shared/hooks';
+import {
+  TransactionCallback,
+  TransactionCallbackStage,
+} from '@lidofinance/lido-csm-sdk';
+import { useLidoSDK } from 'modules/web3';
+import { FormSubmitterHook } from 'shared/hook-form/form-controller';
 import { handleTxError } from 'shared/transaction-modal';
-import { NodeOperatorId } from 'types';
-import { runWithTransactionLogger } from 'utils';
 import { UnlockBondFormInputType, UnlockBondFormNetworkData } from '../context';
 import { useTxModalStagesUnlockBond } from '../hooks/use-tx-modal-stages-unlock-bond';
 
-type UseUnlockBondOptions = {
-  onConfirm?: () => Promise<void> | void;
-  onRetry?: () => void;
-};
-
-type UnlockBondMethodParams = {
-  nodeOperatorId: NodeOperatorId;
-  amount: BigNumber;
-};
-
-// encapsulates eth/steth/wsteth flows
-const useUnlockBondTx = () => {
-  const CSModuleWeb3 = useCSModuleWeb3();
+export const useUnlockBondSubmit: FormSubmitterHook<
+  UnlockBondFormInputType,
+  UnlockBondFormNetworkData
+> = () => {
+  const { csm } = useLidoSDK();
+  const { txModalStages } = useTxModalStagesUnlockBond();
 
   return useCallback(
-    async (params: UnlockBondMethodParams) => {
-      invariant(CSModuleWeb3, 'must have CSModuleWeb3');
-
-      return {
-        tx: await CSModuleWeb3.populateTransaction.compensateELRewardsStealingPenalty(
-          params.nodeOperatorId,
-          { value: params.amount },
-        ),
-        txName: 'compensateELRewardsStealingPenalty',
-      };
-    },
-    [CSModuleWeb3],
-  );
-};
-
-export const useUnlockBondSubmit = ({
-  onConfirm,
-  onRetry,
-}: UseUnlockBondOptions) => {
-  const { txModalStages } = useTxModalStagesUnlockBond();
-  const CSAccounting = useCSAccountingRPC();
-
-  const getTx = useUnlockBondTx();
-  const sendTx = useSendTx();
-
-  const unlockBond = useCallback(
-    async (
-      { amount }: UnlockBondFormInputType,
-      { nodeOperatorId }: UnlockBondFormNetworkData,
-    ): Promise<boolean> => {
-      invariant(amount, 'BondAmount is not defined');
-      invariant(nodeOperatorId, 'NodeOperatorId is not defined');
+    async ({ amount }, { nodeOperatorId }, { onConfirm, onRetry }) => {
+      if (amount === undefined) {
+        throw new Error('BondAmount is not defined');
+      }
 
       try {
-        txModalStages.sign({ amount });
+        const callback: TransactionCallback<bigint> = async ({
+          stage,
+          payload,
+        }) => {
+          switch (stage) {
+            case TransactionCallbackStage.SIGN:
+              txModalStages.sign({ amount });
+              break;
+            case TransactionCallbackStage.RECEIPT:
+              txModalStages.pending({ amount }, payload.hash);
+              break;
+            case TransactionCallbackStage.DONE: {
+              payload;
+              txModalStages.success(
+                { lockedBond: payload.result },
+                payload.hash,
+              );
+              break;
+            }
+            case TransactionCallbackStage.MULTISIG_DONE:
+              txModalStages.successMultisig();
+              break;
+            case TransactionCallbackStage.ERROR:
+              txModalStages.failed(payload.error, onRetry);
+              break;
+            default:
+          }
+        };
 
-        const tx = await getTx({
+        await csm.bond.coverLockedBond({
           nodeOperatorId,
           amount,
+          callback,
         });
 
-        const [txHash, waitTx] = await runWithTransactionLogger(
-          'UnlockBond signing',
-          () => sendTx(tx),
-        );
-
-        txModalStages.pending({ amount }, txHash);
-
-        await runWithTransactionLogger('UnlockBond block confirmation', waitTx);
-
         await onConfirm?.();
-
-        // TODO: move to onConfirm
-        const current = await CSAccounting.getActualLockedBond(nodeOperatorId);
-
-        txModalStages.success({ lockedBond: current }, txHash);
 
         return true;
       } catch (error) {
         return handleTxError(error, txModalStages, onRetry);
       }
     },
-    [getTx, txModalStages, onConfirm, CSAccounting, sendTx, onRetry],
+    [csm.bond, txModalStages],
   );
-
-  return {
-    unlockBond,
-  };
 };

@@ -1,37 +1,46 @@
-import { KEY_STATUS } from 'consts/key-status';
-import { ROLES } from 'consts/roles';
-import { useActiveNodeOperator } from 'providers/node-operator-provider';
-import { FC, PropsWithChildren, useEffect, useMemo } from 'react';
+import { KEY_STATUS, ROLES } from '@lidofinance/lido-csm-sdk';
+import { ALERT_FEE_RECIPIENT_DISMISS_HOURS, PATH } from 'consts';
 import {
-  useKeysWithStatus,
-  useNodeOperatorInfo,
-  useNodeOperatorLockAmount,
-} from 'shared/hooks';
+  useNodeOperator,
+  useOperatorBalance,
+  useOperatorInfo,
+  useOperatorKeysWithStatus,
+} from 'modules/web3';
+import { useOperatorKeysWithWrongFeeRecipient } from 'modules/web3/hooks';
+import { useOperatorKeysToMigrate } from 'modules/web3/hooks/use-operator-keys-to-migrate';
+import { useRouter } from 'next/router';
+import { FC, PropsWithChildren, useMemo } from 'react';
+import { useCanClaimICS, useDismiss } from 'shared/hooks';
 import { useAlertActions } from './alert-provider';
+import { AlertClaimIcs } from './components/alert-claim-ics';
 import { AlertLockedBond } from './components/alert-locked-bond';
 import { AlertNomalizeQueue } from './components/alert-normalize-queue';
 import { AlertRequestToExit } from './components/alert-request-to-exit';
-import { AlertStuckKeys } from './components/alert-stuck-keys';
+import { AlertTransferKeys } from './components/alert-transfer-keys';
+import { AlertWrongFeeRecipient } from './components/alert-wrong-fee-recipient';
+import { useAlertWatcher } from './use-alert-watcher';
 
-export const AlertsWatcherPrivider: FC<PropsWithChildren> = ({ children }) => {
-  const { showAlert, closeAlert } = useAlertActions();
+export const AlertsWatcherProvider: FC<PropsWithChildren> = ({ children }) => {
+  const { closeAlert } = useAlertActions();
 
-  const nodeOperator = useActiveNodeOperator();
-  const { data: info } = useNodeOperatorInfo(nodeOperator?.id);
+  const { nodeOperator } = useNodeOperator();
+  const { data: info } = useOperatorInfo(nodeOperator?.id);
+  const { data: keysToTransfer } = useOperatorKeysToMigrate(nodeOperator?.id);
+  const canClaimICS = useCanClaimICS();
+  const { route } = useRouter();
 
   const normalizeQueue = useMemo(() => {
     return (
       info &&
       info.enqueuedCount < info.depositableValidatorsCount &&
-      info.stuckValidatorsCount === 0 &&
-      nodeOperator?.roles.includes(ROLES.MANAGER)
+      nodeOperator?.roles?.includes(ROLES.MANAGER)
     );
   }, [info, nodeOperator?.roles]);
 
-  const { data: lockedBond } = useNodeOperatorLockAmount(nodeOperator?.id);
+  const { data: balance } = useOperatorBalance(nodeOperator?.id);
 
-  const { data: keysWithStatus, initialLoading: isKeysLoading } =
-    useKeysWithStatus();
+  const { data: keysWithStatus, isPending: isKeysLoading } =
+    useOperatorKeysWithStatus(nodeOperator?.id);
   const hasRequestsToExit = useMemo(
     () =>
       keysWithStatus?.filter(({ statuses }) =>
@@ -40,39 +49,58 @@ export const AlertsWatcherPrivider: FC<PropsWithChildren> = ({ children }) => {
     [keysWithStatus],
   );
 
-  useEffect(() => {
-    if (!isKeysLoading) {
-      if (hasRequestsToExit) {
-        showAlert(AlertRequestToExit);
-      } else {
-        closeAlert(AlertRequestToExit);
-      }
-    }
-  }, [closeAlert, hasRequestsToExit, isKeysLoading, showAlert]);
+  const { data: keysWithWrongFeeRecipient } =
+    useOperatorKeysWithWrongFeeRecipient(nodeOperator?.id);
 
-  useEffect(() => {
-    if (info?.stuckValidatorsCount) {
-      showAlert(AlertStuckKeys);
-    } else {
-      closeAlert(AlertStuckKeys);
-    }
-  }, [closeAlert, info?.stuckValidatorsCount, showAlert]);
+  const {
+    isDismissed: isFeeRecipientAlertDismissed,
+    dismiss: dismissFeeRecipientAlert,
+  } = useDismiss(
+    `alert-fee-recipient-dismissed-${nodeOperator?.id}`,
+    ALERT_FEE_RECIPIENT_DISMISS_HOURS,
+  );
 
-  useEffect(() => {
-    if (normalizeQueue) {
-      showAlert(AlertNomalizeQueue);
-    } else {
-      closeAlert(AlertNomalizeQueue);
-    }
-  }, [closeAlert, normalizeQueue, showAlert]);
+  useAlertWatcher({
+    component: AlertRequestToExit,
+    shouldShow: !!hasRequestsToExit,
+    loading: isKeysLoading,
+  });
 
-  useEffect(() => {
-    if (lockedBond?.gt(0)) {
-      showAlert(AlertLockedBond);
-    } else {
-      closeAlert(AlertLockedBond);
-    }
-  }, [closeAlert, lockedBond, showAlert]);
+  useAlertWatcher({
+    component: AlertNomalizeQueue,
+    shouldShow: !!normalizeQueue,
+  });
+
+  useAlertWatcher({
+    component: AlertTransferKeys,
+    shouldShow: !!keysToTransfer,
+  });
+
+  useAlertWatcher({
+    component: AlertLockedBond,
+    shouldShow: !!balance?.locked,
+  });
+
+  useAlertWatcher({
+    component: AlertClaimIcs,
+    shouldShow: canClaimICS && route !== PATH.TYPE_CLAIM,
+  });
+
+  useAlertWatcher({
+    component: AlertWrongFeeRecipient,
+    shouldShow:
+      !!keysWithWrongFeeRecipient?.length && !isFeeRecipientAlertDismissed,
+    props: useMemo(
+      () => ({
+        pubkeys: keysWithWrongFeeRecipient || [],
+        onClose: () => {
+          dismissFeeRecipientAlert();
+          closeAlert(AlertWrongFeeRecipient);
+        },
+      }),
+      [closeAlert, dismissFeeRecipientAlert, keysWithWrongFeeRecipient],
+    ),
+  });
 
   return <>{children}</>;
 };

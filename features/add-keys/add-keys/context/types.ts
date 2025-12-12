@@ -1,8 +1,12 @@
-import { type TOKENS } from 'consts/tokens';
-import { BigNumber } from 'ethers';
-import { DepositDataInputType } from 'shared/hook-form/form-controller';
-import { KeysAvailable, ShareLimitInfo } from 'shared/hooks';
-import { BondBalance, LoadingRecord, NodeOperatorId } from 'types';
+import {
+  BondBalance,
+  CurveParameters,
+  NodeOperatorId,
+  NodeOperatorInfo,
+  ShareLimitInfo,
+  TOKENS,
+} from '@lidofinance/lido-csm-sdk';
+import { DepositDataInputType } from 'shared/hook-form/deposit-data';
 
 // DAPPNODE
 export interface KeysFile {
@@ -12,32 +16,22 @@ export interface KeysFile {
 
 export type AddKeysFormInputType = {
   token: TOKENS;
-  bondAmount?: BigNumber;
+  bondAmount?: bigint;
   keystores?: KeysFile[]; //dappnode
   password?: string; //dappnode
 } & DepositDataInputType;
 
 export type AddKeysFormNetworkData = {
-  etherBalance?: BigNumber;
-  stethBalance?: BigNumber;
-  wstethBalance?: BigNumber;
-  nodeOperatorId?: NodeOperatorId;
-  keysUploadLimit?: number;
-  keysAvailable?: KeysAvailable;
-  bond?: BondBalance;
-  isPaused?: boolean;
-  maxStakeEther?: BigNumber | null;
-  shareLimit?: ShareLimitInfo;
-  blockNumber?: number;
-  loading: LoadingRecord<
-    | 'etherBalance'
-    | 'stethBalance'
-    | 'wstethBalance'
-    | 'bond'
-    | 'maxStakeEther'
-    | 'keysUploadLimit'
-    | 'status'
-    | 'shareLimit'
-    | 'blockNumber'
-  >;
+  ethBalance: bigint;
+  stethBalance: bigint;
+  wstethBalance: bigint;
+  nodeOperatorId: NodeOperatorId;
+  curveId: bigint;
+  operatorInfo: NodeOperatorInfo;
+  curveParameters: CurveParameters;
+  bond: BondBalance;
+  isPaused: boolean;
+  maxStakeEth: bigint;
+  shareLimit: ShareLimitInfo;
+  // keysAvailable: KeysAvailable;
 };

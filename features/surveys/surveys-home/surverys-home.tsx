@@ -1,17 +1,17 @@
+import { Divider, Plus, Text } from '@lidofinance/lido-ui';
 import { PATH } from 'consts/urls';
 import { FC, useCallback } from 'react';
 import { Plural, Stack, WhenLoaded } from 'shared/components';
 import {
-  SurveyLink,
-  SurveyItem,
-  SurveySection,
   SurveyButton,
+  SurveyItem,
+  SurveyLink,
+  SurveySection,
   Warning,
 } from '../components';
 import { useSurveysSWR } from '../shared/use-surveys-swr';
-import { useConfirmEraseModal } from './confirm-erase-modal';
-import { Divider, Plus, Text } from '@lidofinance/lido-ui';
 import { SetupsKeys, Summary } from '../types';
+import { useConfirmEraseModal } from './confirm-erase-modal';
 
 export const SurveysHome: FC = () => {
   const { data, isLoading, remove } = useSurveysSWR<Summary>('summary');
@@ -27,12 +27,20 @@ export const SurveysHome: FC = () => {
     }
   }, [confirmModal, mutateKeys, remove]);
 
+  const showErase = !!(
+    data?.contacts ||
+    data?.experience ||
+    data?.howDidYouLearnCsm ||
+    (data?.setups && data.setups.length > 0)
+  );
+  const showSetups = !!(keys && (keys.total > 0 || keys.filled > 0));
+
   return (
     <WhenLoaded loading={!data && isLoading}>
       <SurveySection
         title="Your contact information"
         subtitle="How this information will be used"
-        help="Lido contributors will attempt to contact you in case you are offline or unresponsive to important matters on the Mainnet. However, we cannot guarantee that you will be notified."
+        help="Lido contributors will attempt to contact you in case you are offline or unresponsive to important matters on the Mainnet. However, we cannot guarantee that you will be notified"
       >
         <SurveyItem title="Contact information">
           <SurveyLink
@@ -47,7 +55,7 @@ export const SurveysHome: FC = () => {
       <SurveySection
         title="Your experience"
         subtitle="How this information will be used"
-        help="Information is voluntarily submitted and only retained for report building, UI/UX improvement, or feedback purposes. Information is aggregated. Information about your experience is utilized in the compilation of the Validator and Node Operator Metrics (VaNOM) reports."
+        help="Information is voluntarily submitted and only retained for report building, UI/UX improvement, or feedback purposes. Information is aggregated. Information about your experience is utilized in the compilation of the Validator and Node Operator Metrics (VaNOM) reports"
       >
         <SurveyItem title="How did you learn about CSM?">
           <SurveyLink
@@ -67,11 +75,11 @@ export const SurveysHome: FC = () => {
         </SurveyItem>
       </SurveySection>
 
-      {keys && (keys.total > 0 || keys.filled > 0) && (
+      {showSetups && (
         <SurveySection
           title="Your setup"
           subtitle="How this information will be used"
-          help="Information is voluntarily submitted and only retained for report building. Information is aggregated and utilized in the compilation of the Validator and Node Operator Metrics (VaNOM) reports."
+          help="Information is voluntarily submitted and only retained for report building. Information is aggregated and utilized in the compilation of the Validator and Node Operator Metrics (VaNOM) reports"
         >
           {keys && keys.filled > keys.total && (
             <Warning>
@@ -121,10 +129,7 @@ export const SurveysHome: FC = () => {
         </SurveySection>
       )}
 
-      {(data?.contacts ||
-        data?.experience ||
-        data?.howDidYouLearnCsm ||
-        (data?.setups && data.setups.length > 0)) && (
+      {showErase && (
         <>
           <Divider />
           <SurveySection title="Erase your data">

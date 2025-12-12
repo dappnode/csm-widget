@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useKeysWithStatus } from 'shared/hooks';
+
+import { useNodeOperatorId, useOperatorKeysWithStatus } from 'modules/web3';
 import useApiBrain from './use-brain-keystore-api';
 import useDappnodeUrls from './use-dappnode-urls';
 
@@ -12,8 +13,11 @@ const useMissingKeys = () => {
     isLoading: brainKeysLoading,
     error,
   } = useApiBrain();
-  const { data: lidoKeys, initialLoading: lidoKeysLoading } =
-    useKeysWithStatus();
+
+  const id = useNodeOperatorId();
+
+  const { data: lidoKeys, isLoading: lidoKeysLoading } =
+    useOperatorKeysWithStatus(id);
 
   const { keysStatusUrl } = useDappnodeUrls();
 
@@ -70,7 +74,7 @@ const useMissingKeys = () => {
       if (lidoKeys) {
         const formattedLidoKeys = [];
         for (const key of lidoKeys) {
-          formattedLidoKeys.push(key.key.toLowerCase());
+          formattedLidoKeys.push(key.pubkey.toLowerCase());
         }
 
         const formattedBrainKeys = brainKeys

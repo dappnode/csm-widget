@@ -216,10 +216,13 @@ export const NoteWrapper = styled.div`
 
 export const PerformanceCardStyle = styled(StackStyle).attrs({ $gap: 'sm' })`
   border-radius: ${({ theme }) => theme.borderRadiusesMap.md}px;
-  padding: 16px 22px;
+  padding: 22px;
   background: var(--lido-color-foreground);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 100px;
+  justify-content: space-between;
+  align-items: center;
   position: relative;
 `;
 

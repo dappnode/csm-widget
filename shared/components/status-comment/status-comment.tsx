@@ -1,6 +1,6 @@
 import { FC } from 'react';
-import { KEY_STATUS } from 'consts/key-status';
 import {
+  CommentActivationPending,
   CommentDepositable,
   CommentExiting,
   CommentExitRequested,
@@ -9,19 +9,31 @@ import {
   CommentUnbonded,
   CommentUnbondedNonQueued,
   CommentUnchecked,
+  CommentWithStrikes,
 } from './comments';
+import { KEY_STATUS } from '@lidofinance/lido-csm-sdk';
+import { CommentStyle } from './styles';
 
-export const StatusComment: FC<{ statuses: KEY_STATUS[] }> = ({ statuses }) => {
+type Props = {
+  statuses: KEY_STATUS[];
+};
+
+export const StatusComment: FC<Props> = (props) => {
+  return (
+    <CommentStyle>
+      <Comment {...props} />
+    </CommentStyle>
+  );
+};
+
+const Comment: FC<Props> = ({ statuses }) => {
   if (
     statuses.includes(KEY_STATUS.INVALID) ||
     statuses.includes(KEY_STATUS.DUPLICATED)
   )
     return <CommentInvalid />;
 
-  if (
-    statuses.includes(KEY_STATUS.EXIT_REQUESTED) ||
-    statuses.includes(KEY_STATUS.STUCK)
-  )
+  if (statuses.includes(KEY_STATUS.EXIT_REQUESTED))
     return <CommentExitRequested />;
 
   if (
@@ -48,11 +60,12 @@ export const StatusComment: FC<{ statuses: KEY_STATUS[] }> = ({ statuses }) => {
   )
     return <CommentExiting />;
 
-  if (
-    statuses.includes(KEY_STATUS.DEPOSITABLE) ||
-    statuses.includes(KEY_STATUS.ACTIVATION_PENDING)
-  )
-    return <CommentDepositable />;
+  if (statuses.includes(KEY_STATUS.ACTIVATION_PENDING))
+    return <CommentActivationPending />;
+
+  if (statuses.includes(KEY_STATUS.DEPOSITABLE)) return <CommentDepositable />;
+
+  if (statuses.includes(KEY_STATUS.WITH_STRIKES)) return <CommentWithStrikes />;
 
   return null;
 };

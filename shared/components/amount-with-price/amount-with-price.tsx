@@ -1,15 +1,14 @@
 import { InlineLoader } from '@lidofinance/lido-ui';
-import { TOKENS } from 'consts/tokens';
-import { BigNumber } from 'ethers';
 import { FC } from 'react';
 import { Sign, SignType } from 'shared/components';
 import { FormatPrice, FormatToken } from 'shared/formatters';
 import { useEthUsd } from 'shared/hooks';
 import { AmountStyle, PriceStyle, Wrapper } from './style';
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
 
 type TitledAddressProps = {
   loading?: boolean;
-  amount?: BigNumber;
+  amount?: bigint;
   token?: TOKENS;
   sign?: SignType;
   big?: boolean;
@@ -25,7 +24,7 @@ export const AmountWithPrice: FC<TitledAddressProps> = ({
   const { usdAmount } = useEthUsd(amount);
 
   return (
-    <Wrapper $big={big}>
+    <Wrapper $big={big} data-testid="amountPrice">
       {loading ? (
         <InlineLoader color="text" />
       ) : (
@@ -34,7 +33,7 @@ export const AmountWithPrice: FC<TitledAddressProps> = ({
           <AmountStyle>
             <FormatToken amount={amount} token={token} />
           </AmountStyle>
-          <PriceStyle>
+          <PriceStyle data-testid="usdPrice">
             <FormatPrice amount={usdAmount} approx />
           </PriceStyle>
         </>

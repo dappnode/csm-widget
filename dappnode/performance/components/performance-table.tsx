@@ -31,11 +31,12 @@ export const PerformanceTable: FC<PerformanceTableProps> = ({
             Validator <TooltipIcon>?</TooltipIcon>
           </Th>
         </Tooltip>
+        {/* ATTESTATIONS
         <Tooltip placement="top" title={tooltips.attestations}>
           <Th>
             Attestations <TooltipIcon>?</TooltipIcon>
           </Th>
-        </Tooltip>
+        </Tooltip> */}
         <Tooltip placement="top" title={tooltips.efficiency}>
           <Th>
             Efficiency <TooltipIcon>?</TooltipIcon>
@@ -52,16 +53,19 @@ export const PerformanceTable: FC<PerformanceTableProps> = ({
               <Text size="xxs" color="secondary">
                 {validator.index}
               </Text>
-              <BeaconchainPubkeyLink pubkey={validator.index.toString()} />
+              <BeaconchainPubkeyLink
+                validatorIndex={`${validator.index}`}
+                statuses={[]}
+              />
             </AddressRow>
           </Td>
-          <Td>
+          {/* ATTESTATIONS
             <Text size="xxs" color="secondary">
               {validator.attestations.included +
                 ' / ' +
                 validator.attestations.assigned}
             </Text>
-          </Td>
+          </Td> */}
           <Td>
             <Text
               size="xxs"

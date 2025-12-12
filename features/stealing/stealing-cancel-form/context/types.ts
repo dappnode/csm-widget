@@ -1,14 +1,12 @@
-import { BigNumber } from 'ethers';
-import { LoadingRecord, NodeOperatorId } from 'types';
+import { NodeOperatorId } from '@lidofinance/lido-csm-sdk';
 
 export type StealingCancelFormInputType = {
-  amount?: BigNumber;
+  amount?: bigint;
   nodeOperatorId?: NodeOperatorId;
-  maxAmount?: BigNumber;
+  maxAmount?: bigint;
 };
 
 export type StealingCancelFormNetworkData = {
-  etherBalance?: BigNumber;
-  nodeOperatorsCount?: BigNumber;
-  loading: LoadingRecord<'etherBalance' | 'nodeOperatorsCount'>;
+  ethBalance: bigint;
+  nodeOperatorsCount: bigint;
 };

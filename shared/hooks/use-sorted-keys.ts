@@ -1,25 +1,6 @@
-import { useCallback, useMemo } from 'react';
-import { KeyWithStatus } from 'shared/hooks';
-import { KEY_STATUS } from 'consts/key-status';
-
-export const DEFAULT_STATUS_ORDER: KEY_STATUS[] = [
-  KEY_STATUS.INVALID,
-  KEY_STATUS.DUPLICATED,
-  KEY_STATUS.STUCK,
-  KEY_STATUS.UNBONDED,
-  KEY_STATUS.EXIT_REQUESTED,
-  KEY_STATUS.NON_QUEUED,
-  KEY_STATUS.UNCHECKED,
-
-  KEY_STATUS.DEPOSITABLE,
-  KEY_STATUS.ACTIVATION_PENDING,
-  KEY_STATUS.ACTIVE,
-  KEY_STATUS.EXITING,
-  KEY_STATUS.WITHDRAWAL_PENDING,
-  KEY_STATUS.WITHDRAWN,
-
-  KEY_STATUS.SLASHED,
-];
+import { KEY_STATUS, KeyWithStatus } from '@lidofinance/lido-csm-sdk';
+import { sorting } from 'providers/table-provider/utils';
+import { useMemo } from 'react';
 
 export const ACTIVE_STATUS_ORDER: KEY_STATUS[] = [
   KEY_STATUS.ACTIVATION_PENDING,
@@ -31,7 +12,6 @@ export const ACTIVE_STATUS_ORDER: KEY_STATUS[] = [
 
   KEY_STATUS.INVALID,
   KEY_STATUS.DUPLICATED,
-  KEY_STATUS.STUCK,
   KEY_STATUS.UNBONDED,
   KEY_STATUS.EXIT_REQUESTED,
   KEY_STATUS.NON_QUEUED,
@@ -39,18 +19,15 @@ export const ACTIVE_STATUS_ORDER: KEY_STATUS[] = [
   KEY_STATUS.SLASHED,
 ];
 
-export const useSortedKeys = (
-  keys?: KeyWithStatus[],
-  statusOrder = DEFAULT_STATUS_ORDER,
-) => {
-  const getOrder = useCallback(
-    (statuses: KEY_STATUS[]): number =>
-      statusOrder.findIndex((st) => statuses.includes(st)),
-    [statusOrder],
-  );
-
-  return useMemo(
-    () => keys?.sort((a, b) => getOrder(a.statuses) - getOrder(b.statuses)),
-    [getOrder, keys],
-  );
+const sortByStatusOrder = (statusOrder: KEY_STATUS[]) => {
+  return ({ statuses }: Pick<KeyWithStatus, 'statuses'>) => [
+    statusOrder.findIndex((st) => statuses.includes(st)),
+  ];
 };
+
+export const byActiveStatus = sorting<KeyWithStatus>(
+  sortByStatusOrder(ACTIVE_STATUS_ORDER),
+);
+
+export const useSortedKeys = (keys: KeyWithStatus[] = []) =>
+  useMemo(() => Array.from(keys).sort(byActiveStatus), [keys]);

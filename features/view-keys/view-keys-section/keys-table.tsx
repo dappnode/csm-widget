@@ -1,62 +1,69 @@
-import { Tbody, Td, Text, Th, Thead, Tr } from '@lidofinance/lido-ui';
+import { KEY_STATUS, KeyWithStatus } from '@lidofinance/lido-csm-sdk';
 import { FC } from 'react';
+import { SortButton, useTable } from 'providers/table-provider';
 import {
-  Address,
-  BeaconchainPubkeyLink,
+  PriorityChip,
+  Pubkey,
+  PubkeyLinks,
   Stack,
   StatusChip,
   StatusComment,
 } from 'shared/components';
-import { KeyWithStatus, useSortedKeys } from 'shared/hooks';
-import { AddressRow, TableStyle } from './styles';
+import { useMaxPriorityKeyIndex } from 'shared/hooks';
+import { StrikesCount } from './strikes-counts';
+import { TableStyle } from './styles';
 
-type Props = {
-  keys?: KeyWithStatus[];
-};
-
-export const KeysTable: FC<Props> = ({ keys }) => {
-  const sortedKeys = useSortedKeys(keys);
+export const KeysTable: FC = () => {
+  const maxPriorityKeyIndex = useMaxPriorityKeyIndex();
+  const { data } = useTable<KeyWithStatus>();
 
   return (
     <TableStyle>
-      <Thead>
-        <Tr>
-          <Th>#</Th>
-          <Th>Key</Th>
-          <Th>Status</Th>
-          <Th>Comment</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {sortedKeys?.map(({ key, index, statuses }) => (
-          <Tr key={index}>
-            <Td>
-              <Text size="xxs" color="secondary">
-                {index + 1}
-              </Text>
-            </Td>
-            <Td>
-              <AddressRow>
-                <Address
-                  address={key}
-                  symbols={8}
-                  link={<BeaconchainPubkeyLink pubkey={key} />}
-                />
-              </AddressRow>
-            </Td>
-            <Td>
+      <thead>
+        <tr>
+          <th>
+            <SortButton column="pubkey">Key</SortButton>
+          </th>
+          <th>
+            <SortButton column="statuses">Status</SortButton>
+          </th>
+          <th>
+            <SortButton column="strikes">Strikes</SortButton>
+          </th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((key) => (
+          <tr key={key.index}>
+            <td data-testid="pubkeyCell">
+              <Pubkey pubkey={key.pubkey} link={<PubkeyLinks {...key} />} />
+            </td>
+            <td data-testid="statusCell">
               <Stack direction="column" gap="xs">
-                {statuses.map((status) => (
-                  <StatusChip status={status} key={status} />
+                {key.statuses.map((status) => (
+                  <StatusChip
+                    status={status}
+                    key={status}
+                    suffix={
+                      status === KEY_STATUS.DEPOSITABLE &&
+                      key.index <= maxPriorityKeyIndex ? (
+                        <PriorityChip />
+                      ) : null
+                    }
+                  />
                 ))}
               </Stack>
-            </Td>
-            <Td>
-              <StatusComment statuses={statuses} />
-            </Td>
-          </Tr>
+            </td>
+            <td data-testid="strikesCountCell">
+              <StrikesCount strikes={key.strikes} />
+            </td>
+            <td data-testid="statusCommentCell">
+              <StatusComment statuses={key.statuses} />
+            </td>
+          </tr>
         ))}
-      </Tbody>
+      </tbody>
     </TableStyle>
   );
 };

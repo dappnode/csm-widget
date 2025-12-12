@@ -1,8 +1,18 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import NextBundleAnalyzer from '@next/bundle-analyzer';
 import buildDynamics from './scripts/build-dynamics.mjs';
 import generateBuildId from './scripts/generate-build-id.mjs';
+import { logEnvironmentVariables } from './scripts/log-environment-variables.mjs';
+import { startupCheckRPCs } from './scripts/startup-checks/rpc.mjs';
+import { startupCheckValidationFile } from './scripts/startup-checks/validation-file.mjs';
 
+logEnvironmentVariables();
 buildDynamics();
+
+if (process.env.RUN_STARTUP_CHECKS === 'true') {
+  void startupCheckRPCs();
+  void startupCheckValidationFile();
+}
 
 // https://nextjs.org/docs/pages/api-reference/next-config-js/basePath
 const basePath = process.env.BASE_PATH;
@@ -130,14 +140,14 @@ export default withBundleAnalyzer({
           'http://beacon-chain.mainnet.dncore.dappnode:3500/eth/v1/node/syncing',
       },
       {
-        source: '/api/consensus-version-holesky',
+        source: '/api/consensus-version-hoodi',
         destination:
-          'http://beacon-chain.holesky.dncore.dappnode:3500/eth/v1/node/version',
+          'http://beacon-chain.hoodi.dncore.dappnode:3500/eth/v1/node/version',
       },
       {
-        source: '/api/consensus-status-holesky',
+        source: '/api/consensus-status-hoodi',
         destination:
-          'http://beacon-chain.holesky.dncore.dappnode:3500/eth/v1/node/syncing',
+          'http://beacon-chain.hoodi.dncore.dappnode:3500/eth/v1/node/syncing',
       },
       {
         source: '/api/keys-status-mainnet',
@@ -145,9 +155,9 @@ export default withBundleAnalyzer({
           'http://beacon-chain.mainnet.dncore.dappnode:3500/eth/v1/beacon/states/head/validators',
       },
       {
-        source: '/api/keys-status-holesky',
+        source: '/api/keys-status-hoodi',
         destination:
-          'http://beacon-chain.holesky.dncore.dappnode:3500/eth/v1/beacon/states/head/validators',
+          'http://beacon-chain.hoodi.dncore.dappnode:3500/eth/v1/beacon/states/head/validators',
       },
       {
         source: '/api/brain-keys-mainnet',
@@ -155,26 +165,26 @@ export default withBundleAnalyzer({
           'http://brain.web3signer.dappnode:5000/api/v0/brain/validators?tag=lido&format=pubkey',
       },
       {
-        source: '/api/brain-keys-holesky',
+        source: '/api/brain-keys-hoodi',
         destination:
-          'http://brain.web3signer-holesky.dappnode:5000/api/v0/brain/validators?tag=lido&format=pubkey',
+          'http://brain.web3signer-hoodi.dappnode:5000/api/v0/brain/validators?tag=lido&format=pubkey',
       },
       {
         source: '/api/brain-launchpad-mainnet',
         destination: 'http://brain.web3signer.dappnode:3000/eth/v1/keystores',
       },
       {
-        source: '/api/brain-launchpad-holesky',
+        source: '/api/brain-launchpad-hoodi',
         destination:
-          'http://brain.web3signer-holesky.dappnode:3000/eth/v1/keystores',
+          'http://brain.web3signer-hoodi.dappnode:3000/eth/v1/keystores',
       },
       {
         source: '/api/mev-status-mainnet',
         destination: 'http://mev-boost.dappnode:18550/',
       },
       {
-        source: '/api/mev-status-holesky',
-        destination: 'http://mev-boost-holesky.dappnode:18550/',
+        source: '/api/mev-status-hoodi',
+        destination: 'http://mev-boost-hoodi.dappnode:18550/',
       },
     ];
   },
@@ -225,29 +235,27 @@ export default withBundleAnalyzer({
     maintenance,
 
     defaultChain: process.env.DEFAULT_CHAIN,
+
     rpcUrls_1: process.env.EL_RPC_URLS_1,
     rpcUrls_17000: process.env.EL_RPC_URLS_17000,
-    ethplorerApiKey: process.env.ETHPLORER_API_KEY,
+    rpcUrls_560048: process.env.EL_RPC_URLS_560048,
+
     clApiUrls_1: process.env.CL_API_URLS_1,
     clApiUrls_17000: process.env.CL_API_URLS_17000,
+    clApiUrls_560048: process.env.CL_API_URLS_560048,
 
-    oneInchApiKey: process.env.ONE_INCH_API_KEY,
+    migalabsApiUrl: process.env.ETHSEER_API_URL,
+    migalabsApiToken: process.env.ETHSEER_API_TOKEN,
 
     // DAPPNODE
     cspTrustedHosts: 'https://*.lido.fi,http://*.dappnode',
     cspReportUri: process.env.CSP_REPORT_URI,
     cspReportOnly: process.env.CSP_REPORT_ONLY,
 
-    subgraphMainnet: process.env.SUBGRAPH_MAINNET,
-    subgraphGoerli: process.env.SUBGRAPH_GOERLI,
-    subgraphHolesky: process.env.SUBGRAPH_HOLESKY,
-    subgraphRequestTimeout: process.env.SUBGRAPH_REQUEST_TIMEOUT,
-
     rateLimit: process.env.RATE_LIMIT,
     rateLimitTimeFrame: process.env.RATE_LIMIT_TIME_FRAME,
-
-    ethAPIBasePath: process.env.ETH_API_BASE_PATH,
-    rewardsBackendAPI: process.env.REWARDS_BACKEND,
+    validationAPI: process.env.VALIDATION_SERVICE_BASE_PATH,
+    validationFilePath: process.env.VALIDATION_FILE_PATH,
   },
 
   // ATTENTION: If you add a new variable you should declare it in `global.d.ts`

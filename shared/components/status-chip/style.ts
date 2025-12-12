@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import { StyledPriorityChip } from '../chip/styles';
 
 export type Variants = keyof typeof variants;
 
@@ -21,9 +22,14 @@ const variants = {
 };
 
 export const StatusStyle = styled.div<{ $variant?: Variants }>`
+  display: flex;
+  gap: 6px;
+  align-items: center;
+
   width: fit-content;
   padding: 4px 12px;
   text-align: center;
+  white-space: nowrap;
 
   border-radius: ${({ theme }) => theme.borderRadiusesMap.xl}px;
   background: color-mix(in srgb, currentColor 15%, transparent);
@@ -32,4 +38,8 @@ export const StatusStyle = styled.div<{ $variant?: Variants }>`
   line-height: ${({ theme }) => theme.fontSizesMap.lg}px;
   font-weight: 700;
   ${(props) => variants[props.$variant || 'default']}
+
+  ${StyledPriorityChip} {
+    margin-right: -4px;
+  }
 `;

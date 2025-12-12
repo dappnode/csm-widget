@@ -12,12 +12,14 @@ tsconfig.tsbuildinfo
 /test-results/
 /playwright-report/
 /playwright/.cache/
+.playwright-mcp/
 
 # testing
 /coverage
 
 # generated
 /generated
+/modules/web3/generated.ts
 
 # next.js
 /.next/
@@ -42,5 +44,12 @@ yarn-error.log*
 #ide
 .vscode
 .idea
+.claude
+.mcp.json
+.qodo
+**/.browser_context**
 
 /public/runtime/
+/keys-generator-bin/
+deposit_data.json
+local_fork_config.json

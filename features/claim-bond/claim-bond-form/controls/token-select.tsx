@@ -1,11 +1,11 @@
+import { TOKENS } from '@lidofinance/lido-csm-sdk';
 import { Checkbox } from '@lidofinance/lido-ui';
+import { INSTANT_WAITING_TIME } from 'consts';
 import { MATOMO_CLICK_EVENTS_TYPES } from 'consts/matomo-click-events';
-import { TOKENS } from 'consts/tokens';
 import { PATH } from 'consts/urls';
 import { useController, useWatch } from 'react-hook-form';
 import {
   FormTitle,
-  MatomoLink,
   Note,
   Stack,
   TokenAmount,
@@ -16,26 +16,32 @@ import { TokenButtonsHookForm } from 'shared/hook-form/controls';
 import { LocalLink } from 'shared/navigate';
 import { getTokenDisplayName } from 'utils';
 import { ClaimBondFormInputType, useClaimBondFormData } from '../context';
+import { useWithdrawalWaitingTime } from '../hooks/use-withdrawal-waiting-time';
 
 export const TokenSelect: React.FC = () => {
   const [token, claimRewards] = useWatch<
     ClaimBondFormInputType,
     ['token', 'claimRewards']
   >({ name: ['token', 'claimRewards'] });
-  const { loading, maxValues, isContract, isSplitter } = useClaimBondFormData();
-  const isLoading = loading.isBondLoading || loading.isRewardsLoading;
+  const { maxValues, isContract } = useClaimBondFormData(true);
+
+  const maxEthAmount = maxValues?.[TOKENS.eth]?.[1];
+  const {
+    data: { text: waitingTimeValue } = {},
+    isPending: isWaitingTimeLoading,
+  } = useWithdrawalWaitingTime(maxEthAmount);
 
   const { field: unlockField } = useController<
     ClaimBondFormInputType,
-    'unlockClaimTokens'
+    'unlockedClaimTokens'
   >({
-    name: 'unlockClaimTokens',
+    name: 'unlockedClaimTokens',
   });
 
   return (
     <>
       <FormTitle>Choose a token to claim</FormTitle>
-      {isContract && !isSplitter && (
+      {isContract && (
         <WarningBlock>
           The Rewards Address of your Node Operator seems to be a smart
           contract. Please ensure the smart contract you use for the Reward
@@ -45,57 +51,56 @@ export const TokenSelect: React.FC = () => {
       )}
       <TokenButtonsHookForm
         disabled={
-          maxValues?.[TOKENS.ETH][Number(claimRewards)]?.eq(0) ||
-          (isSplitter && !unlockField.value)
+          !maxValues?.[TOKENS.eth][Number(claimRewards)] ||
+          (isContract && !unlockField.value)
         }
         options={{
-          [TOKENS.ETH]: (
+          [TOKENS.eth]: (
             <Stack direction="column">
               <TokenAmount
-                token={TOKENS.ETH}
-                amount={maxValues?.[TOKENS.ETH][Number(claimRewards)]}
-                loading={isLoading}
+                token={TOKENS.eth}
+                amount={maxValues[TOKENS.eth][Number(claimRewards)]}
               />
               <YouWillReceive
-                waitingTime="~ 1-5 days"
+                waitingTime={
+                  isWaitingTimeLoading ? 'Loading...' : waitingTimeValue
+                }
                 receive="withdrawal NFT"
               />
             </Stack>
           ),
-          [TOKENS.STETH]: (
+          [TOKENS.steth]: (
             <Stack direction="column">
               <TokenAmount
-                token={TOKENS.STETH}
-                amount={maxValues?.[TOKENS.STETH][Number(claimRewards)]}
-                loading={isLoading}
+                token={TOKENS.steth}
+                amount={maxValues[TOKENS.steth][Number(claimRewards)]}
               />
               <YouWillReceive
-                waitingTime="~ 1 min"
-                receive={getTokenDisplayName(TOKENS.STETH)}
+                waitingTime={INSTANT_WAITING_TIME}
+                receive={getTokenDisplayName(TOKENS.steth)}
               />
             </Stack>
           ),
-          [TOKENS.WSTETH]: (
+          [TOKENS.wsteth]: (
             <Stack direction="column">
               <TokenAmount
-                token={TOKENS.WSTETH}
-                amount={maxValues?.[TOKENS.WSTETH][Number(claimRewards)]}
-                loading={isLoading || loading.isMaxValuesLoading}
+                token={TOKENS.wsteth}
+                amount={maxValues[TOKENS.wsteth][Number(claimRewards)]}
               />
               <YouWillReceive
-                waitingTime="~ 1 min"
-                receive={getTokenDisplayName(TOKENS.WSTETH)}
+                waitingTime={INSTANT_WAITING_TIME}
+                receive={getTokenDisplayName(TOKENS.wsteth)}
               />
             </Stack>
           ),
         }}
       />
-      {token === TOKENS.ETH && (
+      {token === TOKENS.eth && (
         <Note>
           After receiving NFT you will need to claim ETH manually. Follow{' '}
           <LocalLink
             href={PATH.BOND_CLAIM}
-            anchor="#how-to-claim-eth"
+            anchor="#how-to-claim-eth-using-a-withdrawal-nft"
             matomoEvent={MATOMO_CLICK_EVENTS_TYPES.howToClaimEth}
           >
             FAQ
@@ -103,21 +108,13 @@ export const TokenSelect: React.FC = () => {
           for more details.
         </Note>
       )}
-      {isSplitter && (
+      {isContract && (
         <>
           <Note>
-            The Rewards Address of your Node Operator is a splitter contract. It
-            is strongly recommended to claim bond and rewards in wstETH only.
-            ETH withdrawal NFT is not compatible with the splitter, while a
-            rebasing token like stETH may not receive incremental rewards. More
-            information can be found in the{' '}
-            <MatomoLink
-              href="https://docs.splits.org/core/split#how-it-works"
-              matomoEvent={MATOMO_CLICK_EVENTS_TYPES.splitsOrgDocumentation}
-            >
-              splits.org documentation
-            </MatomoLink>
-            .
+            The Rewards Address of your Node Operator seems to be a smart
+            contract. Please ensure the smart contract you use for the Reward
+            Address is compatible with the chosen token for claiming of your
+            bond/rewards.
           </Note>
           <Checkbox
             label="I am fully aware of the risks and want to claim rewards in ETH/stETH anyway"

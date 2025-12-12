@@ -12,11 +12,13 @@ import { useCorrectPath } from './use-correct-path';
 type LocalLinkProps = Omit<LinkProps, 'href'> & {
   href?: PATH;
   anchor?: `#${string}`;
+  'data-testid'?: string;
+  query?: Record<string, string>;
 };
 
 export const LocalLink: FC<
   PropsWithChildren<WithMatomoEvent<LocalLinkProps>>
-> = ({ matomoEvent, href: path, anchor, ...restProps }) => {
+> = ({ matomoEvent, href: path, query, anchor, onClick, ...restProps }) => {
   const router = useRouter();
   const { ref, embed, app, theme } = router.query;
 
@@ -28,11 +30,12 @@ export const LocalLink: FC<
       trackMatomoEvent(matomoEvent);
       closeModal();
       event.stopPropagation();
+      onClick?.(event);
     },
-    [closeModal, matomoEvent],
+    [closeModal, matomoEvent, onClick],
   );
 
-  const extraQuery = {} as Record<string, string>;
+  const extraQuery: Record<string, string> = query ?? {};
   // Not support case: ?ref=01234&ref=56789
   if (ref && typeof ref === 'string') extraQuery.ref = ref;
   if (embed && typeof embed === 'string') extraQuery.embed = embed;

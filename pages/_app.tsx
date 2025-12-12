@@ -3,15 +3,14 @@ import Head from 'next/head';
 import 'nprogress/nprogress.css';
 import { memo } from 'react';
 
-import { ToastContainer } from '@lidofinance/lido-ui'; // DAPPNODE: removed {CookiesTooltip}
+import { ToastContainer } from '@lidofinance/lido-ui';
 
 import { config, SecretConfigType } from 'config';
 import { withCsp } from 'config/csp';
-import { FaqItem } from 'lib/getFaq';
 import { Providers } from 'providers';
-import { FaqContext } from 'providers/faq-provider';
-import { BackgroundGradient } from 'shared/components';
+import { BackgroundGradient, SecurityStatusBanner } from 'shared/components';
 import { nprogress } from 'utils';
+import { AddressValidationFile } from 'utils';
 
 // Visualize route changes
 nprogress();
@@ -25,39 +24,38 @@ const App = (props: AppProps) => {
 const MemoApp = memo(App);
 
 type AppParams = Partial<Pick<SecretConfigType, 'maintenance'>> & {
+  validationFile?: AddressValidationFile;
   isError?: boolean;
-  faqList?: FaqItem[];
 };
 
 const AppWrapper = (props: AppProps<AppParams>): JSX.Element => {
   const { ...rest } = props;
 
   return (
-    <FaqContext.Provider value={props.pageProps?.faqList ?? []}>
-      <Providers
-        dummy={props.pageProps?.maintenance || props.pageProps.isError}
-        skipWatcher={props.pageProps?.isError}
-      >
-        {/* see https://nextjs.org/docs/messages/no-document-viewport-meta */}
-        <Head>
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-          />
-          <title>CSM | Lido</title>
-        </Head>
-        <BackgroundGradient
-          width={1560}
-          height={784}
-          style={{
-            opacity: 'var(--lido-color-darkThemeOpacity)',
-          }}
+    <Providers
+      dummy={props.pageProps?.maintenance || props.pageProps?.isError}
+      skipWatcher={props.pageProps?.isError}
+      validationFile={props.pageProps?.validationFile}
+    >
+      {/* see https://nextjs.org/docs/messages/no-document-viewport-meta */}
+      <Head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
         />
-        <ToastContainer />
-        <MemoApp {...rest} />
-        {/* <CookiesTooltip />  DAPPNODE */}
-      </Providers>
-    </FaqContext.Provider>
+        <title>CSM | Lido</title>
+      </Head>
+      <BackgroundGradient
+        width={1560}
+        height={784}
+        style={{
+          opacity: 'var(--lido-color-darkThemeOpacity)',
+        }}
+      />
+      <ToastContainer />
+      <MemoApp {...rest} />
+      <SecurityStatusBanner />
+    </Providers>
   );
 };
 

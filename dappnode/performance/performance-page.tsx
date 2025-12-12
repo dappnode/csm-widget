@@ -6,13 +6,14 @@ import { Range } from './types';
 
 import { PerformanceTableSection } from './performance-table-section';
 import { PerformanceChartSection } from './performance-chart-section';
-import { useAccount } from 'shared/hooks';
 import { RangeSelector } from './components/range-selector';
 import { PerformanceCardsSection } from './performance-cards-section';
 import { getConfig } from 'config';
+import { FAQ_PERFORMANCE } from 'faq';
+import { useDappStatus } from 'modules/web3';
 
 export const PerformancePage: FC = () => {
-  const { chainId } = useAccount();
+  const { chainId } = useDappStatus();
   const { defaultChain } = getConfig();
   const [range, setRange] = useState<Range>('ever');
   const { isLoading, validatorsStats, threshold, thresholdsByEpoch } =
@@ -43,7 +44,7 @@ export const PerformancePage: FC = () => {
         threshold={threshold}
       />
 
-      <Faq />
+      <Faq items={FAQ_PERFORMANCE} />
     </Layout>
   );
 };

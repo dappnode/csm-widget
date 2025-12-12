@@ -6,7 +6,11 @@ import { ReactComponent as EyeOn } from 'assets/icons/eye-on.svg';
 import { ReactComponent as EyeOff } from 'assets/icons/eye-off.svg';
 
 export const PasswordInput = () => {
-  const { setValue, watch } = useFormContext();
+  const {
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext();
   const password = watch('password');
 
   const [showValue, setShowValue] = useState(false);
@@ -14,12 +18,12 @@ export const PasswordInput = () => {
   const toggleShowPass = () => {
     setShowValue((prev) => !prev);
   };
-
   return (
     <Input
       label="Fill with keystore's password"
       type={showValue ? 'text' : 'password'}
       value={password}
+      error={errors.password ? errors.password.message?.toString() : ''}
       onChange={(e) => {
         setValue('password', e.target.value);
       }}

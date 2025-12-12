@@ -1,20 +1,33 @@
+import { useNodeOperatorId, useOperatorKeysWithStatus } from 'modules/web3';
+import { TablePagination, TableProvider } from 'providers/table-provider';
 import { FC } from 'react';
-import { WhenLoaded } from 'shared/components';
-import { useKeysWithStatus } from 'shared/hooks';
+import { Block, Stack, WhenLoaded } from 'shared/components';
 import { KeysTable } from './keys-table';
-import { ViewKeysBlock } from './styles';
+import { sortFunctions } from './sort';
 
 export const ViewKeysSection: FC = () => {
-  const { data: keys, initialLoading: loading } = useKeysWithStatus();
+  const nodeOperatorId = useNodeOperatorId();
+  const { data: keys, isPending: loading } =
+    useOperatorKeysWithStatus(nodeOperatorId);
 
   return (
-    <ViewKeysBlock>
-      <WhenLoaded
-        loading={loading}
-        empty={!keys?.length && 'There are no keys to display'}
-      >
-        <KeysTable keys={keys} />
-      </WhenLoaded>
-    </ViewKeysBlock>
+    <TableProvider
+      data={keys}
+      sort={sortFunctions}
+      defaultSort={{ column: 'statuses', direction: 'asc' }}
+    >
+      <Stack direction="column" gap="xl">
+        <Block paddingLess data-testid="viewKeysBlock">
+          <WhenLoaded
+            loading={loading}
+            empty={!keys?.length && 'There are no keys to display'}
+            morePadding
+          >
+            <KeysTable />
+          </WhenLoaded>
+        </Block>
+        <TablePagination />
+      </Stack>
+    </TableProvider>
   );
 };

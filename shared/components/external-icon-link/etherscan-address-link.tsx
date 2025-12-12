@@ -1,29 +1,27 @@
-import { getEtherscanAddressLink } from '@lido-sdk/helpers';
 import { External } from '@lidofinance/lido-ui';
 import { MATOMO_CLICK_EVENTS_TYPES } from 'consts/matomo-click-events';
-import { FC } from 'react';
-import { useAccount } from 'shared/hooks';
+import { useDappStatus } from 'modules/web3';
+import { ComponentProps, FC } from 'react';
 import { MatomoLink } from '../matomo-link/matomo-link';
+import { getEtherscanAddressLink } from 'utils';
 
-type Props = {
-  address: string;
+type Props = ComponentProps<typeof MatomoLink> & {
+  address?: string;
 };
 
-export const EtherscanAddressLink: FC<Props> = ({ address }) => {
-  const { chainId } = useAccount();
-  const href = getEtherscanAddressLink(chainId ?? 0, address);
+export const EtherscanAddressLink: FC<Props> = ({ address, ...rest }) => {
+  const { chainId } = useDappStatus();
+
+  if (!address) return null;
 
   return (
-    <>
-      {href && (
-        <MatomoLink
-          href={href}
-          matomoEvent={MATOMO_CLICK_EVENTS_TYPES.etherscanAddressLink}
-          title="View on etherscan"
-        >
-          <External />
-        </MatomoLink>
-      )}
-    </>
+    <MatomoLink
+      {...rest}
+      href={getEtherscanAddressLink(chainId ?? 1, address)}
+      matomoEvent={MATOMO_CLICK_EVENTS_TYPES.etherscanAddressLink}
+      title="View on etherscan"
+    >
+      <External />
+    </MatomoLink>
   );
 };

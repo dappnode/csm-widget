@@ -1,18 +1,17 @@
-import { useNodeOperatorsList } from 'providers/node-operator-provider/use-node-operators-list';
+import { useNodeOperatorId } from 'modules/web3';
 import useDappnodeUrls from './use-dappnode-urls';
-import { useGetActiveNodeOperator } from 'providers/node-operator-provider/use-get-active-node-operator';
 import { useEffect, useState } from 'react';
 
 export const useGetOperatorPerformance = () => {
   const { backendUrl } = useDappnodeUrls();
-  const { list } = useNodeOperatorsList();
-  const { active: activeNO } = useGetActiveNodeOperator(list);
+  const nodeOperatorId = useNodeOperatorId();
+
   const [operatorData, setOperatorData] = useState<any>();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const getDataWithRetry = async () => {
-      const url = `${backendUrl}/api/v0/events_indexer/operator_performance?operatorId=${activeNO?.id}`;
+      const url = `${backendUrl}/api/v0/events_indexer/operator_performance?operatorId=${Number(nodeOperatorId)}`;
       const options = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -53,10 +52,10 @@ export const useGetOperatorPerformance = () => {
       setIsLoading(false);
     };
 
-    if (activeNO) {
+    if (nodeOperatorId) {
       void getDataWithRetry();
     }
-  }, [activeNO, backendUrl]);
+  }, [nodeOperatorId, backendUrl]);
 
   return { operatorData, isLoading };
 };

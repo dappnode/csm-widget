@@ -18,12 +18,12 @@ const toBoolean = (dataStr) => {
 /** @type string */
 export const matomoHost = process.env.MATOMO_URL;
 /** @type number */
-export const defaultChain = parseInt(process.env.DEFAULT_CHAIN, 10) || 17000;
+export const defaultChain = parseInt(process.env.DEFAULT_CHAIN, 10) || 560048;
 /** @type number[] */
 
 export const supportedChains = process.env?.SUPPORTED_CHAINS?.split(',').map(
   (chainId) => parseInt(chainId, 10),
-) ?? [17000];
+) ?? [560048];
 /** @type string */
 export const walletconnectProjectId = 'd3f589c93f2a2de300741fcd71ed226b'; // DAPPNOPDE: process.env.WALLETCONNECT_PROJECT_ID
 
@@ -38,9 +38,23 @@ export const prefillUnsafeElRpcUrls1 =
 export const prefillUnsafeElRpcUrls17000 =
   process.env.PREFILL_UNSAFE_EL_RPC_URLS_17000?.split(',') ?? [];
 
+/** @type string[] */
+export const prefillUnsafeElRpcUrls560048 =
+  process.env.PREFILL_UNSAFE_EL_RPC_URLS_560048?.split(',') ?? [];
+
 /** @type string */
 export const widgetApiBasePathForIpfs =
   process.env.WIDGET_API_BASE_PATH_FOR_IPFS;
 
+/** @type boolean */
+export const addressApiValidationEnabled =
+  !!process.env.VALIDATION_SERVICE_BASE_PATH;
+
 /** @type string */
-export const surveyApi = process.env.SURVEY_API;
+export const validationFilePath = process.env.VALIDATION_FILE_PATH;
+
+/** @type string */
+export const keysApiUrl = process.env.KEYS_API_URL;
+
+/** @type string */
+export const feesMonitoringApiUrl = process.env.FEES_MONITORING_API_URL;
