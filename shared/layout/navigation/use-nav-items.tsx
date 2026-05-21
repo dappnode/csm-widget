@@ -100,11 +100,11 @@ const routes: Route[] = [
     suffix: <CounterInvites />,
   },
   {
-    name: 'Stealing',
-    path: PATH.STEALING,
+    name: 'Delayed penalty',
+    path: PATH.DELAYED_PENALTY,
     icon: <EthIcon />,
-    subPaths: [PATH.STEALING_REPORT, PATH.STEALING_CANCEL],
-    showRules: ['EL_STEALING_REPORTER'],
+    subPaths: [PATH.DELAYED_PENALTY_REPORT, PATH.DELAYED_PENALTY_CANCEL],
+    showRules: ['EL_DELAYED_PENALTY_REPORTER'],
   },
   {
     name: 'Surveys',

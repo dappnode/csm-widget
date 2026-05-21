@@ -28,9 +28,9 @@ export const PATH = <const>{
   SETTINGS_INBOX: '/settings/inbox',
   SETTINGS_METADATA: '/settings/metadata',
 
-  STEALING: '/stealing',
-  STEALING_REPORT: '/stealing/report',
-  STEALING_CANCEL: '/stealing/cancel',
+  DELAYED_PENALTY: '/delayed-penalty',
+  DELAYED_PENALTY_REPORT: '/delayed-penalty/report',
+  DELAYED_PENALTY_CANCEL: '/delayed-penalty/cancel',
 
   TYPE: '/type',
   TYPE_CLAIM: '/type/claim',
