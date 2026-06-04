@@ -22,4 +22,5 @@ export const ErrorMessages: Record<ErrorCode, ReactNode> = {
       Try to change RPC url in your wallet.
     </>
   ),
+  [ErrorCode.REQUEST_TIMEOUT]: 'The request timed out. Please try again.',
 };
