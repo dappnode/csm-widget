@@ -12,12 +12,9 @@ const Page = () => {
 
   return (
     <GateLoaded>
-      <Gate
-        rule={'IS_CONNECTED_WALLET'}
-        fallback={<Navigate path={PATH.HOME} />}
-      >
+      <Gate rule="IS_CONNECTED_WALLET" fallback={<Navigate path={PATH.HOME} />}>
         <GateLoaded additional={isPending}>
-          <Gate rule={'CAN_CREATE'} fallback={<Navigate path={PATH.HOME} />}>
+          <Gate rule="CAN_CREATE" fallback={<Navigate path={PATH.HOME} />}>
             <CreateNodeOperatorPage />
           </Gate>
         </GateLoaded>
