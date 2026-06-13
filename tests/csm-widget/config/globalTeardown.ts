@@ -1,12 +1,14 @@
-import { EthereumNodeService } from '@lidofinance/wallets-testing-nodes';
-import { widgetFullConfig } from '.';
+import { execSync } from 'node:child_process';
 
 export default async function globalTeardown() {
   if (process.env.USE_FORK !== 'true') {
     return;
   }
 
-  await EthereumNodeService.forceStopNode(
-    widgetFullConfig.standConfig.nodeConfig.port as number,
-  );
+  try {
+    execSync('/usr/bin/pkill -x anvil', { stdio: 'pipe' });
+    console.info('[teardown] anvil stopped');
+  } catch (e: any) {
+    console.info('[teardown] pkill exit code:', e.status, e.message);
+  }
 }
