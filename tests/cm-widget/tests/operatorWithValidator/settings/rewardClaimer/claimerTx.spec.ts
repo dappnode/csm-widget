@@ -162,9 +162,9 @@ test.describe(
           await expect(txModal.modal).not.toBeVisible();
         });
 
-        await test.step('"Current Rewards claimer" shows "not set"', async () => {
+        await test.step('"Current Rewards claimer" shows "Not set"', async () => {
           await expect(claimerPage.currentClaimerTitle).toContainText(
-            'not set',
+            'Not set',
             {
               timeout: STAGE_WAIT_TIMEOUT,
             },

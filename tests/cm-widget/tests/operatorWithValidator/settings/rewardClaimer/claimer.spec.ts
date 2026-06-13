@@ -30,12 +30,12 @@ test.describe('Settings. Rewards claimer.', { tag: [Tags.forked] }, () => {
         );
       });
 
-      await test.step('"Current Rewards claimer" row is visible with "not set" value', async () => {
+      await test.step('"Current Rewards claimer" row is visible with "Not set" value', async () => {
         await expect(claimerPage.currentClaimerTitle).toBeVisible();
         await expect(claimerPage.currentClaimerTitle).toContainText(
           'Current Rewards claimer',
         );
-        await expect(claimerPage.currentClaimerTitle).toContainText('not set');
+        await expect(claimerPage.currentClaimerTitle).toContainText('Not set');
       });
 
       await test.step('"Specify a new Rewards Claimer Address" title is visible', async () => {
