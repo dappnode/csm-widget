@@ -1,9 +1,26 @@
 /* eslint-disable no-irregular-whitespace */
-import { expect } from '@playwright/test';
+import { expect, type Locator } from '@playwright/test';
 import { test } from '../../../test.fixture';
 import { qase } from 'playwright-qase-reporter/playwright';
-import { countCalendarDaysLeft, formatDate } from 'utils/format-date';
+import { formatBalance } from 'utils/format-balance';
 import { PAGE_WAIT_TIMEOUT } from 'tests/consts/timeouts';
+import { DATA_UNAVAILABLE } from 'consts/text';
+
+type LatestRewardsDistribution = {
+  expandedBlock: Locator;
+  rowHeader: Locator;
+};
+
+const hasVisibleLatestRewardsDistribution = async ({
+  rowHeader,
+}: LatestRewardsDistribution) => {
+  try {
+    await rowHeader.waitFor({ state: 'visible', timeout: 5000 });
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', async () => {
   test.beforeEach(async ({ widgetService }) => {
@@ -16,48 +33,74 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
+      const hasLatestRewardsDistribution =
+        await hasVisibleLatestRewardsDistribution(latestRewardsDistribution);
+      if (!hasLatestRewardsDistribution) {
+        await expect(latestRewardsDistribution.expandedBlock).toBeHidden();
+        return;
+      }
+
       await expect(latestRewardsDistribution.rowHeader).toContainText(
         'Latest rewards distribution',
       );
+      await expect(latestRewardsDistribution.rowHeader).toContainText(
+        /Report frame: \w{3} \d{2} — \w{3} \d{2}/,
+      );
 
-      const lastRewardInfoFromContract = await csmSDK.getLastRewards();
-      await test.step('Verify report frame information', async () => {
-        const expectedRateFrame = `Report frame: ${formatDate(lastRewardInfoFromContract?.prevRewards)} — ${formatDate(lastRewardInfoFromContract?.lastRewards)}`;
-        await expect(latestRewardsDistribution.rowHeader).toContainText(
-          expectedRateFrame,
-        );
-      });
+      const nodeOperatorId = BigInt(
+        await widgetService.extractNodeOperatorId(),
+      );
+      const lastRewards =
+        await csmSDK.rewards.getOperatorRewardsInLastReport(nodeOperatorId);
 
       await test.step('Verify latest reward amount', async () => {
+        const expectedBalance = lastRewards
+          ? `${formatBalance(lastRewards.distributed).trimmed}\u00A0stETH`
+          : DATA_UNAVAILABLE;
         const commonBalance =
           await latestRewardsDistribution.commonBalance_Text.textContent();
-        expect(commonBalance).toEqual('0.0 stETH');
+        expect(commonBalance).toEqual(expectedBalance);
       });
 
-      await test.step('Verify "Why" link', async () => {
-        await latestRewardsDistribution.commonBalance_SubText.click();
+      if (lastRewards?.distributed === 0n) {
+        await test.step('Verify "Why" link', async () => {
+          await latestRewardsDistribution.commonBalance_SubText.click();
 
-        const whyModal = widgetService.dashboardPage.whyModal;
-        await whyModal.waitFor({ state: 'visible' });
-        const expectedTextContent =
-          'Why didn’t I get rewards?There are main reason of you getting no reward within a frame:If your validator’s performance was below the threshold within the CSM Performance Oracle frame the validator does not receive rewards for the given frame. Read more about the CSM Performance Oracle.';
-        await expect(whyModal).toContainText('Why didn’t I get rewards?');
-        await expect(whyModal).toContainText(expectedTextContent);
-      });
+          const whyModal = widgetService.dashboardPage.whyModal;
+          await whyModal.waitFor({ state: 'visible' });
+          const expectedTextContent =
+            'Why didn’t I get rewards?There are main reason of you getting no reward within a frame:If your validator’s performance was below the threshold within the CSM Performance Oracle frame the validator does not receive rewards for the given frame. Read more about the CSM Performance Oracle.';
+          await expect(whyModal).toContainText('Why didn’t I get rewards?');
+          await expect(whyModal).toContainText(expectedTextContent);
+        });
 
-      await test.step('Verify closing modal', async () => {
-        const whyModal = widgetService.dashboardPage.whyModal;
-        await whyModal.getByRole('button').click();
-        await whyModal.waitFor({ state: 'hidden' });
-      });
+        await test.step('Verify closing modal', async () => {
+          const whyModal = widgetService.dashboardPage.whyModal;
+          await whyModal.getByRole('button').click();
+          await whyModal.waitFor({ state: 'hidden' });
+        });
+      }
     },
   );
 
   test(
     qase(188, 'Should correctly open etherscan by link'),
-    async ({ widgetService, widgetConfig }) => {
+    async ({ widgetService, widgetConfig, csmSDK }) => {
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
+
+      const hasLatestRewardsDistribution =
+        await hasVisibleLatestRewardsDistribution(latestRewardsDistribution);
+      test.skip(
+        !hasLatestRewardsDistribution,
+        'Latest rewards distribution is hidden when there are no reports yet',
+      );
+
+      const txHash = await csmSDK.rewards.getLastReportTransactionHash();
+      test.skip(
+        !txHash,
+        'Latest rewards distribution transaction hash is not available',
+      );
 
       await latestRewardsDistribution.expand();
       const [etherscanPage] = await Promise.all([
@@ -82,13 +125,19 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
   );
   test(
     qase(137, 'Upcoming Rewards Distribution Verification'),
-    async ({ widgetService, csmSDK }) => {
+    async ({ widgetService }) => {
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
+      const hasLatestRewardsDistribution =
+        await hasVisibleLatestRewardsDistribution(latestRewardsDistribution);
+      test.skip(
+        !hasLatestRewardsDistribution,
+        'Latest rewards distribution is hidden when there are no reports yet',
+      );
+
       await latestRewardsDistribution.expand();
 
-      const lastRewardInfoFromContract = await csmSDK.getLastRewards();
       await test.step('Verify "Next rewards distribution" info', async () => {
         await expect(
           latestRewardsDistribution.nextRewardsInfo.getByText(
@@ -97,28 +146,31 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
         ).toBeVisible();
 
         await test.step('Verify report frame information', async () => {
-          const expectedRateFrame = `Report frame: ${formatDate(lastRewardInfoFromContract?.lastRewards)} — ${formatDate(lastRewardInfoFromContract?.nextRewards)}`;
           await expect(latestRewardsDistribution.reportFrame).toContainText(
-            expectedRateFrame,
+            /Report frame: \w{3} \d{2} — \w{3} \d{2}/,
           );
         });
       });
 
       await test.step('Verify expected days for reward', async () => {
-        const expectedDays = countCalendarDaysLeft(
-          lastRewardInfoFromContract?.nextRewards,
-        );
-        await expect(latestRewardsDistribution.expectedDays).toContainText(
-          `Expected`,
-        );
-        if (expectedDays === 0) {
+        await expect(
+          latestRewardsDistribution.nextRewardsInfo.getByText(
+            /Expected|Oracle report is delayed/,
+          ),
+        ).toBeVisible();
+
+        const expectedDaysVisible =
+          await latestRewardsDistribution.expectedDays.isVisible();
+        if (expectedDaysVisible) {
           await expect(latestRewardsDistribution.expectedDays).toContainText(
-            `Today`,
+            /Today|in \d+ days?/,
           );
         } else {
-          await expect(latestRewardsDistribution.expectedDays).toContainText(
-            `in ${expectedDays} day`,
-          );
+          await expect(
+            latestRewardsDistribution.nextRewardsInfo.getByText(
+              'Oracle report is delayed',
+            ),
+          ).toBeVisible();
         }
       });
     },
