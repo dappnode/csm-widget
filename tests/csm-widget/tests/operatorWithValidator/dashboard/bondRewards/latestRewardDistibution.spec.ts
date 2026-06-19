@@ -1,26 +1,10 @@
 /* eslint-disable no-irregular-whitespace */
-import { expect, type Locator } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { test } from '../../../test.fixture';
 import { qase } from 'playwright-qase-reporter/playwright';
 import { formatBalance } from 'utils/format-balance';
 import { PAGE_WAIT_TIMEOUT } from 'tests/shared/consts/timeouts';
 import { DATA_UNAVAILABLE } from 'consts/text';
-
-type LatestRewardsDistribution = {
-  expandedBlock: Locator;
-  rowHeader: Locator;
-};
-
-const hasVisibleLatestRewardsDistribution = async ({
-  rowHeader,
-}: LatestRewardsDistribution) => {
-  try {
-    await rowHeader.waitFor({ state: 'visible', timeout: 5000 });
-    return true;
-  } catch {
-    return false;
-  }
-};
 
 test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', async () => {
   test.beforeEach(async ({ widgetService }) => {
@@ -33,12 +17,10 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
-      const hasLatestRewardsDistribution =
-        await hasVisibleLatestRewardsDistribution(latestRewardsDistribution);
-      if (!hasLatestRewardsDistribution) {
-        await expect(latestRewardsDistribution.expandedBlock).toBeHidden();
-        return;
-      }
+      test.skip(
+        !(await latestRewardsDistribution.isVisible()),
+        'Latest rewards distribution is hidden when there are no reports yet',
+      );
 
       await expect(latestRewardsDistribution.rowHeader).toContainText(
         'Latest rewards distribution',
@@ -89,10 +71,8 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
-      const hasLatestRewardsDistribution =
-        await hasVisibleLatestRewardsDistribution(latestRewardsDistribution);
       test.skip(
-        !hasLatestRewardsDistribution,
+        !(await latestRewardsDistribution.isVisible()),
         'Latest rewards distribution is hidden when there are no reports yet',
       );
 
@@ -129,10 +109,8 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
-      const hasLatestRewardsDistribution =
-        await hasVisibleLatestRewardsDistribution(latestRewardsDistribution);
       test.skip(
-        !hasLatestRewardsDistribution,
+        !(await latestRewardsDistribution.isVisible()),
         'Latest rewards distribution is hidden when there are no reports yet',
       );
 

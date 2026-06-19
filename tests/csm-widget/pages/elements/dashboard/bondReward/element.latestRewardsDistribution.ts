@@ -1,6 +1,9 @@
 import { Locator } from '@playwright/test';
 import { BaseExpandedBlock } from './element.baseSection';
-import { LOW_TIMEOUT } from 'tests/shared/consts/timeouts';
+import {
+  COMMON_ACTION_TIMEOUT,
+  LOW_TIMEOUT,
+} from 'tests/shared/consts/timeouts';
 import { waitForCallback } from 'tests/shared/helpers/tests';
 
 export class LatestRewardsDistributionBlock extends BaseExpandedBlock {
@@ -26,6 +29,13 @@ export class LatestRewardsDistributionBlock extends BaseExpandedBlock {
     this.nextRewardsInfo = this.expandedBlock.getByTestId('nextRewardsInfo');
     this.reportFrame = this.nextRewardsInfo.getByTestId('reportFrame');
     this.expectedDays = this.nextRewardsInfo.getByTestId('expectedDays');
+  }
+
+  async isVisible(): Promise<boolean> {
+    return this.rowHeader
+      .waitFor({ state: 'visible', timeout: COMMON_ACTION_TIMEOUT })
+      .then(() => true)
+      .catch(() => false);
   }
 
   async waitForExpanded(): Promise<void> {
