@@ -99,10 +99,6 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
     qase(143, 'Tooltip verification for "Keys over threshold" field'),
     async () => {},
   );
-  test.skip(
-    qase(144, 'Tooltip verification for "Stuck keys found" field'),
-    async () => {},
-  );
   test(
     qase(137, 'Upcoming Rewards Distribution Verification'),
     async ({ widgetService }) => {
