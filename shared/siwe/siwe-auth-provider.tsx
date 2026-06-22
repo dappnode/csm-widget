@@ -13,7 +13,7 @@ import { useSessionStorage } from 'shared/hooks';
 import invariant from 'tiny-invariant';
 import { extractError } from 'utils';
 import { trackMatomoSiweEvent } from 'utils/track-matomo-event';
-import { AuthContextType } from './types';
+import { AuthContextType, SiweNonceResponse } from './types';
 import { useModalStages } from './use-modal-stages';
 import { useSiwe } from './use-siwe';
 import { useAddressValidation } from 'providers/address-validation-provider';
@@ -52,8 +52,23 @@ export const SiweAuthProvider: FC<PropsWithChildren> = ({ children }) => {
 
     modalStages.sign();
 
+    // The backend rejects any SIWE nonce it did not issue, and the nonce is
+    // short-lived (TTL-bound), so fetch a fresh one right before signing.
+    let nonce: string;
     try {
-      const payload = await siwe();
+      const response = await fetch(`${surveyApi}/auth/nonce`);
+      if (!response.ok) {
+        modalStages.failed(await extractError(response));
+        return;
+      }
+      ({ nonce } = (await response.json()) as SiweNonceResponse);
+    } catch (e) {
+      modalStages.failed(e);
+      return;
+    }
+
+    try {
+      const payload = await siwe(nonce);
 
       modalStages.pending();
       const response = await fetch(`${surveyApi}/auth/signin`, {
