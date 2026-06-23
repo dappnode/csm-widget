@@ -3,8 +3,8 @@ import { expect } from '@playwright/test';
 import { test } from '../../../test.fixture';
 import { qase } from 'playwright-qase-reporter/playwright';
 import { formatBalance } from 'utils/format-balance';
+import { formatDate } from 'utils/format-date';
 import { PAGE_WAIT_TIMEOUT } from 'tests/shared/consts/timeouts';
-import { DATA_UNAVAILABLE } from 'consts/text';
 
 test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', async () => {
   test.beforeEach(async ({ widgetService }) => {
@@ -18,33 +18,42 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
       test.skip(
-        !(await latestRewardsDistribution.isVisible()),
+        !(await latestRewardsDistribution.rowHeader.isVisible()),
         'Latest rewards distribution is hidden when there are no reports yet',
+      );
+
+      const nodeOperatorId = await widgetService.extractNodeOperatorId();
+      const lastRewards = await csmSDK.rewards.getOperatorRewardsInLastReport(
+        BigInt(nodeOperatorId),
+      );
+      test.skip(
+        !lastRewards,
+        'No rewards in the last report for this operator',
       );
 
       await expect(latestRewardsDistribution.rowHeader).toContainText(
         'Latest rewards distribution',
       );
-      await expect(latestRewardsDistribution.rowHeader).toContainText(
-        /Report frame: \w{3} \d{2} — \w{3} \d{2}/,
-      );
 
-      const nodeOperatorId = BigInt(
-        await widgetService.extractNodeOperatorId(),
-      );
-      const lastRewards =
-        await csmSDK.rewards.getOperatorRewardsInLastReport(nodeOperatorId);
+      await test.step('Verify report frame information', async () => {
+        const timestamps = await csmSDK.rewards.getLastReportTimestamps();
+        const { lastReport } = await csmSDK.frame.getInfo();
+        const expectedFrame = `Report frame: ${formatDate(timestamps?.start)} — ${formatDate(lastReport)}`;
+        await expect(latestRewardsDistribution.rowHeader).toContainText(
+          expectedFrame,
+        );
+      });
 
       await test.step('Verify latest reward amount', async () => {
-        const expectedBalance = lastRewards
-          ? `${formatBalance(lastRewards.distributed).trimmed}\u00A0stETH`
-          : DATA_UNAVAILABLE;
+        // @ts-expect-error lastRewards is checked by test.skip
+        const expectedBalance = `${formatBalance(lastRewards.distributed).trimmed}\u00A0stETH`;
         const commonBalance =
           await latestRewardsDistribution.commonBalance_Text.textContent();
         expect(commonBalance).toEqual(expectedBalance);
       });
 
-      if (lastRewards?.distributed === 0n) {
+      // @ts-expect-error lastRewards is checked by test.skip
+      if (lastRewards.distributed === 0n) {
         await test.step('Verify "Why" link', async () => {
           await latestRewardsDistribution.commonBalance_SubText.click();
 
@@ -72,7 +81,7 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
       test.skip(
-        !(await latestRewardsDistribution.isVisible()),
+        !(await latestRewardsDistribution.rowHeader.isVisible()),
         'Latest rewards distribution is hidden when there are no reports yet',
       );
 
@@ -101,16 +110,21 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
   );
   test(
     qase(137, 'Upcoming Rewards Distribution Verification'),
-    async ({ widgetService }) => {
+    async ({ widgetService, csmSDK }) => {
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
       test.skip(
-        !(await latestRewardsDistribution.isVisible()),
+        !(await latestRewardsDistribution.rowHeader.isVisible()),
         'Latest rewards distribution is hidden when there are no reports yet',
       );
 
       await latestRewardsDistribution.expand();
+
+      test.skip(
+        !(await latestRewardsDistribution.expectedDays.isVisible()),
+        'Oracle report is delayed',
+      );
 
       await test.step('Verify "Next rewards distribution" info', async () => {
         await expect(
@@ -120,32 +134,65 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
         ).toBeVisible();
 
         await test.step('Verify report frame information', async () => {
+          const { lastReport, nextReport } = await csmSDK.frame.getInfo();
+          const expectedFrame = `Report frame: ${formatDate(lastReport)} — ${formatDate(nextReport)}`;
           await expect(latestRewardsDistribution.reportFrame).toContainText(
-            /Report frame: \w{3} \d{2} — \w{3} \d{2}/,
+            expectedFrame,
           );
         });
       });
 
       await test.step('Verify expected days for reward', async () => {
         await expect(
+          latestRewardsDistribution.nextRewardsInfo.getByText('Expected'),
+        ).toBeVisible();
+        await expect(latestRewardsDistribution.expectedDays).toContainText(
+          /Today|in \d+ days?/,
+        );
+      });
+    },
+  );
+
+  test(
+    qase(431, 'Should show "Oracle report is delayed" when report is delayed'),
+    async ({ widgetService, csmSDK }) => {
+      const latestRewardsDistribution =
+        widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
+
+      test.skip(
+        !(await latestRewardsDistribution.rowHeader.isVisible()),
+        'Latest rewards distribution is hidden when there are no reports yet',
+      );
+
+      await latestRewardsDistribution.expand();
+
+      test.skip(
+        await latestRewardsDistribution.expectedDays.isVisible(),
+        'Oracle report is not delayed',
+      );
+
+      await test.step('Verify "Next rewards distribution" info', async () => {
+        await expect(
           latestRewardsDistribution.nextRewardsInfo.getByText(
-            /Expected|Oracle report is delayed/,
+            'Next rewards distribution',
           ),
         ).toBeVisible();
 
-        const expectedDaysVisible =
-          await latestRewardsDistribution.expectedDays.isVisible();
-        if (expectedDaysVisible) {
-          await expect(latestRewardsDistribution.expectedDays).toContainText(
-            /Today|in \d+ days?/,
+        await test.step('Verify report frame information', async () => {
+          const { lastReport, nextReport } = await csmSDK.frame.getInfo();
+          const expectedFrame = `Report frame: ${formatDate(lastReport)} — ${formatDate(nextReport)}`;
+          await expect(latestRewardsDistribution.reportFrame).toContainText(
+            expectedFrame,
           );
-        } else {
-          await expect(
-            latestRewardsDistribution.nextRewardsInfo.getByText(
-              'Oracle report is delayed',
-            ),
-          ).toBeVisible();
-        }
+        });
+      });
+
+      await test.step('Verify "Oracle report is delayed" badge', async () => {
+        await expect(
+          latestRewardsDistribution.nextRewardsInfo.getByText(
+            'Oracle report is delayed',
+          ),
+        ).toBeVisible();
       });
     },
   );
