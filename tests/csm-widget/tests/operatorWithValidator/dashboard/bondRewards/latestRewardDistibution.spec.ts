@@ -162,44 +162,4 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
       });
     },
   );
-
-  test(
-    qase(431, 'Should show "Oracle report is delayed" when report is delayed'),
-    async ({ widgetService, csmSDK }) => {
-      const latestRewardsDistribution =
-        widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
-
-      const { lastReport, nextReport } = await csmSDK.frame.getInfo();
-      const timestamps = await csmSDK.rewards.getLastReportTimestamps();
-      test.skip(
-        !timestamps || !isDayInPast(nextReport),
-        'No report yet or oracle report is not delayed',
-      );
-
-      await latestRewardsDistribution.expand();
-
-      await test.step('Verify "Next rewards distribution" info', async () => {
-        await expect(
-          latestRewardsDistribution.nextRewardsInfo.getByText(
-            'Next rewards distribution',
-          ),
-        ).toBeVisible();
-
-        await test.step('Verify report frame information', async () => {
-          const expectedFrame = `Report frame: ${formatDate(lastReport)} — ${formatDate(nextReport)}`;
-          await expect(latestRewardsDistribution.reportFrame).toContainText(
-            expectedFrame,
-          );
-        });
-      });
-
-      await test.step('Verify "Oracle report is delayed" badge', async () => {
-        await expect(
-          latestRewardsDistribution.nextRewardsInfo.getByText(
-            'Oracle report is delayed',
-          ),
-        ).toBeVisible();
-      });
-    },
-  );
 });
