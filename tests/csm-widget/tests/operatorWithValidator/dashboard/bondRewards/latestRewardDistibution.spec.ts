@@ -46,26 +46,40 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
           await latestRewardsDistribution.commonBalance_Text.textContent();
         expect(commonBalance).toEqual(expectedBalance);
       });
+    },
+  );
 
-      // @ts-expect-error lastRewards is checked by test.skip
-      if (lastRewards.distributed === 0n) {
-        await test.step('Verify "Why" link', async () => {
-          await latestRewardsDistribution.commonBalance_SubText.click();
+  test(
+    qase(432, 'Should show "Why" modal when operator got no rewards'),
+    async ({ widgetService, csmSDK }) => {
+      const latestRewardsDistribution =
+        widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
-          const whyModal = widgetService.dashboardPage.whyModal;
-          await whyModal.waitFor({ state: 'visible' });
-          const expectedTextContent =
-            'Why didn’t I get rewards?There are main reason of you getting no reward within a frame:If your validator’s performance was below the threshold within the CSM Performance Oracle frame the validator does not receive rewards for the given frame. Read more about the CSM Performance Oracle.';
-          await expect(whyModal).toContainText('Why didn’t I get rewards?');
-          await expect(whyModal).toContainText(expectedTextContent);
-        });
+      const nodeOperatorId = await widgetService.extractNodeOperatorId();
+      const lastRewards = await csmSDK.rewards.getOperatorRewardsInLastReport(
+        BigInt(nodeOperatorId),
+      );
+      test.skip(
+        !lastRewards || lastRewards.distributed !== 0n,
+        'Operator received rewards in the last report',
+      );
 
-        await test.step('Verify closing modal', async () => {
-          const whyModal = widgetService.dashboardPage.whyModal;
-          await whyModal.getByRole('button').click();
-          await whyModal.waitFor({ state: 'hidden' });
-        });
-      }
+      await test.step('Verify "Why" link', async () => {
+        await latestRewardsDistribution.commonBalance_SubText.click();
+
+        const whyModal = widgetService.dashboardPage.whyModal;
+        await whyModal.waitFor({ state: 'visible' });
+        const expectedTextContent =
+          'Why didn’t I get rewards?There are main reason of you getting no reward within a frame:If your validator’s performance was below the threshold within the CSM Performance Oracle frame the validator does not receive rewards for the given frame. Read more about the CSM Performance Oracle.';
+        await expect(whyModal).toContainText('Why didn’t I get rewards?');
+        await expect(whyModal).toContainText(expectedTextContent);
+      });
+
+      await test.step('Verify closing modal', async () => {
+        const whyModal = widgetService.dashboardPage.whyModal;
+        await whyModal.getByRole('button').click();
+        await whyModal.waitFor({ state: 'hidden' });
+      });
     },
   );
 
