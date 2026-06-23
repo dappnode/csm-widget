@@ -3,7 +3,11 @@ import { expect } from '@playwright/test';
 import { test } from '../../../test.fixture';
 import { qase } from 'playwright-qase-reporter/playwright';
 import { formatBalance } from 'utils/format-balance';
-import { formatDate, isDayInPast } from 'utils/format-date';
+import {
+  countCalendarDaysLeft,
+  formatDate,
+  isDayInPast,
+} from 'utils/format-date';
 import { PAGE_WAIT_TIMEOUT } from 'tests/shared/consts/timeouts';
 
 test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', async () => {
@@ -61,7 +65,7 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
       );
       test.skip(
         !lastRewards || lastRewards.distributed !== 0n,
-        'Operator received rewards in the last report',
+        'Operator did not have zero rewards in the last report',
       );
 
       await test.step('Verify "Why" link', async () => {
@@ -143,11 +147,17 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
       });
 
       await test.step('Verify expected days for reward', async () => {
+        const expectedDays = countCalendarDaysLeft(nextReport);
+        const expectedDaysText =
+          expectedDays === 0
+            ? 'Today'
+            : `in ${expectedDays} ${expectedDays === 1 ? 'day' : 'days'}`;
+
         await expect(
           latestRewardsDistribution.nextRewardsInfo.getByText('Expected'),
         ).toBeVisible();
         await expect(latestRewardsDistribution.expectedDays).toContainText(
-          /Today|in \d+ days?/,
+          expectedDaysText,
         );
       });
     },
