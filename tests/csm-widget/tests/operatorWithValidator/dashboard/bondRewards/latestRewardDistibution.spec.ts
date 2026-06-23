@@ -3,7 +3,7 @@ import { expect } from '@playwright/test';
 import { test } from '../../../test.fixture';
 import { qase } from 'playwright-qase-reporter/playwright';
 import { formatBalance } from 'utils/format-balance';
-import { formatDate } from 'utils/format-date';
+import { formatDate, isDayInPast } from 'utils/format-date';
 import { PAGE_WAIT_TIMEOUT } from 'tests/shared/consts/timeouts';
 
 test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', async () => {
@@ -16,11 +16,6 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
     async ({ widgetService, csmSDK }) => {
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
-
-      test.skip(
-        !(await latestRewardsDistribution.rowHeader.isVisible()),
-        'Latest rewards distribution is hidden when there are no reports yet',
-      );
 
       const nodeOperatorId = await widgetService.extractNodeOperatorId();
       const lastRewards = await csmSDK.rewards.getOperatorRewardsInLastReport(
@@ -80,11 +75,6 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
-      test.skip(
-        !(await latestRewardsDistribution.rowHeader.isVisible()),
-        'Latest rewards distribution is hidden when there are no reports yet',
-      );
-
       const txHash = await csmSDK.rewards.getLastReportTransactionHash();
       test.skip(
         !txHash,
@@ -114,17 +104,14 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
+      const { lastReport, nextReport } = await csmSDK.frame.getInfo();
+      const timestamps = await csmSDK.rewards.getLastReportTimestamps();
       test.skip(
-        !(await latestRewardsDistribution.rowHeader.isVisible()),
-        'Latest rewards distribution is hidden when there are no reports yet',
+        !timestamps || isDayInPast(nextReport),
+        'No report yet or oracle report is delayed',
       );
 
       await latestRewardsDistribution.expand();
-
-      test.skip(
-        !(await latestRewardsDistribution.expectedDays.isVisible()),
-        'Oracle report is delayed',
-      );
 
       await test.step('Verify "Next rewards distribution" info', async () => {
         await expect(
@@ -134,7 +121,6 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
         ).toBeVisible();
 
         await test.step('Verify report frame information', async () => {
-          const { lastReport, nextReport } = await csmSDK.frame.getInfo();
           const expectedFrame = `Report frame: ${formatDate(lastReport)} — ${formatDate(nextReport)}`;
           await expect(latestRewardsDistribution.reportFrame).toContainText(
             expectedFrame,
@@ -159,17 +145,14 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
       const latestRewardsDistribution =
         widgetService.dashboardPage.bondRewards.latestRewardsDistribution;
 
+      const { lastReport, nextReport } = await csmSDK.frame.getInfo();
+      const timestamps = await csmSDK.rewards.getLastReportTimestamps();
       test.skip(
-        !(await latestRewardsDistribution.rowHeader.isVisible()),
-        'Latest rewards distribution is hidden when there are no reports yet',
+        !timestamps || !isDayInPast(nextReport),
+        'No report yet or oracle report is not delayed',
       );
 
       await latestRewardsDistribution.expand();
-
-      test.skip(
-        await latestRewardsDistribution.expectedDays.isVisible(),
-        'Oracle report is not delayed',
-      );
 
       await test.step('Verify "Next rewards distribution" info', async () => {
         await expect(
@@ -179,7 +162,6 @@ test.describe('Dashboard. Bond & Rewards. Latest reward distribution section.', 
         ).toBeVisible();
 
         await test.step('Verify report frame information', async () => {
-          const { lastReport, nextReport } = await csmSDK.frame.getInfo();
           const expectedFrame = `Report frame: ${formatDate(lastReport)} — ${formatDate(nextReport)}`;
           await expect(latestRewardsDistribution.reportFrame).toContainText(
             expectedFrame,
