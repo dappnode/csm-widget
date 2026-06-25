@@ -8,6 +8,10 @@ export type SiweOptions = {
   statement: string;
 };
 
+export type SiweNonceResponse = {
+  nonce: string;
+};
+
 export type AuthProviderConfig = {
   storageKeyPrefix: string;
   statement: string;
