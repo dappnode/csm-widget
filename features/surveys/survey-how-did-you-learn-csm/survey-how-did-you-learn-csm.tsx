@@ -7,16 +7,17 @@ import {
   SubmitButtonHookForm,
   TextInputHookForm,
 } from 'shared/hook-form/controls';
-import { useSurveysSWR } from '../shared/use-surveys-swr';
+import { useOperatorSurvey } from 'modules/surveys-sdk';
 import { HowDidYouLearnCsm } from '../types';
 import { useModalStages } from './use-modal-stages';
 import { sources } from './sources';
-import { transformOutcoming } from './transform';
+import { transformOutgoing } from './transform';
+import { SurveysBackButton } from '../shared';
 
 export const SurveyHowDidYouLearnCsm: FC = () => {
-  const { data, mutate } = useSurveysSWR<HowDidYouLearnCsm>(
+  const { data, mutate } = useOperatorSurvey<HowDidYouLearnCsm>(
     'how-did-you-learn-csm',
-    { transformOutcoming },
+    { transformOutgoing },
   );
   const { txModalStages: modals } = useModalStages();
 
@@ -52,7 +53,10 @@ export const SurveyHowDidYouLearnCsm: FC = () => {
   }, [formObject, sourceOne, sourceTwo]);
 
   return (
-    <SectionBlock title="How did you learn about CSM?">
+    <SectionBlock
+      title="How did you learn about CSM?"
+      mainPrefix={<SurveysBackButton />}
+    >
       <FormProvider {...formObject}>
         <WhenLoaded loading={formObject.formState.isLoading}>
           <Stack direction="column">

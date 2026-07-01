@@ -9,15 +9,16 @@ import {
   TextInputHookForm,
 } from 'shared/hook-form/controls';
 import { useNavigate } from 'shared/navigate';
+import { useOperatorSurvey } from 'modules/surveys-sdk';
 import { SurveyButton } from '../components';
-import { useSurveysSWR } from '../shared/use-surveys-swr';
 import { useConfirmRemoveModal } from './confirm-remove-modal';
 import { useModalStages } from './use-modal-stages';
 import { Text } from '@lidofinance/lido-ui';
 import { Contact } from '../types';
+import { SurveysBackButton } from '../shared';
 
 export const SurveyContacts: FC = () => {
-  const { data, mutate, remove } = useSurveysSWR<Contact>('contacts');
+  const { data, mutate, remove } = useOperatorSurvey<Contact>('contacts');
   const { txModalStages: modals } = useModalStages();
   const confirmRemove = useConfirmRemoveModal();
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ export const SurveyContacts: FC = () => {
   }, [confirmRemove, modals, navigate, remove]);
 
   return (
-    <SectionBlock title="Contact info">
+    <SectionBlock title="Contact info" mainPrefix={<SurveysBackButton />}>
       <FormProvider {...formObject}>
         <WhenLoaded loading={formObject.formState.isLoading}>
           <Stack direction="column">

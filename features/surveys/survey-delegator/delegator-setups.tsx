@@ -4,19 +4,22 @@ import { FC } from 'react';
 import { Plural, Stack, WhenLoaded } from 'shared/components';
 import { formatDaysAgo } from 'utils';
 import { SurveyItem, SurveyLink, SurveySection, Warning } from '../components';
-import { useSurveysSWR } from '../shared/use-surveys-swr';
+import { parseOperatorKey, useOperatorSurvey } from 'modules/surveys-sdk';
 import { SetupRaw, SetupsKeys } from '../types';
+import { DelegatorBackButton } from './back-button';
 
 type DelegatorSetupsProps = {
   operatorId: string;
 };
 
 export const DelegatorSetups: FC<DelegatorSetupsProps> = ({ operatorId }) => {
-  const { data, isLoading } = useSurveysSWR<SetupRaw[]>('setups', {
-    operatorId,
+  const operatorKey = parseOperatorKey(operatorId) ?? undefined;
+
+  const { data, isLoading } = useOperatorSurvey<SetupRaw[]>('setups', {
+    operatorKey,
   });
-  const { data: keys } = useSurveysSWR<SetupsKeys>('setups/keys', {
-    operatorId,
+  const { data: keys } = useOperatorSurvey<SetupsKeys>('setups/keys', {
+    operatorKey,
   });
 
   const showSetups = !!(keys && (keys.total > 0 || keys.filled > 0));
@@ -27,6 +30,7 @@ export const DelegatorSetups: FC<DelegatorSetupsProps> = ({ operatorId }) => {
         title={`Setups for ${operatorId}`}
         subtitle="How this information will be used"
         help="Information is voluntarily submitted and only retained for report building. Information is aggregated and utilized in the compilation of the Validator and Node Operator Metrics (VaNOM) reports."
+        mainPrefix={<DelegatorBackButton />}
       >
         {!showSetups ? (
           <Text size="sm" color="secondary">

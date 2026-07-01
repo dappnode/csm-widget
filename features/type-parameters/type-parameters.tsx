@@ -2,24 +2,17 @@ import {
   OPERATOR_TYPE,
   OPERATOR_TYPE_CURVE_ID,
 } from '@lidofinance/lido-csm-sdk';
-import { Button, Text } from '@lidofinance/lido-ui';
+import { Text } from '@lidofinance/lido-ui';
 import { OPERATOR_TYPE_METADATA } from 'consts';
-import { PATH } from 'consts/urls';
-import {
-  useCurveParameters,
-  useNodeOperatorId,
-  useOperatorType,
-} from 'modules/web3';
+import { IcsApplyButton } from 'features/ics/apply-button';
+import { useCurveParameters } from 'modules/web3';
 import { FC } from 'react';
 import { Block, CompareParametersList, Stack } from 'shared/components';
 import { DefColumnBackground, IcsColumnBackground } from 'shared/components';
+import { IdvtcColumnBackground } from 'shared/components/parameters-list/styles';
 import { useShowFlags } from 'shared/hooks';
-import { LocalLink } from 'shared/navigate';
 
 export const TypeParameters: FC = () => {
-  const nodeOperatorId = useNodeOperatorId();
-  const { data: operatorType } = useOperatorType(nodeOperatorId);
-
   const { ICS_APPLY_ENABLED, CAN_CLAIM_ICS } = useShowFlags();
 
   const { data: defParams } = useCurveParameters(
@@ -28,11 +21,9 @@ export const TypeParameters: FC = () => {
   const { data: icsParams } = useCurveParameters(
     OPERATOR_TYPE_CURVE_ID.CSM_ICS,
   );
-
-  const canApply =
-    !CAN_CLAIM_ICS &&
-    ICS_APPLY_ENABLED &&
-    operatorType !== OPERATOR_TYPE.CSM_ICS;
+  const { data: idvtcParams } = useCurveParameters(
+    OPERATOR_TYPE_CURVE_ID.CSM_IDVTC,
+  );
 
   return (
     <Block>
@@ -45,29 +36,28 @@ export const TypeParameters: FC = () => {
         <Stack direction="column" gap="xxl">
           <Block padding="none">
             <CompareParametersList
-              left={defParams}
-              right={icsParams}
-              leftTitle={OPERATOR_TYPE_METADATA[OPERATOR_TYPE.CSM_DEF].title}
-              rightTitle={OPERATOR_TYPE_METADATA[OPERATOR_TYPE.CSM_ICS].title}
+              items={[
+                {
+                  parameters: defParams,
+                  title: OPERATOR_TYPE_METADATA[OPERATOR_TYPE.CSM_DEF].title,
+                },
+                {
+                  parameters: icsParams,
+                  title: OPERATOR_TYPE_METADATA[OPERATOR_TYPE.CSM_ICS].title,
+                },
+
+                {
+                  parameters: idvtcParams,
+                  title: OPERATOR_TYPE_METADATA[OPERATOR_TYPE.CSM_IDVTC].title,
+                },
+              ]}
             >
-              <DefColumnBackground />
-              <IcsColumnBackground />
+              <DefColumnBackground $index={0} />
+              <IcsColumnBackground $index={1} />
+              <IdvtcColumnBackground $index={2} />
             </CompareParametersList>
           </Block>
-          {CAN_CLAIM_ICS && (
-            <LocalLink href={PATH.TYPE_CLAIM}>
-              <Button fullwidth size="sm">
-                Go to claim
-              </Button>
-            </LocalLink>
-          )}
-          {canApply && (
-            <LocalLink href={PATH.TYPE_ICS_APPLY}>
-              <Button fullwidth size="sm">
-                Apply for ICS
-              </Button>
-            </LocalLink>
-          )}
+          {(ICS_APPLY_ENABLED || CAN_CLAIM_ICS) && <IcsApplyButton size="sm" />}
         </Stack>
       </Stack>
     </Block>

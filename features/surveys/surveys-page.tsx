@@ -1,8 +1,9 @@
 import { PATH } from 'consts/urls';
+import { SiweAuthGate } from 'modules/siwe';
+import { SurveysAuthProvider } from 'modules/surveys-sdk';
 import { FC, useMemo } from 'react';
 import { NoSSRWrapper } from 'shared/components';
 import { Layout } from 'shared/layout';
-import { SiweAuthGate, SiweAuthProvider } from 'shared/siwe';
 import { SurveysContactsPage } from './surveys-contacts-page';
 import { SurveysDelegatesPage } from './surveys-delegates-page';
 import { SurveysDelegatorPage } from './surveys-delegator-page';
@@ -40,14 +41,11 @@ export const SurveysPage: FC<{ slug?: string[] }> = ({ slug = [] }) => {
   return (
     <Layout title="Surveys" subtitle="Voluntary report form" pageName="Surveys">
       <NoSSRWrapper>
-        <SiweAuthProvider
-          contextName="surveys"
-          statement="Sign in to use the CSM Surveys"
-        >
+        <SurveysAuthProvider>
           <SiweAuthGate fallback={<SurveysSignInPage />}>
             <SurveyProvider>{page}</SurveyProvider>
           </SiweAuthGate>
-        </SiweAuthProvider>
+        </SurveysAuthProvider>
       </NoSSRWrapper>
     </Layout>
   );

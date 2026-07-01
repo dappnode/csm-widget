@@ -6,7 +6,7 @@ import {
   ICS_APPLY_FORM,
   SURVEYS_SETUP_ENABLED,
 } from 'config/feature-flags/types';
-import { getExternalLinks } from 'consts/external-links';
+import { isSurveysApiConfigured } from 'modules/surveys-sdk';
 import {
   useDappStatus,
   useHasReportDelayedPenaltyRole,
@@ -17,7 +17,11 @@ import {
 } from 'modules/web3';
 import { useModifyContext } from 'providers/modify-provider';
 import { useCallback, useMemo } from 'react';
-import { useCanClaimICS, useCanCreateNodeOperator } from 'shared/hooks';
+import {
+  useCanClaimICS,
+  useCanClaimIDVTC,
+  useCanCreateNodeOperator,
+} from 'shared/hooks';
 import { Address, isAddressEqual } from 'viem';
 
 export type ShowRule =
@@ -35,14 +39,13 @@ export type ShowRule =
   | 'HAS_REFERRER'
   | 'EL_DELAYED_PENALTY_REPORTER'
   | 'CAN_CLAIM_ICS'
+  | 'CAN_CLAIM_IDVTC'
   | 'ICS_APPLY_ENABLED'
   | 'IS_SURVEYS_ACTIVE'
   | 'IS_CSM'
   | 'IS_CM';
 
 export type ShowFlags = Record<ShowRule, boolean>;
-
-const { surveyApi } = getExternalLinks();
 
 const isManagerRole = (
   nodeOperator: NodeOperatorShortInfo | undefined,
@@ -85,7 +88,8 @@ export const useShowFlags = (): ShowFlags => {
   const { data: balance } = useOperatorBalance(nodeOperator?.nodeOperatorId);
   const { data: info } = useOperatorInfo(nodeOperator?.nodeOperatorId);
   const canClaimICS = useCanClaimICS();
-  const canCreateNO = useCanCreateNodeOperator();
+  const canClaimIDVTC = useCanClaimIDVTC();
+  const { canCreate: canCreateNO } = useCanCreateNodeOperator();
   const { referrer } = useModifyContext();
   const featureFlags = useFeatureFlags();
   const {
@@ -110,10 +114,11 @@ export const useShowFlags = (): ShowFlags => {
       ['HAS_REFERRER']: !!referrer,
       ['EL_DELAYED_PENALTY_REPORTER']: !!isReportingRole,
       ['CAN_CLAIM_ICS']: !!canClaimICS && isAccountActive,
+      ['CAN_CLAIM_IDVTC']: !!canClaimIDVTC && isAccountActive,
       ['ICS_APPLY_ENABLED']:
         !!featureFlags?.[ICS_APPLY_FORM] && module === MODULE_NAME.CSM,
       ['IS_SURVEYS_ACTIVE']:
-        !!surveyApi &&
+        isSurveysApiConfigured &&
         !!featureFlags?.[SURVEYS_SETUP_ENABLED] &&
         module === MODULE_NAME.CSM,
       ['IS_CSM']: module === MODULE_NAME.CSM,
@@ -131,6 +136,7 @@ export const useShowFlags = (): ShowFlags => {
       referrer,
       isReportingRole,
       canClaimICS,
+      canClaimIDVTC,
       featureFlags,
       module,
     ],

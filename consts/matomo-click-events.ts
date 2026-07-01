@@ -43,6 +43,9 @@ export const enum MATOMO_CLICK_EVENTS_TYPES {
   starterPackGenerateKeysLink = 'starterPackGenerateKeysLink',
   operatorTypeModalJoinPermissionless = 'operatorTypeModalJoinPermissionless',
   operatorTypeModalApplyIcs = 'operatorTypeModalApplyIcs',
+  operatorTypeModalApplyIdvtc = 'operatorTypeModalApplyIdvtc',
+  operatorTypeModalCreateIcs = 'operatorTypeModalCreateIcs',
+  operatorTypeModalCreateIdvtc = 'operatorTypeModalCreateIdvtc',
   // Forms
   depositDataLearnMore = 'depositDataLearnMore',
   howToClaimEth = 'howToClaimEth',
@@ -73,6 +76,7 @@ export const enum MATOMO_CLICK_EVENTS_TYPES {
   unlockBondLinkAlert = 'unlockBondLinkAlert',
   expiredLockedBondLinkAlert = 'expiredLockedBondLinkAlert',
   claimIcsLinkAlert = 'claimIcsLinkAlert',
+  claimIdvtcLinkAlert = 'claimIdvtcLinkAlert',
   feeRecipientDocsLink = 'feeRecipientDocsLink',
   feeRecipientDismissButton = 'feeRecipientDismissButton',
   wrappedAlertClose = 'wrappedAlertClose',
@@ -119,6 +123,10 @@ export const enum MATOMO_CLICK_EVENTS_TYPES {
   icsDiscordChannelLink = 'icsDiscordChannelLink',
   icsEtherscanSignaturesLink = 'icsEtherscanSignaturesLink',
   icsGithubAddressesLink = 'icsGithubAddressesLink',
+  // DVT
+  dvtYoutubeGuideLink = 'dvtYoutubeGuideLink',
+  dvtDiscordChannelLink = 'dvtDiscordChannelLink',
+  dvtEtherscanSignaturesLink = 'dvtEtherscanSignaturesLink',
   // Exit Keys
   exitKeysDappnodeLink = 'exitKeysDappnodeLink',
   exitKeysSedgeLink = 'exitKeysSedgeLink',
@@ -235,6 +243,18 @@ export const MATOMO_CLICK_EVENTS: Record<
     'Push «Apply for ICS» button on Operator Type modal',
     'operator_type_modal_apply_ics',
   ),
+  [MATOMO_CLICK_EVENTS_TYPES.operatorTypeModalApplyIdvtc]: createEvent(
+    'Push «Apply for IDVTC» button on Operator Type modal',
+    'operator_type_modal_apply_idvtc',
+  ),
+  [MATOMO_CLICK_EVENTS_TYPES.operatorTypeModalCreateIcs]: createEvent(
+    'Push «Create ICS operator» button on Operator Type modal',
+    'operator_type_modal_create_ics',
+  ),
+  [MATOMO_CLICK_EVENTS_TYPES.operatorTypeModalCreateIdvtc]: createEvent(
+    'Push «Create IDVTC operator» button on Operator Type modal',
+    'operator_type_modal_create_idvtc',
+  ),
   // Forms
   [MATOMO_CLICK_EVENTS_TYPES.depositDataLearnMore]: createEvent(
     'Click «Upload Deposit Data learn more» link on Upload form',
@@ -344,6 +364,10 @@ export const MATOMO_CLICK_EVENTS: Record<
   [MATOMO_CLICK_EVENTS_TYPES.claimIcsLinkAlert]: createEvent(
     'Click «Claim ICS» link on Claim ICS alert',
     'claim_ics_link_alert',
+  ),
+  [MATOMO_CLICK_EVENTS_TYPES.claimIdvtcLinkAlert]: createEvent(
+    'Click «Claim IDVTC» link on Claim IDVTC alert',
+    'claim_idvtc_link_alert',
   ),
   [MATOMO_CLICK_EVENTS_TYPES.feeRecipientDocsLink]: createEvent(
     'Click «How to change feeRecipient» link on Wrong Fee Recipient alert',
@@ -510,6 +534,19 @@ export const MATOMO_CLICK_EVENTS: Record<
   [MATOMO_CLICK_EVENTS_TYPES.icsGithubAddressesLink]: createEvent(
     'Click GitHub ICS addresses link on ICS page',
     'ics_github_addresses_link',
+  ),
+  // DVT
+  [MATOMO_CLICK_EVENTS_TYPES.dvtYoutubeGuideLink]: createEvent(
+    'Click YouTube guide link on DVT page',
+    'dvt_youtube_guide_link',
+  ),
+  [MATOMO_CLICK_EVENTS_TYPES.dvtDiscordChannelLink]: createEvent(
+    'Click Discord CSM channel link on DVT page',
+    'dvt_discord_channel_link',
+  ),
+  [MATOMO_CLICK_EVENTS_TYPES.dvtEtherscanSignaturesLink]: createEvent(
+    'Click Etherscan verified signatures link on DVT page',
+    'dvt_etherscan_signatures_link',
   ),
   // Exit Keys
   [MATOMO_CLICK_EVENTS_TYPES.exitKeysDappnodeLink]: createEvent(

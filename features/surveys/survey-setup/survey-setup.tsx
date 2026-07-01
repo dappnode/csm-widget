@@ -15,7 +15,7 @@ import {
   SubmitButtonHookForm,
   TokenAmountInputHookForm,
 } from 'shared/hook-form/controls';
-import { useSurveysSWR } from '../shared/use-surveys-swr';
+import { useOperatorSurvey } from 'modules/surveys-sdk';
 import {
   CL_CLIENT_OPTIONS,
   COUNTRY_OPTIONS,
@@ -26,7 +26,7 @@ import {
   TOOL_OPTIONS,
   VALIDATOR_CLIENT_OPTIONS,
 } from './options';
-import { transformIncoming, transformOutcoming } from './transform';
+import { transformIncoming, transformOutgoing } from './transform';
 import { useModalStages } from './use-modal-stages';
 import { useConfirmRemoveModal } from './confirm-remove-modal';
 import { useNavigate } from 'shared/navigate';
@@ -37,6 +37,7 @@ import { Setup, SetupRaw, SetupsKeys } from '../types';
 import { TOKENS } from '@lidofinance/lido-csm-sdk';
 import { useSurveysFilled } from 'shared/hooks';
 import { useNodeOperatorId } from 'modules/web3';
+import { SurveysBackButton } from '../shared';
 
 const required = { required: true };
 
@@ -46,16 +47,16 @@ export const SurveySetup: FC<{ id?: string }> = ({ id }) => {
     error,
     mutate,
     remove,
-  } = useSurveysSWR<Setup, SetupRaw>(`setups${id ? '/' + id : ''}`, {
+  } = useOperatorSurvey<Setup, SetupRaw>(`setups${id ? '/' + id : ''}`, {
     skipFetching: !id,
     transformIncoming,
-    transformOutcoming,
+    transformOutgoing,
   });
 
   const data = useMemo(() => (id ? filled : undefined), [id, filled]);
 
   const { data: keys, mutate: mutateKeys } =
-    useSurveysSWR<SetupsKeys>('setups/keys');
+    useOperatorSurvey<SetupsKeys>('setups/keys');
 
   const nodeOperatorId = useNodeOperatorId();
   const { refetch } = useSurveysFilled(nodeOperatorId);
@@ -122,7 +123,10 @@ export const SurveySetup: FC<{ id?: string }> = ({ id }) => {
   }, [formObject, keysLeft]);
 
   return (
-    <SectionBlock title={id ? `Setup #${data?.index}` : 'Add Setup'}>
+    <SectionBlock
+      title={id ? `Setup #${data?.index}` : 'Add Setup'}
+      mainPrefix={<SurveysBackButton />}
+    >
       <FormProvider {...formObject}>
         <WhenLoaded loading={formObject.formState.isLoading} error={error}>
           <Stack direction="column">

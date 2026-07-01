@@ -8,21 +8,22 @@ import {
   SubmitButtonHookForm,
   TextInputHookForm,
 } from 'shared/hook-form/controls';
-import { useSurveysSWR } from '../shared/use-surveys-swr';
+import { useOperatorSurvey } from 'modules/surveys-sdk';
 import { Experience } from '../types';
 import {
   ExperienceForm,
   transformIncoming,
-  transformOutcoming,
+  transformOutgoing,
 } from './transform';
 import { useModalStages } from './use-modal-stages';
+import { SurveysBackButton } from '../shared';
 
 export const SurveyExperience: FC = () => {
-  const { data, mutate } = useSurveysSWR<ExperienceForm, Experience>(
+  const { data, mutate } = useOperatorSurvey<ExperienceForm, Experience>(
     'experience',
     {
       transformIncoming,
-      transformOutcoming,
+      transformOutgoing,
     },
   );
   const { txModalStages: modals } = useModalStages();
@@ -49,7 +50,10 @@ export const SurveyExperience: FC = () => {
   );
 
   return (
-    <SectionBlock title="Your validation experience">
+    <SectionBlock
+      title="Your validation experience"
+      mainPrefix={<SurveysBackButton />}
+    >
       <FormProvider {...formObject}>
         <WhenLoaded loading={formObject.formState.isLoading}>
           <Stack direction="column">

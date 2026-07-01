@@ -15,7 +15,7 @@ import {
   SubmitButtonHookForm,
   TokenAmountInputHookForm,
 } from 'shared/hook-form/controls';
-import { useSurveysSWR } from '../shared/use-surveys-swr';
+import { parseOperatorKey, useOperatorSurvey } from 'modules/surveys-sdk';
 import {
   CL_CLIENT_OPTIONS,
   COUNTRY_OPTIONS,
@@ -28,7 +28,7 @@ import {
 } from '../survey-setup/options';
 import {
   transformIncoming,
-  transformOutcoming,
+  transformOutgoing,
 } from '../survey-setup/transform';
 import { useModalStages } from '../survey-setup/use-modal-stages';
 import { useConfirmRemoveModal } from '../survey-setup/confirm-remove-modal';
@@ -38,6 +38,7 @@ import { SurveyButton } from '../components';
 import { Button } from '@lidofinance/lido-ui';
 import { Setup, SetupRaw, SetupsKeys } from '../types';
 import { TOKENS } from '@lidofinance/lido-csm-sdk';
+import { DelegatorBackButton } from './back-button';
 
 const required = { required: true };
 
@@ -51,20 +52,21 @@ export const DelegatorSetupForm: FC<DelegatorSetupFormProps> = ({
   setupId,
 }) => {
   const isEditMode = !!setupId && setupId !== 'new';
+  const operatorKey = parseOperatorKey(operatorId) ?? undefined;
 
   const {
     data: filled,
     error,
     mutate,
     remove,
-  } = useSurveysSWR<Setup, SetupRaw>(
+  } = useOperatorSurvey<Setup, SetupRaw>(
     `setups${isEditMode ? '/' + setupId : ''}`,
     {
-      operatorId,
+      operatorKey,
       skipFetching: !isEditMode,
       invalidateOnMutate: true,
       transformIncoming,
-      transformOutcoming,
+      transformOutgoing,
     },
   );
 
@@ -73,9 +75,9 @@ export const DelegatorSetupForm: FC<DelegatorSetupFormProps> = ({
     [isEditMode, filled],
   );
 
-  const { data: keys, mutate: mutateKeys } = useSurveysSWR<SetupsKeys>(
+  const { data: keys, mutate: mutateKeys } = useOperatorSurvey<SetupsKeys>(
     'setups/keys',
-    { operatorId },
+    { operatorKey },
   );
 
   const filledWitoutCurrent = Math.max(
@@ -141,7 +143,10 @@ export const DelegatorSetupForm: FC<DelegatorSetupFormProps> = ({
   }, [formObject, keysLeft]);
 
   return (
-    <SectionBlock title={isEditMode ? `Setup #${data?.index}` : 'Add Setup'}>
+    <SectionBlock
+      title={isEditMode ? `Setup #${data?.index}` : 'Add Setup'}
+      mainPrefix={<DelegatorBackButton operatorId={operatorId} />}
+    >
       <FormProvider {...formObject}>
         <WhenLoaded loading={formObject.formState.isLoading} error={error}>
           <Stack direction="column">
